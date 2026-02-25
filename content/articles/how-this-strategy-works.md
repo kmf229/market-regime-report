@@ -7,11 +7,12 @@ tags: ["strategy", "rules-based", "regimes"]
 published: true
 ---
 
+![Simplicity](/images/simplicity.jpg)
 This strategy measures the market's current environment — specifically whether risk-on assets or risk-off assets are showing leadership — and aligns positioning accordingly. Everything is rules-based, systematic, and objective.
 
 At its core, the model compares the behavior of growth-oriented assets (tech, small caps) to defensive assets (utilities, gold, treasuries). When growth is strengthening relative to defense, the market environment is generally supportive for equities. When defensive assets take leadership, risk is rising. The strategy simply follows this rotation with no predictions, no opinions, and no discretionary overrides.
 
-**This is a swing-trading strategy, not a fast-paced trading system.**
+This is a swing-trading strategy, not a fast-paced trading system.
 
 Historically:
 
