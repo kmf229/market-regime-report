@@ -2,34 +2,54 @@
 
 ## Project Overview
 
-This is a Next.js 14+ website for **The Market Regime Report**, a systematic trading newsletter run by Kevin Fitzpatrick. The site serves as the public-facing institutional presence, while Substack (www.marketregimes.com) handles articles, daily dashboards, and paid subscriber content.
+This is a Next.js 14+ website for **The Market Regime Report**, a systematic trading newsletter run by Kevin Fitzpatrick. The site is deployed on Vercel at **marketregimes.com**, with the Substack newsletter at **newsletter.marketregimes.com**.
 
 ### Site Architecture
-This is a **hybrid single-domain site** at marketregimes.com:
-- **Custom pages** (this codebase): `/`, `/about`, `/track-record`
-- **Substack pages**: `/s/daily-dashboard`, `/s/articles`, `/subscribe`, paywall content
-
-All navigation should feel seamless as one website. Custom pages link to Substack pages without `target="_blank"`.
+The site and newsletter are now **separate domains**:
+- **Custom site** (this codebase): `marketregimes.com` — `/`, `/about`, `/track-record`, `/articles`
+- **Substack newsletter**: `newsletter.marketregimes.com` — daily dashboards, paid content, subscriber management
 
 ### Navigation Structure
 ```
-Logo | Home | Daily Dashboard | Track Record | Articles | About
-                    The Market Regime Report
+[Logo] The Market Regime Report     Home | Track Record | Articles | About | Newsletter
 ```
 - **Home** → `/` (custom)
-- **Daily Dashboard** → `/s/daily-dashboard` (Substack)
 - **Track Record** → `/track-record` (custom)
-- **Articles** → `/s/articles` (Substack)
+- **Articles** → `/articles` (custom, Markdown-based)
 - **About** → `/about` (custom)
-
-Active page shows thick black underline indicator.
+- **Newsletter** → `newsletter.marketregimes.com` (Substack, opens in new tab)
 
 ### Business Model
 - **Free**: Home, About, Track Record, Articles
-- **Paid ($7/mo or $70/yr)**: Daily dashboards, regime signals, current positioning
+- **Paid ($7/mo or $70/yr)**: Daily dashboards, regime signals, current positioning (on Substack)
 
 ### Future Goal
 Kevin plans to eventually open an RIA (Registered Investment Advisor) to manage outside money, so the site should maintain an institutional, professional aesthetic.
+
+---
+
+## Deployment
+
+### Hosting
+- **Vercel**: Hosts the Next.js site at `marketregimes.com`
+- **GitHub**: Repository at `github.com/kmf229/market-regime-report` (public)
+- **Auto-deploy**: Pushes to `main` branch trigger automatic Vercel deployments
+
+### DNS (Squarespace)
+| Type | Host | Value |
+|------|------|-------|
+| A | @ | 76.76.21.21 |
+| CNAME | www | cname.vercel-dns.com |
+| CNAME | newsletter | target.substack-custom-domains.com |
+
+### Git Workflow
+```bash
+cd /Users/kmf229/Documents/Trading/Substack/website
+git add -A
+git commit -m "Your commit message"
+git push
+```
+Or use VS Code: Source Control panel → Stage → Commit → Push
 
 ---
 
@@ -37,13 +57,14 @@ Kevin plans to eventually open an RIA (Registered Investment Advisor) to manage 
 
 - **Framework**: Next.js 14+ with App Router
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS + @tailwindcss/typography (for prose)
 - **Fonts**:
   - Inter (sans-serif) - navigation and body text
-  - Spectral (serif) - site title, matches Substack's "Fancy Serif"
+  - Spectral (serif) - site title
 - **Data**: Static JSON files in `/public/track_record/`
 - **Articles**: Markdown files in `/content/articles/` with gray-matter frontmatter
-- **No database, no API routes** - purely static/SSG from JSON and Markdown files
+- **Markdown Processing**: gray-matter, remark, remark-html
+- **No database, no API routes** - purely static/SSG
 
 ---
 
@@ -57,7 +78,8 @@ website/
 ├── public/
 │   ├── images/
 │   │   ├── logo.png                    # Site logo
-│   │   └── hero.jpg                    # Hero background image
+│   │   ├── hero.jpg                    # Home page hero background
+│   │   └── [article images]            # Article featured images
 │   └── track_record/
 │       ├── summary.json                # Performance metrics
 │       ├── monthly_returns.json        # Monthly returns grid
@@ -66,18 +88,18 @@ website/
 │   ├── app/
 │   │   ├── globals.css                 # Tailwind + custom styles
 │   │   ├── layout.tsx                  # Root layout with Header/Footer
-│   │   ├── page.tsx                    # Home page
+│   │   ├── page.tsx                    # Home page (with hero image)
 │   │   ├── about/
 │   │   │   └── page.tsx                # About page
 │   │   ├── articles/
-│   │   │   ├── page.tsx                # Article index page
+│   │   │   ├── page.tsx                # Article index (thumbnail layout)
 │   │   │   └── [slug]/
 │   │   │       └── page.tsx            # Individual article page (SSG)
 │   │   └── track-record/
-│   │       └── page.tsx                # Track Record page (Server Component)
+│   │       └── page.tsx                # Track Record page
 │   ├── components/
-│   │   ├── Header.tsx                  # Site header with logo + title
-│   │   ├── NavLink.tsx                 # Client component for active page indicator
+│   │   ├── Header.tsx                  # Logo + title left, nav right
+│   │   ├── NavLink.tsx                 # Active page indicator
 │   │   ├── HeroStats.tsx               # Large 4-metric display
 │   │   ├── MetricsPanel.tsx            # Detailed metrics grid
 │   │   ├── MonthlyReturnsTable.tsx     # Monthly returns HTML table
@@ -89,11 +111,59 @@ website/
 │       └── track-record.ts             # Track record TypeScript interfaces
 ├── package.json
 ├── tsconfig.json
-├── tailwind.config.ts
+├── tailwind.config.ts                  # Includes typography plugin
 ├── postcss.config.js
 ├── next.config.js
 └── CLAUDE.md                           # This file
 ```
+
+---
+
+## Articles System
+
+### Creating a New Article
+
+1. Create a `.md` file in `/content/articles/`
+2. Add frontmatter:
+
+```markdown
+---
+title: "Your Article Title"
+date: "YYYY-MM-DD"
+description: "Short description for previews and SEO"
+slug: "url-slug"
+tags: ["tag1", "tag2"]
+image: "/images/your-image.jpg"
+published: true
+---
+
+Your article content in Markdown...
+```
+
+3. Add any images to `/public/images/`
+4. Commit and push to deploy
+
+### Frontmatter Fields
+| Field | Required | Description |
+|-------|----------|-------------|
+| title | Yes | Article title |
+| date | Yes | Publication date (YYYY-MM-DD) |
+| description | Yes | Short description for index and SEO |
+| slug | Yes | URL slug (must match filename) |
+| tags | Yes | Array of tag strings |
+| image | No | Featured image path (e.g., `/images/photo.jpg`) |
+| published | Yes | `true` to publish, `false` for draft |
+
+### Article Display
+- **Index page** (`/articles`): Thumbnail on left, title/description on right
+- **Article page** (`/articles/[slug]`): Featured image under title, then content
+- **Drafts**: `published: false` articles return 404 and don't appear in index
+
+### Adding Images in Articles
+- Put images in `/public/images/`
+- Reference as `/images/filename.jpg` (no `public` prefix)
+- Featured image: Use `image` field in frontmatter (displays under title)
+- Inline images: Use standard markdown `![Alt text](/images/photo.jpg)`
 
 ---
 
@@ -106,16 +176,16 @@ website/
   "data_through": "YYYY-MM-DD",
   "strategy_length_days": number,
   "strategy_length_years": number,
-  "cumulative_return": number (decimal, e.g., 0.1765 = 17.65%),
-  "cagr": number (decimal),
-  "max_drawdown": number (decimal, negative),
-  "sharpe_ratio": number | null,
-  "avg_monthly_return": number,
-  "best_month_return": number,
+  "cumulative_return": 0.1765,
+  "cagr": 0.12,
+  "max_drawdown": -0.15,
+  "sharpe_ratio": 1.5,
+  "avg_monthly_return": 0.02,
+  "best_month_return": 0.08,
   "best_month_label": "YYYY-MM",
-  "worst_month_return": number,
+  "worst_month_return": -0.05,
   "worst_month_label": "YYYY-MM",
-  "up_months_pct": number (decimal, e.g., 0.75 = 75%)
+  "up_months_pct": 0.75
 }
 ```
 
@@ -128,60 +198,51 @@ website/
       "Year": 2025,
       "Jan": null,
       "Feb": 0.02,
-      ...
       "YTD": 0.05
     }
   ]
 }
 ```
 
-### Article Markdown Files
-Articles are stored in `/content/articles/` as Markdown files with frontmatter:
-
-```markdown
----
-title: "Article Title"
-date: "YYYY-MM-DD"
-description: "Short description for previews and SEO"
-slug: "url-slug"
-tags: ["tag1", "tag2"]
-published: true
----
-
-Article content in Markdown...
-```
-
-- `published: true` - Article appears in index and is accessible
-- `published: false` - Article is hidden (draft) and returns 404
-
 ---
 
 ## Current Pages
 
 ### Home Page (`/`)
-- Hero: "Rules-Based Investing. Zero Emotion."
-- Philosophy section explaining behavioral edge
-- How It Works: Risk-On vs Risk-Off regime explanation
-- Three pillars: Systematic Process, Total Transparency, Simplicity Over Complexity
-- Dark CTA band linking to track record
-- Newsletter section linking to Substack
-- Disclaimer footer
+- Hero section with background image (`/images/hero.jpg`)
+- "Rules-Based Investing. Zero Emotion."
+- Philosophy section
+- How It Works: Risk-On vs Risk-Off
+- Three pillars
+- Dark CTA band
+- Newsletter section
+- Disclaimer
 
 ### Track Record Page (`/track-record`)
-- Hero section with title, update note, and performance period
-- HeroStats: 4 large metrics (Cumulative Return, CAGR, Sharpe, Max Drawdown)
-- Monthly Returns table (green/red color coding)
-- Performance Summary panel (detailed metrics)
+- HeroStats: 4 large metrics
+- Monthly Returns table (green/red)
+- Performance Summary panel
 - Equity Curve image
 - Disclaimer
 
+### Articles Page (`/articles`)
+- Compact header
+- Article list with thumbnail layout
+- Links to individual articles
+
+### Article Page (`/articles/[slug]`)
+- Back link
+- Title, date, tags
+- Featured image (if set)
+- Article content with prose styling
+- Footer navigation
+
 ### About Page (`/about`)
-- The Problem: Why most investors underperform (behavioral issues)
-- The Solution: Rules replace emotion
-- How It Works: Risk-On vs Risk-Off regime explanation with key characteristics
-- About Kevin: Personal journey from emotional to systematic trading
-- What Subscribers Get: Daily dashboard, regime signals, educational content, track record
-- CTA section linking to track record and Substack
+- The Problem / The Solution
+- How It Works
+- About Kevin
+- What Subscribers Get
+- CTA section
 - Disclaimer
 
 ---
@@ -189,55 +250,36 @@ Article content in Markdown...
 ## Design Guidelines
 
 ### Colors
-- **Positive returns**: `text-emerald-600` or `text-positive` (#16a34a)
-- **Negative returns**: `text-red-600` or `text-negative` (#dc2626)
-- **Neutral**: `text-gray-500` or `text-neutral` (#6b7280)
-- **Background accents**: `bg-gray-50`, `bg-gray-900` (dark sections)
+- **Positive**: `text-emerald-600` (#16a34a)
+- **Negative**: `text-red-600` (#dc2626)
+- **Neutral**: `text-gray-500` (#6b7280)
+- **Backgrounds**: `bg-gray-50`, `bg-gray-900`
 
 ### Typography
-- **Site title**: Spectral (serif), `font-spectral`, matches Substack "Fancy Serif"
-- **Navigation**: System sans-serif via Inter
-- **Headings**: Inter, font-bold
-- **Body**: Inter, text-gray-600
-- **Numbers/Data**: font-mono for tabular data
+- **Site title**: Spectral (serif), `font-spectral`
+- **Navigation/Body**: Inter (sans-serif)
+- **Article prose**: Tailwind Typography plugin
 
 ### Header Layout
-- **Row 1**: Logo + navigation links (left-aligned, full-width)
-- **Row 2**: "The Market Regime Report" (centered, Spectral font, large)
-- **Active state**: Thick black underline (`border-b-2 border-gray-900`) on current page
-- **No border** below header (removed divider to match Substack)
+- Single row: Logo + "The Market Regime Report" on left, nav links on right
+- Subtle bottom border
+- Mobile: Hamburger menu
 
-### Layout
-- **Header**: Full-width (`px-6` padding only, no max-width)
-- **Content**: `max-w-5xl` (1024px) centered
-- **Padding**: `px-6` horizontal
-- **Section spacing**: `py-16 md:py-20`
+### Footer
+- Copyright: "© 2026 The Market Regime Report. All rights reserved."
 
 ---
 
 ## Important Implementation Notes
 
-1. **Date Parsing**: Always parse YYYY-MM-DD dates by splitting the string to avoid timezone issues:
-   ```typescript
-   const [year, month, day] = dateStr.split("-").map(Number);
-   const date = new Date(year, month - 1, day);
-   ```
-
-2. **Track Record Page is a Server Component**: Uses Node.js `fs` to read JSON files at build/runtime from `process.cwd() + "/public/track_record/"`
-
-3. **NavLink is a Client Component**: Uses `usePathname()` hook to detect current page for active state styling
-
-4. **Error Handling**: Gracefully displays error message if JSON files are missing
-
-5. **Responsive Design**:
-   - 2-column metrics on desktop, 1-column on mobile
-   - Monthly returns table has horizontal scroll on mobile
-   - Hero stats: 2-col mobile, 4-col desktop
-   - Site title hidden on mobile in header (shows only logo)
+1. **Date Parsing**: Split YYYY-MM-DD strings to avoid timezone issues
+2. **Articles are SSG**: Uses `generateStaticParams()` for static generation
+3. **NavLink is a Client Component**: Uses `usePathname()` for active state
+4. **Images**: Use Next.js `Image` component with `fill` prop for responsive images
 
 ---
 
-## Running the Project
+## Running Locally
 
 ```bash
 cd /Users/kmf229/Documents/Trading/Substack/website
@@ -245,75 +287,59 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000
-
----
-
-## Future Enhancements (Discussed)
-
-### For This Site (Public)
-- [x] **About/Philosophy Page**: Detailed explanation of the regime model, Kevin's background, methodology
-- [ ] **Benchmark Comparison**: Add S&P 500/QQQ returns alongside strategy returns
-- [ ] **Mobile Navigation**: Hamburger menu for mobile devices
-- [ ] **Drawdown Chart**: Visual of underwater periods
-- [ ] **Rolling Returns**: 3-month, 6-month rolling performance display
-- [ ] **Regime History Timeline**: Shows past regime shifts (dates only, not current position)
-
-### For Substack Only (Paid)
-- Current regime indicator (Risk-On/Risk-Off)
-- Real-time signals and positioning
-- Daily dashboards
+Open http://localhost:3000
 
 ---
 
 ## Session History
 
 ### Session 1 (Feb 24, 2026)
-1. Created full Next.js 14 project structure
-2. Built Track Record page with:
-   - Server-side JSON reading
-   - Monthly returns HTML table (green/red color coding)
-   - Performance metrics panel (2-col desktop, 1-col mobile)
-   - Equity curve display
-   - Error handling for missing files
-3. Built Home page with institutional design
-4. Fixed CSS @import ordering issue (moved Google Fonts to next/font)
-5. Fixed date timezone parsing issue
-6. Added logo from `/Images/` folder
-7. Reordered Track Record sections (Monthly Returns → Metrics → Equity Curve)
-8. Added Monday update note
-9. Renamed site to "The Market Regime Report"
-10. Crawled marketregimes.com Substack to understand business
-11. Rewrote Home page with Kevin's actual philosophy and approach
-12. Added HeroStats component for prominent metric display
-13. Updated all newsletter links to point to www.marketregimes.com
-14. Created About page with philosophy, how it works, Kevin's background
-15. Updated navigation to include About link
-16. Clarified hybrid site architecture (custom + Substack on same domain)
-17. Updated nav order: Home, Daily Dashboard, Track Record, Articles, About
-18. Matched header to Substack layout:
-    - Stacked design (nav row + centered title row)
-    - Full-width header (removed max-width constraint)
-    - Removed border/divider below header
-19. Added active page indicator (thick black underline)
-20. Added Spectral font for site title (matches Substack "Fancy Serif")
-21. Created NavLink client component for active state detection
+- Created Next.js project structure
+- Built Track Record, Home, About pages
+- Added logo, fonts, responsive design
+- Matched Substack header style
+
+### Session 2 (Feb 25, 2026)
+1. Added hero background image to home page
+2. Deployed to Vercel
+3. Set up GitHub repository (`kmf229/market-regime-report`)
+4. Configured DNS:
+   - `marketregimes.com` → Vercel
+   - `newsletter.marketregimes.com` → Substack
+5. Separated site from newsletter navigation
+6. Redesigned header: logo + title left, nav right (single row)
+7. Added Markdown article system:
+   - gray-matter for frontmatter
+   - remark + remark-html for parsing
+   - @tailwindcss/typography for prose styling
+8. Created `/articles` index and `/articles/[slug]` pages
+9. Added featured image support:
+   - `image` field in frontmatter
+   - Thumbnail on index page (left side)
+   - Full image under title on article page
+10. Updated copyright to "The Market Regime Report"
+11. Converted Substack article "How This Strategy Works" to Markdown
 
 ---
 
-## Deployment Notes
+## Future Enhancements
 
-When deploying, routing needs to be configured so:
-- `/`, `/about`, `/track-record` → Custom Next.js app
-- All other paths → Substack
+### Planned
+- [ ] Benchmark comparison (S&P 500/QQQ)
+- [ ] Drawdown chart
+- [ ] Rolling returns display
+- [ ] Regime history timeline
 
-Options:
-- **Vercel/Netlify**: Redirect rules or reverse proxy
-- **Cloudflare**: Page rules or Workers
+### For Substack Only
+- Current regime indicator
+- Real-time signals
+- Daily dashboards
 
 ---
 
 ## Contact / Links
 
-- **Substack**: https://www.marketregimes.com
+- **Website**: https://marketregimes.com
+- **Newsletter**: https://newsletter.marketregimes.com
+- **GitHub**: https://github.com/kmf229/market-regime-report
 - **Author**: Kevin Fitzpatrick
