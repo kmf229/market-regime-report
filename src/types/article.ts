@@ -4,6 +4,7 @@ export interface ArticleFrontmatter {
   description: string;
   slug: string;
   tags: string[];
+  image?: string;
   published: boolean;
 }
 

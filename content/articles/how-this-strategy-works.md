@@ -4,6 +4,7 @@ date: "2025-12-09"
 description: "This strategy measures the market's current environment — specifically whether risk-on assets or risk-off assets are showing leadership — and aligns positioning accordingly."
 slug: "how-this-strategy-works"
 tags: ["strategy", "rules-based", "regimes"]
+image: "/images/simplicity.jpg"
 published: true
 ---
 

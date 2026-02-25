@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { getAllPublishedArticles, formatDate } from "@/lib/articles";
 
@@ -46,6 +47,16 @@ export default function ArticlesPage() {
                 className="group border-b border-gray-100 pb-10 last:border-0"
               >
                 <Link href={`/articles/${article.slug}`} className="block">
+                  {article.image && (
+                    <div className="relative w-full h-48 md:h-56 mb-4 overflow-hidden rounded-lg">
+                      <Image
+                        src={article.image}
+                        alt={article.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
                   <time className="text-sm text-gray-500">
                     {formatDate(article.date)}
                   </time>
