@@ -11,6 +11,7 @@ export default function Header() {
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/track-record", label: "Track Record" },
+    { href: "/articles", label: "Articles" },
     { href: "/about", label: "About" },
     { href: "https://newsletter.marketregimes.com", label: "Newsletter", external: true },
   ];

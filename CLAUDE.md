@@ -42,7 +42,8 @@ Kevin plans to eventually open an RIA (Registered Investment Advisor) to manage 
   - Inter (sans-serif) - navigation and body text
   - Spectral (serif) - site title, matches Substack's "Fancy Serif"
 - **Data**: Static JSON files in `/public/track_record/`
-- **No database, no API routes** - purely static/SSR from JSON files
+- **Articles**: Markdown files in `/content/articles/` with gray-matter frontmatter
+- **No database, no API routes** - purely static/SSG from JSON and Markdown files
 
 ---
 
@@ -50,9 +51,13 @@ Kevin plans to eventually open an RIA (Registered Investment Advisor) to manage 
 
 ```
 website/
+├── content/
+│   └── articles/                       # Markdown articles
+│       └── *.md                        # Article files with frontmatter
 ├── public/
 │   ├── images/
-│   │   └── logo.png                    # Site logo
+│   │   ├── logo.png                    # Site logo
+│   │   └── hero.jpg                    # Hero background image
 │   └── track_record/
 │       ├── summary.json                # Performance metrics
 │       ├── monthly_returns.json        # Monthly returns grid
@@ -64,17 +69,24 @@ website/
 │   │   ├── page.tsx                    # Home page
 │   │   ├── about/
 │   │   │   └── page.tsx                # About page
+│   │   ├── articles/
+│   │   │   ├── page.tsx                # Article index page
+│   │   │   └── [slug]/
+│   │   │       └── page.tsx            # Individual article page (SSG)
 │   │   └── track-record/
 │   │       └── page.tsx                # Track Record page (Server Component)
 │   ├── components/
-│   │   ├── Header.tsx                  # Site header (stacked: nav row + title row)
+│   │   ├── Header.tsx                  # Site header with logo + title
 │   │   ├── NavLink.tsx                 # Client component for active page indicator
 │   │   ├── HeroStats.tsx               # Large 4-metric display
 │   │   ├── MetricsPanel.tsx            # Detailed metrics grid
 │   │   ├── MonthlyReturnsTable.tsx     # Monthly returns HTML table
 │   │   └── EquityCurve.tsx             # Equity curve image display
+│   ├── lib/
+│   │   └── articles.ts                 # Article reading/parsing utilities
 │   └── types/
-│       └── track-record.ts             # TypeScript interfaces
+│       ├── article.ts                  # Article TypeScript interfaces
+│       └── track-record.ts             # Track record TypeScript interfaces
 ├── package.json
 ├── tsconfig.json
 ├── tailwind.config.ts
@@ -122,6 +134,25 @@ website/
   ]
 }
 ```
+
+### Article Markdown Files
+Articles are stored in `/content/articles/` as Markdown files with frontmatter:
+
+```markdown
+---
+title: "Article Title"
+date: "YYYY-MM-DD"
+description: "Short description for previews and SEO"
+slug: "url-slug"
+tags: ["tag1", "tag2"]
+published: true
+---
+
+Article content in Markdown...
+```
+
+- `published: true` - Article appears in index and is accessible
+- `published: false` - Article is hidden (draft) and returns 404
 
 ---
 
