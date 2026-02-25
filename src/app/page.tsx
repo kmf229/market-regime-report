@@ -34,7 +34,7 @@ export default function HomePage() {
                 View Track Record
               </Link>
               <a
-                href="https://www.marketregimes.com/subscribe"
+                href="https://newsletter.marketregimes.com/subscribe"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-6 py-3.5 border border-gray-300 bg-white/80 text-gray-700 font-medium rounded-lg hover:bg-white transition-colors"
@@ -182,7 +182,7 @@ export default function HomePage() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="https://www.marketregimes.com/subscribe"
+                href="https://newsletter.marketregimes.com/subscribe"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-6 py-3.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"

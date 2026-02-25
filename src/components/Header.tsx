@@ -10,9 +10,9 @@ export default function Header() {
 
   const navItems = [
     { href: "/", label: "Home" },
-    { href: "https://www.marketregimes.com/s/daily-dashboard", label: "Daily Dashboard", external: true },
+    { href: "https://newsletter.marketregimes.com/s/daily-dashboard", label: "Daily Dashboard", external: true },
     { href: "/track-record", label: "Track Record" },
-    { href: "https://www.marketregimes.com/s/articles", label: "Articles", external: true },
+    { href: "https://newsletter.marketregimes.com/s/articles", label: "Articles", external: true },
     { href: "/about", label: "About" },
   ];
 

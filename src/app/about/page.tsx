@@ -282,7 +282,7 @@ export default function AboutPage() {
                 View Track Record
               </Link>
               <a
-                href="https://www.marketregimes.com/subscribe"
+                href="https://newsletter.marketregimes.com/subscribe"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-6 py-3.5 border border-gray-600 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
