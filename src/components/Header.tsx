@@ -16,14 +16,41 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white">
-      <div className="px-6 py-4">
-        {/* Top row: Logo and navigation */}
-        <nav className="flex items-center justify-between md:justify-start gap-6">
+    <header className="bg-white border-b border-gray-100">
+      <div className="max-w-6xl mx-auto px-6 py-4">
+        <nav className="flex items-center justify-between">
+          {/* Logo + Title */}
+          <Link
+            href="/"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
+            <Image
+              src="/images/logo.png"
+              alt="The Market Regime Report"
+              width={44}
+              height={44}
+              className="rounded"
+            />
+            <span className="text-xl md:text-2xl font-semibold text-gray-900 font-spectral">
+              The Market Regime Report
+            </span>
+          </Link>
+
+          {/* Desktop navigation */}
+          <ul className="hidden md:flex items-center gap-8">
+            {navItems.map((item) => (
+              <li key={item.href}>
+                <NavLink href={item.href} external={item.external}>
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
           {/* Hamburger button - mobile only */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 -ml-2 text-gray-600 hover:text-gray-900"
+            className="md:hidden p-2 -mr-2 text-gray-600 hover:text-gray-900"
             aria-label="Toggle menu"
             aria-expanded={isMenuOpen}
           >
@@ -37,35 +64,11 @@ export default function Header() {
               </svg>
             )}
           </button>
-
-          <Link
-            href="/"
-            className="hover:opacity-80 transition-opacity"
-          >
-            <Image
-              src="/images/logo.png"
-              alt="The Market Regime Report"
-              width={40}
-              height={40}
-              className="rounded"
-            />
-          </Link>
-
-          {/* Desktop navigation */}
-          <ul className="hidden md:flex items-center space-x-6">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <NavLink href={item.href} external={item.external}>
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
         </nav>
 
         {/* Mobile navigation menu */}
         {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-2 border-t border-gray-100 pt-4">
+          <div className="md:hidden mt-4 pt-4 border-t border-gray-100">
             <ul className="flex flex-col space-y-4">
               {navItems.map((item) => (
                 <li key={item.href}>
@@ -81,16 +84,6 @@ export default function Header() {
             </ul>
           </div>
         )}
-
-        {/* Second row: Centered title */}
-        <div className="text-center mt-4">
-          <Link
-            href="/"
-            className="text-2xl md:text-4xl font-semibold text-gray-900 hover:text-gray-700 transition-colors font-spectral"
-          >
-            The Market Regime Report
-          </Link>
-        </div>
       </div>
     </header>
   );
