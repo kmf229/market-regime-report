@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   getArticleWithHtml,
   getPublishedArticleSlugs,
@@ -81,8 +82,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         </div>
       </header>
 
+      {/* Featured Image */}
+      {article.image && (
+        <div className="max-w-3xl mx-auto px-6 pt-8">
+          <div className="relative w-full h-64 md:h-80 overflow-hidden rounded-lg">
+            <Image
+              src={article.image}
+              alt={article.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
+      )}
+
       {/* Article Content */}
-      <article className="max-w-3xl mx-auto px-6 py-12">
+      <article className="max-w-3xl mx-auto px-6 py-8">
         <div
           className="prose prose-gray prose-lg max-w-none
             prose-headings:font-semibold prose-headings:text-gray-900
