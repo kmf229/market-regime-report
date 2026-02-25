@@ -36,8 +36,7 @@ export default function RootLayout({
         <footer className="border-t border-gray-200 mt-16">
           <div className="max-w-5xl mx-auto px-6 py-8">
             <p className="text-sm text-gray-500 text-center">
-              &copy; {new Date().getFullYear()} Market Regimes. All rights
-              reserved.
+              &copy; {new Date().getFullYear()} The Market Regime Report. All rights reserved.
             </p>
           </div>
         </footer>

@@ -21,11 +21,11 @@ export default function ArticlesPage() {
     <div>
       {/* Hero Section */}
       <section className="border-b border-gray-200">
-        <div className="max-w-3xl mx-auto px-6 py-16 md:py-20">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <div className="max-w-3xl mx-auto px-6 py-8 md:py-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Articles
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-2 text-gray-600">
             Insights on systematic investing, market regimes, and rules-based
             portfolio management.
           </p>
