@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply antialiased;
+}
+
+/* Financial table styling */
+.returns-table {
+  @apply w-full text-sm;
+}
+
+.returns-table th {
+  @apply px-3 py-2 text-right font-semibold text-gray-600 bg-gray-50 border-b border-gray-200;
+}
+
+.returns-table th:first-child {
+  @apply text-left;
+}
+
+.returns-table td {
+  @apply px-3 py-2 text-right font-mono border-b border-gray-100;
+}
+
+.returns-table td:first-child {
+  @apply text-left font-sans font-semibold text-gray-900;
+}
+
+.returns-table tr:nth-child(even) {
+  @apply bg-gray-50/50;
+}
+
+.returns-table tr:hover {
+  @apply bg-gray-100/50;
+}

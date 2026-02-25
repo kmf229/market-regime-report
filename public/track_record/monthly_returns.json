@@ -1,0 +1,51 @@
+{
+  "columns": [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "YTD"
+  ],
+  "rows": [
+    {
+      "Year": 2025,
+      "Jan": null,
+      "Feb": null,
+      "Mar": null,
+      "Apr": null,
+      "May": null,
+      "Jun": null,
+      "Jul": null,
+      "Aug": null,
+      "Sep": null,
+      "Oct": null,
+      "Nov": 0.010569462607721736,
+      "Dec": 0.04005337841678469,
+      "YTD": 0.05104618370999581
+    },
+    {
+      "Year": 2026,
+      "Jan": -0.08619112567276832,
+      "Feb": 0.1557952261112605,
+      "Mar": null,
+      "Apr": null,
+      "May": null,
+      "Jun": null,
+      "Jul": null,
+      "Aug": null,
+      "Sep": null,
+      "Oct": null,
+      "Nov": null,
+      "Dec": null,
+      "YTD": 0.056175934525518834
+    }
+  ]
+}

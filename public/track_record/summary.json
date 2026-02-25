@@ -1,0 +1,16 @@
+{
+  "start_date": "2025-11-14",
+  "data_through": "2026-02-20",
+  "strategy_length_days": 98,
+  "strategy_length_years": 0.27,
+  "cumulative_return": 0.11008968530938468,
+  "cagr": 0.47588108970837006,
+  "max_drawdown": -0.2535857461669442,
+  "sharpe_ratio": 0.9061897680782766,
+  "avg_monthly_return": 0.030056735365749654,
+  "best_month_return": 0.1557952261112605,
+  "best_month_label": "2026-02",
+  "worst_month_return": -0.08619112567276832,
+  "worst_month_label": "2026-01",
+  "up_months_pct": 0.75
+}
