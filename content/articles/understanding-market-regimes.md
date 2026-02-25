@@ -4,7 +4,7 @@ date: "2026-02-15"
 description: "A framework for identifying whether markets favor risk-on or risk-off positioning, and how to use this information in your portfolio."
 slug: "understanding-market-regimes"
 tags: ["regimes", "strategy", "framework"]
-published: true
+published: false
 ---
 
 Markets don't behave the same way all the time. Sometimes they reward risk-taking. Other times they punish it severely. Understanding which regime you're in is crucial for portfolio positioning.
@@ -24,6 +24,7 @@ The two primary regimes:
 Most portfolios are built for one regime: the bull market. They hold stocks, maybe some bonds, and hope for the best. This works great during risk-on periods but can be devastating during regime shifts.
 
 Consider 2022:
+
 - Stocks fell 20%+
 - Bonds fell 13%
 - The traditional 60/40 portfolio had its worst year in decades
@@ -35,19 +36,23 @@ Investors who recognized the regime shift early and rotated to defensive positio
 You don't need complex models to identify regimes. Some simple indicators:
 
 ### Market Leadership
+
 - Are growth stocks leading or lagging?
 - Is tech outperforming utilities?
 - Are small caps beating large caps?
 
 ### Trend
+
 - Are major indices above or below their moving averages?
 - Is the trend up, down, or sideways?
 
 ### Volatility
+
 - Is the VIX elevated or contained?
 - Are daily swings getting larger?
 
 ### Credit Spreads
+
 - Are spreads widening or tightening?
 - Is the bond market signaling stress?
 

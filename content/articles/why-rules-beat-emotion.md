@@ -4,7 +4,7 @@ date: "2026-02-20"
 description: "The behavioral edge of systematic investing and why removing emotion from your process leads to better long-term results."
 slug: "why-rules-beat-emotion"
 tags: ["investing", "behavior", "systematic"]
-published: true
+published: false
 ---
 
 Most investors underperform not because they lack intelligence or information, but because they make emotional decisions at the worst possible times.
@@ -28,6 +28,7 @@ Why does this happen? Because our brains evolved for survival, not portfolio man
 A systematic approach removes emotion from the equation. Instead of asking "how do I feel about the market?" you ask "what do my rules say?"
 
 This shift is profound. Rules don't:
+
 - Get scared during selloffs
 - Get greedy during rallies
 - Second-guess themselves
