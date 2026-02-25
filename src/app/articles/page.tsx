@@ -40,15 +40,15 @@ export default function ArticlesPage() {
             No articles published yet. Check back soon.
           </p>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-8">
             {articles.map((article) => (
               <article
                 key={article.slug}
-                className="group border-b border-gray-100 pb-10 last:border-0"
+                className="group border-b border-gray-100 pb-8 last:border-0"
               >
-                <Link href={`/articles/${article.slug}`} className="block">
+                <Link href={`/articles/${article.slug}`} className="flex gap-5">
                   {article.image && (
-                    <div className="relative w-full h-48 md:h-56 mb-4 overflow-hidden rounded-lg">
+                    <div className="relative w-24 h-24 md:w-32 md:h-32 flex-shrink-0 overflow-hidden rounded-lg">
                       <Image
                         src={article.image}
                         alt={article.title}
@@ -57,18 +57,20 @@ export default function ArticlesPage() {
                       />
                     </div>
                   )}
-                  <time className="text-sm text-gray-500">
-                    {formatDate(article.date)}
-                  </time>
-                  <h2 className="mt-2 text-xl font-semibold text-gray-900 group-hover:text-gray-600 transition-colors">
-                    {article.title}
-                  </h2>
-                  <p className="mt-2 text-gray-600 leading-relaxed">
-                    {article.description}
-                  </p>
-                  <span className="inline-block mt-4 text-sm font-medium text-gray-900 group-hover:text-gray-600 transition-colors">
-                    Read &rarr;
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <time className="text-sm text-gray-500">
+                      {formatDate(article.date)}
+                    </time>
+                    <h2 className="mt-1 text-lg md:text-xl font-semibold text-gray-900 group-hover:text-gray-600 transition-colors">
+                      {article.title}
+                    </h2>
+                    <p className="mt-1 text-gray-600 text-sm md:text-base leading-relaxed line-clamp-2">
+                      {article.description}
+                    </p>
+                    <span className="inline-block mt-2 text-sm font-medium text-gray-900 group-hover:text-gray-600 transition-colors">
+                      Read &rarr;
+                    </span>
+                  </div>
                 </Link>
               </article>
             ))}
