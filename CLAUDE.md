@@ -112,6 +112,7 @@ website/
 │   │   ├── Header.tsx                  # Logo + title left, nav right + auth
 │   │   ├── NavLink.tsx                 # Active page indicator + highlight
 │   │   ├── SignOutButton.tsx           # Client-side sign out button
+│   │   ├── ScrollToTop.tsx             # Scroll to top on page load
 │   │   ├── HeroStats.tsx               # Large 4-metric display
 │   │   ├── MetricsPanel.tsx            # Detailed metrics grid
 │   │   ├── MonthlyReturnsTable.tsx     # Monthly returns HTML table
@@ -236,10 +237,10 @@ Your article content in Markdown...
 - Hero section with background image (`/images/hero.jpg`)
 - "Rules-Based Investing. Zero Emotion."
 - Philosophy section
-- How It Works: Bullish vs Bearish
+- How It Works: Bullish vs Bearish (green/red cards)
 - Three pillars
-- Dark CTA band
-- Newsletter section
+- Dark CTA band (View Track Record)
+- Current Regime section with "See Current Regime" button
 - Disclaimer
 
 ### Track Record Page (`/track-record`)
@@ -263,10 +264,10 @@ Your article content in Markdown...
 
 ### About Page (`/about`)
 - The Problem / The Solution
-- How It Works
+- How It Works: Bullish vs Bearish (green/red cards)
 - About Kevin
-- What Subscribers Get
-- CTA section
+- What You Get (clickable cards linking to Current Regime, Articles, Track Record)
+- CTA section (View Track Record + See Current Regime)
 - Disclaimer
 
 ### Current Regime Page (`/current-regime`) - Protected
@@ -440,13 +441,23 @@ Open http://localhost:3000
 5. Created regime updates system in `/content/regime-updates/`
 6. Implemented Supabase authentication:
    - Magic link (passwordless email) login
-   - 30-day session persistence
+   - 30-day session persistence (cookies with maxAge)
    - Protected `/current-regime` route
    - Profiles table with `current_regime_access` field
    - Sign In/Sign Out in header
    - Row Level Security (RLS) policies
+   - Custom SMTP via Gmail for email delivery
 7. Added middleware for route protection
 8. Created SETUP_AUTH.md with full Supabase setup guide
+9. Changed terminology from Risk-On/Risk-Off to Bullish/Bearish throughout
+10. Updated About page:
+    - Made "What You Get" cards clickable (Current Regime, Articles, Track Record)
+    - Changed CTA button to "See Current Regime"
+11. Updated Home page:
+    - Changed "Follow the Regime" section to link to Current Regime
+    - Removed Substack pricing line
+12. Added ScrollToTop component for Current Regime and Track Record pages
+13. Configured `force-dynamic` on layout to prevent Vercel caching auth state
 
 ---
 
