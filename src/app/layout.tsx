@@ -4,6 +4,9 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { createClient } from "@/lib/supabase/server";
 
+// Prevent Vercel from caching auth state
+export const dynamic = "force-dynamic";
+
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
