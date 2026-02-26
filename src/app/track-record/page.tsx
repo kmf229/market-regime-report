@@ -5,6 +5,7 @@ import HeroStats from "@/components/HeroStats";
 import MetricsPanel from "@/components/MetricsPanel";
 import MonthlyReturnsTable from "@/components/MonthlyReturnsTable";
 import EquityCurve from "@/components/EquityCurve";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 interface TrackRecordData {
   summary: Summary | null;
@@ -81,6 +82,7 @@ export default async function TrackRecordPage() {
 
   return (
     <div>
+      <ScrollToTop />
       {/* Hero Section */}
       <section className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
