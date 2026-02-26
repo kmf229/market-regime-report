@@ -6,6 +6,7 @@ export interface RegimeUpdateFrontmatter {
 
 export interface RegimeUpdate extends RegimeUpdateFrontmatter {
   content: string;
+  publishedTime: string | null;
 }
 
 export interface RegimeUpdateWithHtml extends RegimeUpdate {
