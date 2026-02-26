@@ -77,7 +77,7 @@ export default function HomePage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Risk-On Regime
+                  Bullish Regime
                 </h3>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -86,11 +86,11 @@ export default function HomePage() {
                 upside during favorable conditions.
               </p>
             </div>
-            <div className="p-6 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Risk-Off Regime
+                  Bearish Regime
                 </h3>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed">

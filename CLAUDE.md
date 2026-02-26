@@ -236,7 +236,7 @@ Your article content in Markdown...
 - Hero section with background image (`/images/hero.jpg`)
 - "Rules-Based Investing. Zero Emotion."
 - Philosophy section
-- How It Works: Risk-On vs Risk-Off
+- How It Works: Bullish vs Bearish
 - Three pillars
 - Dark CTA band
 - Newsletter section
