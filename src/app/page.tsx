@@ -166,7 +166,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter Section */}
+      {/* Current Regime Section */}
       <section className="border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="max-w-2xl mx-auto text-center">
@@ -174,23 +174,17 @@ export default function HomePage() {
               Follow the Regime in Real Time
             </h2>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              The Market Regime Report delivers daily dashboards, regime signals,
-              and educational content on systematic investing. Join investors who
-              want clarity, structure, and a rules-based approach to markets.
+              See exactly where the model stands today. The Current Regime page
+              shows the live regime status and daily updates on market conditions.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="https://newsletter.marketregimes.com/subscribe"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/current-regime"
                 className="inline-flex items-center justify-center px-6 py-3.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
               >
-                Subscribe on Substack
-              </a>
+                See Current Regime
+              </Link>
             </div>
-            <p className="mt-4 text-sm text-gray-500">
-              Free posts available. Paid subscription: $7/month or $70/year.
-            </p>
           </div>
         </div>
       </section>

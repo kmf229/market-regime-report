@@ -98,7 +98,7 @@ export default function AboutPage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-4 h-4 bg-emerald-500 rounded-full"></div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Risk-On Regime
+                  Bullish Regime
                 </h3>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
@@ -111,11 +111,11 @@ export default function AboutPage() {
                 the regime supports it.
               </p>
             </div>
-            <div className="p-6 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-4 h-4 bg-amber-500 rounded-full"></div>
+                <div className="w-4 h-4 bg-red-500 rounded-full"></div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Risk-Off Regime
+                  Bearish Regime
                 </h3>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
@@ -293,14 +293,12 @@ export default function AboutPage() {
               >
                 View Track Record
               </Link>
-              <a
-                href="https://newsletter.marketregimes.com/subscribe"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/current-regime"
                 className="inline-flex items-center justify-center px-6 py-3.5 border border-gray-600 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
               >
-                Subscribe on Substack
-              </a>
+                See Current Regime
+              </Link>
             </div>
           </div>
         </div>
