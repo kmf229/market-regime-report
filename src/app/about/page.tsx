@@ -223,16 +223,22 @@ export default function AboutPage() {
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="p-6 border border-gray-200 rounded-lg">
+            <Link
+              href="/current-regime"
+              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
+            >
               <h3 className="font-semibold text-gray-900 mb-2">
-                Daily Dashboard
+                Current Regime
               </h3>
               <p className="text-sm text-gray-600">
                 Quick market observations and regime status updates so you
                 always know where we stand.
               </p>
-            </div>
-            <div className="p-6 border border-gray-200 rounded-lg">
+            </Link>
+            <Link
+              href="/current-regime"
+              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
+            >
               <h3 className="font-semibold text-gray-900 mb-2">
                 Regime Signals
               </h3>
@@ -240,8 +246,11 @@ export default function AboutPage() {
                 Clear notifications when the model shifts between risk-on and
                 risk-off positioning.
               </p>
-            </div>
-            <div className="p-6 border border-gray-200 rounded-lg">
+            </Link>
+            <Link
+              href="/articles"
+              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
+            >
               <h3 className="font-semibold text-gray-900 mb-2">
                 Educational Content
               </h3>
@@ -249,8 +258,11 @@ export default function AboutPage() {
                 Articles on systematic investing, behavioral psychology, and
                 building robust trading processes.
               </p>
-            </div>
-            <div className="p-6 border border-gray-200 rounded-lg">
+            </Link>
+            <Link
+              href="/track-record"
+              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
+            >
               <h3 className="font-semibold text-gray-900 mb-2">
                 Full Track Record
               </h3>
@@ -258,7 +270,7 @@ export default function AboutPage() {
                 Complete transparency with every trade documented and
                 performance updated weekly.
               </p>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
