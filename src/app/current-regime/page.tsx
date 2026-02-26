@@ -8,6 +8,7 @@ import {
   getRegimeBgColor,
   getRegimeLabel,
 } from "@/lib/regime-updates";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 export const metadata = {
   title: "Current Regime | The Market Regime Report",
@@ -96,6 +97,7 @@ export default async function CurrentRegimePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
+      <ScrollToTop />
       {/* Header + Speedometer */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
