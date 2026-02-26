@@ -4,12 +4,18 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import NavLink from "./NavLink";
+import { SignOutButton } from "./SignOutButton";
 
-export default function Header() {
+interface HeaderProps {
+  user: { email?: string } | null;
+}
+
+export default function Header({ user }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navItems = [
     { href: "/", label: "Home" },
+    { href: "/current-regime", label: "Current Regime", highlight: true },
     { href: "/track-record", label: "Track Record" },
     { href: "/articles", label: "Articles" },
     { href: "/about", label: "About" },
@@ -41,11 +47,23 @@ export default function Header() {
           <ul className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
               <li key={item.href}>
-                <NavLink href={item.href} external={item.external}>
+                <NavLink href={item.href} external={item.external} highlight={item.highlight}>
                   {item.label}
                 </NavLink>
               </li>
             ))}
+            <li>
+              {user ? (
+                <SignOutButton />
+              ) : (
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Sign In
+                </Link>
+              )}
+            </li>
           </ul>
 
           {/* Hamburger button - mobile only */}
@@ -76,12 +94,26 @@ export default function Header() {
                   <NavLink
                     href={item.href}
                     external={item.external}
+                    highlight={item.highlight}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.label}
                   </NavLink>
                 </li>
               ))}
+              <li>
+                {user ? (
+                  <SignOutButton />
+                ) : (
+                  <Link
+                    href="/login"
+                    className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                )}
+              </li>
             </ul>
           </div>
         )}

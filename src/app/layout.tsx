@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Spectral } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,15 +24,21 @@ export const metadata: Metadata = {
     "A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className={`${inter.variable} ${spectral.variable}`}>
       <body className="min-h-screen bg-white text-gray-900 font-sans">
-        <Header />
+        <Header user={user ? { email: user.email } : null} />
         <main>{children}</main>
         <footer className="border-t border-gray-200 mt-16">
           <div className="max-w-5xl mx-auto px-6 py-8">
