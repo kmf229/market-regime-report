@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -8,27 +8,57 @@ export async function GET(request: Request) {
   const type = searchParams.get("type");
   const next = searchParams.get("next") ?? "/current-regime";
 
-  const supabase = await createClient();
+  // Create response that we'll set cookies on
+  const response = NextResponse.redirect(`${origin}${next}`);
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.headers
+            .get("cookie")
+            ?.split("; ")
+            .map((c) => {
+              const [name, ...rest] = c.split("=");
+              return { name, value: rest.join("=") };
+            }) ?? [];
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, {
+              ...options,
+              path: "/",
+              maxAge: 60 * 60 * 24 * 30, // 30 days
+              sameSite: "lax",
+              secure: process.env.NODE_ENV === "production",
+            });
+          });
+        },
+      },
+    }
+  );
+
+  let error = null;
 
   // Handle PKCE code exchange (magic link with code)
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
-    }
+    const result = await supabase.auth.exchangeCodeForSession(code);
+    error = result.error;
   }
-
   // Handle token_hash (email confirmation, magic link with hash)
-  if (token_hash && type) {
-    const { error } = await supabase.auth.verifyOtp({
+  else if (token_hash && type) {
+    const result = await supabase.auth.verifyOtp({
       token_hash,
       type: type as "signup" | "magiclink" | "email",
     });
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
-    }
+    error = result.error;
   }
 
-  // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/login?error=Could not authenticate`);
+  if (error) {
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`);
+  }
+
+  return response;
 }
