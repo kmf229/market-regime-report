@@ -142,9 +142,6 @@ export default async function CurrentRegimePage() {
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   <time className="text-sm font-medium text-gray-900">
                     {update.formattedDate}
-                    {update.time && (
-                      <span className="text-gray-500 font-normal"> at {update.time}</span>
-                    )}
                   </time>
                   <span
                     className={`px-2 py-0.5 text-xs font-semibold rounded ${getRegimeBgColor(

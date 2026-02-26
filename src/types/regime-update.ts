@@ -1,6 +1,5 @@
 export interface RegimeUpdateFrontmatter {
   date: string;
-  time?: string;
   regime: "bullish" | "bearish";
   published: boolean;
 }
