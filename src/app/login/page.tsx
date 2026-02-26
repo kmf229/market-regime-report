@@ -42,7 +42,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Sign In</h1>
           <p className="mt-2 text-gray-600">
-            Enter your email to receive a magic link
+            Enter your email to receive a magic link and view the current regime
           </p>
         </div>
 
