@@ -1,12 +1,12 @@
 export interface RegimeUpdateFrontmatter {
   date: string;
+  time?: string;
   regime: "bullish" | "bearish";
   published: boolean;
 }
 
 export interface RegimeUpdate extends RegimeUpdateFrontmatter {
   content: string;
-  publishedTime: string | null;
 }
 
 export interface RegimeUpdateWithHtml extends RegimeUpdate {

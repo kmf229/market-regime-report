@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
 import matter from "gray-matter";
 import { remark } from "remark";
 import html from "remark-html";
@@ -27,32 +26,6 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function getGitCommitTime(filePath: string): Date | null {
-  try {
-    // Get the first commit time for this file (when it was added)
-    const timestamp = execSync(
-      `git log --follow --format=%at --diff-filter=A -- "${filePath}" | tail -1`,
-      { encoding: "utf8", cwd: process.cwd() }
-    ).trim();
-
-    if (timestamp) {
-      return new Date(parseInt(timestamp) * 1000);
-    }
-  } catch {
-    // Git not available or file not committed yet
-  }
-  return null;
-}
-
-function formatTimeEST(date: Date): string {
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: "America/New_York",
-  }) + " EST";
-}
-
 function getUpdateFiles(): string[] {
   if (!fs.existsSync(updatesDirectory)) {
     return [];
@@ -62,7 +35,7 @@ function getUpdateFiles(): string[] {
     .filter((file) => file.endsWith(".md"));
 }
 
-function getUpdateByFilename(filename: string): (RegimeUpdate & { publishedTime: string | null }) | null {
+function getUpdateByFilename(filename: string): RegimeUpdate | null {
   const fullPath = path.join(updatesDirectory, filename);
 
   if (!fs.existsSync(fullPath)) {
@@ -74,14 +47,9 @@ function getUpdateByFilename(filename: string): (RegimeUpdate & { publishedTime:
 
   const frontmatter = data as RegimeUpdateFrontmatter;
 
-  // Get the git commit time for this file
-  const commitTime = getGitCommitTime(fullPath);
-  const publishedTime = commitTime ? formatTimeEST(commitTime) : null;
-
   return {
     ...frontmatter,
     content,
-    publishedTime,
   };
 }
 
