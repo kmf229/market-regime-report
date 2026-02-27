@@ -21,6 +21,8 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+git_command.txt
+
 # Vercel
 .vercel
 
