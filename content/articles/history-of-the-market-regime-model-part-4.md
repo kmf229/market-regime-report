@@ -8,9 +8,9 @@ image: "/images/history-part4-image1.png"
 published: true
 ---
 
-*This article is part of a multi-part series where I walk through how the Market Regime model would have navigated different historical market environments. To keep things simple and transparent, I'm using **TQQQ** during Bullish regimes and **GLD** during Bearish regimes as proxies for how the system behaved in real time. Of course, past performance never guarantees future results—but understanding how a model responds across different conditions is exactly why I trade it live today. Seeing how it handled both calm and chaotic markets helps illustrate the consistency and robustness that make this approach so powerful.*
+_This article is part of a multi-part series where I walk through how the Market Regime model would have navigated different historical market environments. To keep things simple and transparent, I'm using **TQQQ** during Bullish regimes and **GLD** during Bearish regimes as proxies for how the system behaved in real time. Of course, past performance never guarantees future results—but understanding how a model responds across different conditions is exactly why I trade it live today. Seeing how it handled both calm and chaotic markets helps illustrate the consistency and robustness that make this approach so powerful._
 
-*In case you missed it, here's links to the entire series:*
+_In case you missed it, here's links to the entire series:_
 
 - [Part 1](/articles/history-of-the-market-regime-model-part-1)
 - [Part 2](/articles/history-of-the-market-regime-model-part-2)
@@ -18,8 +18,6 @@ published: true
 - [Part 4](/articles/history-of-the-market-regime-model-part-4)
 - [Part 5](/articles/history-of-the-market-regime-model-part-5)
 - [Part 6](/articles/history-of-the-market-regime-model-part-6)
-
-![Overview chart](/images/history-part4-image1.png)
 
 Part 4 may be the most revealing chapter in the entire history of the Market Regime model.
 
@@ -189,4 +187,4 @@ Part 5 begins immediately after the COVID crash, as unprecedented stimulus ignit
 
 ---
 
-*These historical reports show how the model handled the past. Paid subscribers get to see how it handles the present. If you want the same clarity in your trading today that this model brought to 2018-2020, join the paid community and follow along in real time.*
+_These historical reports show how the model handled the past. Paid subscribers get to see how it handles the present. If you want the same clarity in your trading today that this model brought to 2018-2020, join the paid community and follow along in real time._

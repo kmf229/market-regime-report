@@ -8,8 +8,6 @@ image: "/images/stress-testing-image1.jpeg"
 published: true
 ---
 
-![Sailboat in ocean](/images/stress-testing-image1.jpeg)
-
 Most trading strategies look great when you summarize them with one number.
 
 A single chart, a single "CAGR," a single equity curve.
@@ -44,11 +42,11 @@ Before we get into rolling charts and simulations, we need two simple concepts.
 
 ### 1) Expectancy: "What do I make on average per trade?"
 
-Expectancy measures the ***average outcome per trade***, combining both winners and losers.
+Expectancy measures the **_average outcome per trade_**, combining both winners and losers.
 
 It answers the most practical question in trading:
 
-> ***If I take this trade over and over, what does one trade typically contribute?***
+> **_If I take this trade over and over, what does one trade typically contribute?_**
 
 Using the full historical trade set:
 
@@ -121,7 +119,7 @@ Next, I looked at rolling profit factor.
 This matters because there are two ways a strategy can have a rough stretch:
 
 1. It starts losing more often
-2. It starts losing *big* relative to its wins
+2. It starts losing _big_ relative to its wins
 
 Those are very different problems.
 
@@ -157,7 +155,7 @@ To test this, I recalculated expectancy after removing the largest winners.
 - Without top 10 trades: +2.0% per trade
 
 **Plain English:**
-The edge shrinks — as it should — but it does ***not*** disappear. This suggests the strategy is not dependent on a handful of extreme outcomes.
+The edge shrinks — as it should — but it does **_not_** disappear. This suggests the strategy is not dependent on a handful of extreme outcomes.
 
 ### Stress Test #2: Monte Carlo Simulation (Trade Order Risk)
 
@@ -204,7 +202,7 @@ The purpose of this analysis is not to promise comfort. It's to show that the di
 - Losses remain controlled relative to gains
 - The model behaves as expected across multiple environments
 
-### What it does *not* guarantee
+### What it does _not_ guarantee
 
 - That future results will match historical outcomes
 - That drawdowns won't deepen
