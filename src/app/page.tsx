@@ -205,7 +205,7 @@ export default function HomePage() {
       {recentArticles.length > 0 && (
         <section className="border-b border-gray-200">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-10">
               <h2 className="text-2xl font-bold text-gray-900">
                 Latest Articles
               </h2>
@@ -216,19 +216,32 @@ export default function HomePage() {
                 View all →
               </Link>
             </div>
-            <div className="grid gap-4">
+            <div className="grid md:grid-cols-3 gap-6">
               {recentArticles.map((article) => (
                 <Link
                   key={article.slug}
                   href={`/articles/${article.slug}`}
-                  className="group flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="group"
                 >
-                  <span className="font-medium text-gray-900 group-hover:text-gray-700">
-                    {article.title}
-                  </span>
-                  <span className="text-sm text-gray-500 ml-4 shrink-0">
+                  <div className="aspect-[16/9] relative bg-gray-100 rounded-lg overflow-hidden mb-4">
+                    {article.image ? (
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                        <span className="text-gray-400 text-sm">No image</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 mb-1">
                     {formatDate(article.date)}
-                  </span>
+                  </p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-gray-600 transition-colors leading-snug">
+                    {article.title}
+                  </h3>
                 </Link>
               ))}
             </div>
