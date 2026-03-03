@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
-import { getAllPublishedArticles, formatDate } from "@/lib/articles";
+import { getAllPublishedArticles, getAllTags, formatDate } from "@/lib/articles";
+import TagFilter from "@/components/TagFilter";
 
 export const metadata: Metadata = {
   title: "Articles",
@@ -14,8 +15,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ArticlesPage() {
-  const articles = getAllPublishedArticles();
+interface ArticlesPageProps {
+  searchParams: Promise<{ tag?: string }>;
+}
+
+export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
+  const { tag } = await searchParams;
+  const allArticles = getAllPublishedArticles();
+  const allTags = getAllTags();
+
+  const articles = tag
+    ? allArticles.filter((article) => article.tags.includes(tag))
+    : allArticles;
 
   return (
     <div>
@@ -32,8 +43,13 @@ export default function ArticlesPage() {
         </div>
       </section>
 
+      {/* Tag Filter */}
+      <section className="max-w-3xl mx-auto px-6 pt-8">
+        <TagFilter tags={allTags} />
+      </section>
+
       {/* Articles List */}
-      <section className="max-w-3xl mx-auto px-6 py-12">
+      <section className="max-w-3xl mx-auto px-6 py-8">
         {articles.length === 0 ? (
           <p className="text-gray-500 text-center py-12">
             No articles published yet. Check back soon.
