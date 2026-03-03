@@ -1,6 +1,18 @@
 import Link from "next/link";
+import { getAllPublishedArticles } from "@/lib/articles";
+
+function formatDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
 
 export default function HomePage() {
+  const recentArticles = getAllPublishedArticles().slice(0, 3);
   return (
     <div>
       {/* Hero Section */}
@@ -188,6 +200,41 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Latest Articles Section */}
+      {recentArticles.length > 0 && (
+        <section className="border-b border-gray-200">
+          <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Latest Articles
+              </h2>
+              <Link
+                href="/articles"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                View all →
+              </Link>
+            </div>
+            <div className="grid gap-4">
+              {recentArticles.map((article) => (
+                <Link
+                  key={article.slug}
+                  href={`/articles/${article.slug}`}
+                  className="group flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <span className="font-medium text-gray-900 group-hover:text-gray-700">
+                    {article.title}
+                  </span>
+                  <span className="text-sm text-gray-500 ml-4 shrink-0">
+                    {formatDate(article.date)}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Disclaimer */}
       <section className="bg-gray-50">
