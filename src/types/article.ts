@@ -10,6 +10,9 @@ export interface ArticleFrontmatter {
 
 export interface Article extends ArticleFrontmatter {
   content: string;
+  readingTime: number;
 }
 
-export interface ArticlePreview extends ArticleFrontmatter {}
+export interface ArticlePreview extends ArticleFrontmatter {
+  readingTime: number;
+}

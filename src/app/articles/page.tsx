@@ -4,14 +4,13 @@ import { Metadata } from "next";
 import { getAllPublishedArticles, formatDate } from "@/lib/articles";
 
 export const metadata: Metadata = {
-  title: "Articles | The Market Regime Report",
+  title: "Articles",
   description:
     "Insights on systematic investing, market regimes, and rules-based portfolio management.",
   openGraph: {
     title: "Articles | The Market Regime Report",
     description:
       "Insights on systematic investing, market regimes, and rules-based portfolio management.",
-    type: "website",
   },
 };
 
@@ -58,9 +57,11 @@ export default function ArticlesPage() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <time className="text-sm text-gray-500">
-                      {formatDate(article.date)}
-                    </time>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <time>{formatDate(article.date)}</time>
+                      <span className="text-gray-300">·</span>
+                      <span>{article.readingTime} min read</span>
+                    </div>
                     <h2 className="mt-1 text-lg md:text-xl font-semibold text-gray-900 group-hover:text-gray-600 transition-colors">
                       {article.title}
                     </h2>

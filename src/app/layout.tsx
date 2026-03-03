@@ -22,9 +22,41 @@ const spectral = Spectral({
 });
 
 export const metadata: Metadata = {
-  title: "The Market Regime Report",
+  metadataBase: new URL("https://marketregimes.com"),
+  title: {
+    default: "The Market Regime Report",
+    template: "%s | The Market Regime Report",
+  },
   description:
     "A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "The Market Regime Report",
+    title: "The Market Regime Report",
+    description:
+      "A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.",
+    images: [
+      {
+        url: "/images/hero.jpg",
+        width: 1200,
+        height: 630,
+        alt: "The Market Regime Report",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Market Regime Report",
+    description:
+      "A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.",
+    images: ["/images/hero.jpg"],
+  },
+  alternates: {
+    types: {
+      "application/rss+xml": "https://marketregimes.com/rss.xml",
+    },
+  },
 };
 
 export default async function RootLayout({
