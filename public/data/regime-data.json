@@ -1,0 +1,45 @@
+{
+  "currentRegime": "bearish",
+  "regimeStrength": 0.116,
+  "strengthChange": -0.02,
+  "lastUpdated": "2026-03-04",
+  "daysInCurrentRegime": 14,
+  "regimeChangesThisYear": 2,
+  "avgRegimeDurationDays": 45,
+  "regimeHistory": [
+    {
+      "regime": "bearish",
+      "startDate": "2026-02-18",
+      "endDate": null,
+      "durationDays": 14
+    },
+    {
+      "regime": "bullish",
+      "startDate": "2026-01-05",
+      "endDate": "2026-02-17",
+      "durationDays": 43,
+      "returnPct": 12.5
+    },
+    {
+      "regime": "bearish",
+      "startDate": "2025-11-20",
+      "endDate": "2026-01-04",
+      "durationDays": 45,
+      "returnPct": 3.2
+    },
+    {
+      "regime": "bullish",
+      "startDate": "2025-09-15",
+      "endDate": "2025-11-19",
+      "durationDays": 65,
+      "returnPct": 18.7
+    },
+    {
+      "regime": "bearish",
+      "startDate": "2025-07-01",
+      "endDate": "2025-09-14",
+      "durationDays": 75,
+      "returnPct": -2.1
+    }
+  ]
+}

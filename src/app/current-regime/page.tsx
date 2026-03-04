@@ -9,6 +9,13 @@ import {
   getRegimeLabel,
 } from "@/lib/regime-updates";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { RegimeData } from "@/types/regime-data";
+import RegimeStats from "@/components/RegimeStats";
+import RegimeTimeline from "@/components/RegimeTimeline";
+import RegimeContext from "@/components/RegimeContext";
+import RegimeSidebar from "@/components/RegimeSidebar";
+import fs from "fs";
+import path from "path";
 
 export const metadata = {
   title: "Current Regime | The Market Regime Report",
@@ -26,7 +33,6 @@ async function checkAccess() {
     redirect("/login?next=/current-regime");
   }
 
-  // Check profile for access
   const { data: profile } = await supabase
     .from("profiles")
     .select("current_regime_access")
@@ -35,8 +41,14 @@ async function checkAccess() {
 
   return {
     user,
-    hasAccess: profile?.current_regime_access ?? true, // Default to true if no profile yet
+    hasAccess: profile?.current_regime_access ?? true,
   };
+}
+
+function getRegimeData(): RegimeData {
+  const filePath = path.join(process.cwd(), "public/data/regime-data.json");
+  const fileContents = fs.readFileSync(filePath, "utf8");
+  return JSON.parse(fileContents) as RegimeData;
 }
 
 function AccessDenied() {
@@ -94,81 +106,196 @@ export default async function CurrentRegimePage() {
   }
 
   const updates = await getAllPublishedUpdates();
+  const regimeData = getRegimeData();
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-6xl mx-auto px-6 py-8">
       <ScrollToTop />
-      {/* Header + Speedometer */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Current Regime
-          </h1>
-          <p className="text-lg text-gray-600">
-            Daily updates on market conditions
-          </p>
-        </div>
-        <div className="relative w-[420px] h-72 flex-shrink-0">
-          <Image
-            src="/images/regime_speedometer.png"
-            alt="Current Market Regime"
-            fill
-            className="object-contain"
-            priority
-            unoptimized
-          />
-        </div>
-      </div>
 
-      {/* Updates */}
-      <div className="space-y-8">
-        <h2 className="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-3">
-          Daily Updates
-        </h2>
+      <div className="flex gap-8">
+        {/* Sidebar */}
+        <aside className="hidden lg:block w-48 flex-shrink-0">
+          <RegimeSidebar regime={regimeData.currentRegime} />
+        </aside>
 
-        {updates.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
-            No updates yet. Check back soon.
-          </p>
-        ) : (
-          <div className="space-y-6">
-            {updates.map((update, index) => (
-              <article
-                key={update.date}
-                className={`border-l-4 pl-6 py-4 ${
-                  index === 0 ? "border-gray-900" : "border-gray-200"
-                }`}
-              >
-                <div className="flex flex-wrap items-center gap-3 mb-3">
-                  <time className="text-sm font-medium text-gray-900">
-                    {update.formattedDate}
-                  </time>
-                  <span
-                    className={`px-2 py-0.5 text-xs font-semibold rounded ${getRegimeBgColor(
-                      update.regime
-                    )} ${getRegimeColor(update.regime)}`}
-                  >
-                    {getRegimeLabel(update.regime)}
-                  </span>
-                </div>
-                <div
-                  className="prose prose-sm max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: update.htmlContent }}
+        {/* Main Content */}
+        <main className="flex-1 min-w-0">
+          {/* Overview Section */}
+          <section id="overview" className="mb-12">
+            {/* Header + Speedometer */}
+            <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
+              <div className="flex-1">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  Current Regime
+                </h1>
+                <p className="text-lg text-gray-600 mb-6">
+                  Real-time market regime status and daily updates
+                </p>
+
+                {/* What This Means */}
+                <RegimeContext
+                  regime={regimeData.currentRegime}
+                  strength={regimeData.regimeStrength}
                 />
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
+              </div>
 
-      {/* Disclaimer */}
-      <div className="mt-16 pt-8 border-t border-gray-200">
-        <p className="text-xs text-gray-400 leading-relaxed">
-          This information is for educational purposes only and should not be
-          considered investment advice. Past performance does not guarantee
-          future results. Always do your own research before making investment
-          decisions.
-        </p>
+              {/* Speedometer */}
+              <div className="relative w-full md:w-[380px] h-64 flex-shrink-0">
+                <Image
+                  src="/images/regime_speedometer.png"
+                  alt="Current Market Regime"
+                  fill
+                  className="object-contain"
+                  priority
+                  unoptimized
+                />
+              </div>
+            </div>
+
+            {/* Stats Panel */}
+            <RegimeStats data={regimeData} />
+
+            {/* Timeline */}
+            <div className="mt-6">
+              <RegimeTimeline history={regimeData.regimeHistory} />
+            </div>
+          </section>
+
+          {/* Daily Updates Section */}
+          <section id="updates" className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-6">
+              Daily Updates
+            </h2>
+
+            {updates.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">
+                No updates yet. Check back soon.
+              </p>
+            ) : (
+              <div className="space-y-6">
+                {updates.map((update, index) => (
+                  <article
+                    key={update.date}
+                    className={`border-l-4 pl-6 py-4 ${
+                      index === 0 ? "border-gray-900" : "border-gray-200"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      <time className="text-sm font-medium text-gray-900">
+                        {update.formattedDate}
+                      </time>
+                      <span
+                        className={`px-2 py-0.5 text-xs font-semibold rounded ${getRegimeBgColor(
+                          update.regime
+                        )} ${getRegimeColor(update.regime)}`}
+                      >
+                        {getRegimeLabel(update.regime)}
+                      </span>
+                      {index === 0 && (
+                        <span className="px-2 py-0.5 text-xs font-medium text-gray-500 bg-gray-100 rounded">
+                          Latest
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      className="prose prose-sm max-w-none text-gray-700"
+                      dangerouslySetInnerHTML={{ __html: update.htmlContent }}
+                    />
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* History Section */}
+          <section id="history" className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-6">
+              Regime History
+            </h2>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                      Period
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                      Regime
+                    </th>
+                    <th className="text-right py-3 px-4 font-semibold text-gray-900">
+                      Duration
+                    </th>
+                    <th className="text-right py-3 px-4 font-semibold text-gray-900">
+                      Return
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {regimeData.regimeHistory.map((period, idx) => (
+                    <tr
+                      key={idx}
+                      className={`border-b border-gray-100 ${
+                        idx === 0 ? "bg-gray-50" : ""
+                      }`}
+                    >
+                      <td className="py-3 px-4 text-gray-600">
+                        {new Date(period.startDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        -{" "}
+                        {period.endDate
+                          ? new Date(period.endDate).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })
+                          : "Present"}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-0.5 text-xs font-semibold rounded ${
+                            period.regime === "bullish"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {period.regime === "bullish" ? "Bullish" : "Bearish"}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right text-gray-600">
+                        {period.durationDays} days
+                      </td>
+                      <td
+                        className={`py-3 px-4 text-right font-medium ${
+                          period.returnPct === undefined
+                            ? "text-gray-400"
+                            : period.returnPct >= 0
+                            ? "text-emerald-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {period.returnPct !== undefined
+                          ? `${period.returnPct >= 0 ? "+" : ""}${period.returnPct.toFixed(1)}%`
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Disclaimer */}
+          <div className="pt-8 border-t border-gray-200">
+            <p className="text-xs text-gray-400 leading-relaxed">
+              This information is for educational purposes only and should not be
+              considered investment advice. Past performance does not guarantee
+              future results. Always do your own research before making investment
+              decisions.
+            </p>
+          </div>
+        </main>
       </div>
     </div>
   );
