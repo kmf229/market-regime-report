@@ -638,6 +638,26 @@ Open http://localhost:3000
 
 ---
 
+## TODO for Next Session (Mar 5, 2026)
+
+### 1. Set up Raspberry Pi
+- Follow the "Raspberry Pi Setup (TODO)" instructions above
+- Test that regime updates are working
+- Verify speedometer uploads to Supabase Storage
+
+### 2. Automate Daily Blurbs (Option B - Supabase)
+- Create `daily_updates` table in Supabase
+- Update website to read daily blurbs from Supabase instead of markdown files
+- Add to Pi scheduler: at 4:15pm ET, generate blurb via AI (Claude/OpenAI) and insert into Supabase
+- Kevin has the prompt for generating blurbs
+
+### 3. REMINDER: Update Regime History Returns
+- The Regime History table at the bottom of Current Regime page has empty return values
+- Ask Kevin to provide the return percentages for each regime period
+- Update the `regime_history` array in Supabase (or in the Python script that generates it)
+
+---
+
 ## Future Enhancements
 
 ### Planned
