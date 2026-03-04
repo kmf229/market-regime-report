@@ -170,11 +170,15 @@ def update_regime_status(
         "regime_history": regime_history,
     }
 
-    # Upsert to Supabase (update if exists, insert if not)
-    result = supabase.table("regime_status").upsert(
-        data,
-        on_conflict="id"
-    ).execute()
+    # Check if row exists
+    existing = supabase.table("regime_status").select("id").limit(1).execute()
+
+    if existing.data:
+        # Update existing row
+        result = supabase.table("regime_status").update(data).eq("id", existing.data[0]["id"]).execute()
+    else:
+        # Insert new row
+        result = supabase.table("regime_status").insert(data).execute()
 
     print(f"Updated regime status: {current_regime_str}, strength: {z_today:.3f}")
     return result.data[0] if result.data else data
@@ -231,9 +235,11 @@ def upload_speedometer(
     public_url = supabase.storage.from_(bucket_name).get_public_url(file_name)
 
     # Update the regime_status table with the URL
-    supabase.table("regime_status").update({
-        "speedometer_url": public_url
-    }).execute()
+    existing = supabase.table("regime_status").select("id").limit(1).execute()
+    if existing.data:
+        supabase.table("regime_status").update({
+            "speedometer_url": public_url
+        }).eq("id", existing.data[0]["id"]).execute()
 
     print(f"Uploaded speedometer to: {public_url}")
     return public_url
