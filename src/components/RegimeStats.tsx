@@ -8,33 +8,50 @@ interface RegimeStatsProps {
 }
 
 const THRESHOLD = 0.25;
+const BEARISH_MIN = -3.5;  // Raw value that maps to -10
+const BULLISH_MAX = 3.5;   // Raw value that maps to +10
 
-function getStrengthLabel(strength: number): string {
-  if (strength >= 1.5) return "Strong Bullish";
-  if (strength >= 0.75) return "Moderate Bullish";
-  if (strength >= THRESHOLD) return "Weak Bullish";
-  if (strength >= 0) return "Weak Bearish";
-  if (strength >= -0.5) return "Moderate Bearish";
-  return "Strong Bearish";
+function scaleStrength(rawStrength: number): number {
+  // Scale raw strength to -10 to +10 scale, with threshold (0.25) as zero
+  let scaled: number;
+
+  if (rawStrength >= THRESHOLD) {
+    // Bullish side: 0.25 to 3.5 maps to 0 to 10
+    const range = BULLISH_MAX - THRESHOLD; // 3.25
+    const distance = rawStrength - THRESHOLD;
+    scaled = (distance / range) * 10;
+  } else {
+    // Bearish side: 0.25 to -3.5 maps to 0 to -10
+    const range = THRESHOLD - BEARISH_MIN; // 3.75
+    const distance = THRESHOLD - rawStrength;
+    scaled = -(distance / range) * 10;
+  }
+
+  // Cap at ±10
+  return Math.max(-10, Math.min(10, scaled));
 }
 
-function getDistanceToFlip(strength: number, currentRegime: string): string {
-  if (currentRegime === "bullish") {
-    const distance = strength - THRESHOLD;
-    if (distance < 0.15) return "Near threshold";
-    return `${distance.toFixed(2)} above threshold`;
-  } else {
-    const distance = THRESHOLD - strength;
-    if (distance < 0.15) return "Near threshold";
-    return `${distance.toFixed(2)} below threshold`;
-  }
+function getStrengthLabel(scaledStrength: number): string {
+  const absValue = Math.abs(scaledStrength);
+  const direction = scaledStrength >= 0 ? "Bullish" : "Bearish";
+
+  if (absValue >= 6.66) return `Strong ${direction}`;
+  if (absValue >= 3.33) return `Moderate ${direction}`;
+  return `Weak ${direction}`;
+}
+
+function getDistanceToFlip(scaledStrength: number): string {
+  const absValue = Math.abs(scaledStrength);
+  if (absValue < 1) return "Near threshold";
+  return `${absValue.toFixed(1)} from threshold`;
 }
 
 export default function RegimeStats({ data }: RegimeStatsProps) {
   const [showStrengthInfo, setShowStrengthInfo] = useState(false);
 
-  const strengthLabel = getStrengthLabel(data.regimeStrength);
-  const distanceText = getDistanceToFlip(data.regimeStrength, data.currentRegime);
+  const scaledStrength = scaleStrength(data.regimeStrength);
+  const strengthLabel = getStrengthLabel(scaledStrength);
+  const distanceText = getDistanceToFlip(scaledStrength);
 
   const stats = [
     {
@@ -108,9 +125,9 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
             <div className="absolute left-0 right-0 top-full mt-2 mx-4 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg z-50">
               <p className="font-semibold mb-1">What is Regime Strength?</p>
               <p className="text-gray-300 leading-relaxed">
-                Measures the relative strength of risk-on vs risk-off sectors.
-                Above {THRESHOLD} = Bullish (hold TQQQ). Below {THRESHOLD} =
-                Bearish (hold GLD). The further from {THRESHOLD}, the stronger
+                Scale from -10 (strong bearish) to +10 (strong bullish).
+                Zero is the threshold between regimes. Negative = hold GLD,
+                Positive = hold TQQQ. The further from zero, the stronger
                 the conviction.
               </p>
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-900"></div>
@@ -132,22 +149,15 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
         {/* Numeric value and change */}
         <div className="flex items-center gap-2 mt-1">
           <span
-            className={`text-sm font-mono ${
+            className={`text-xl font-bold font-mono ${
               data.currentRegime === "bullish"
                 ? "text-emerald-600"
                 : "text-red-600"
             }`}
           >
-            {data.regimeStrength.toFixed(2)}
+            {scaledStrength >= 0 ? "+" : ""}{scaledStrength.toFixed(1)}
           </span>
-          <span
-            className={`text-xs ${
-              data.strengthChange >= 0 ? "text-emerald-600" : "text-red-600"
-            }`}
-          >
-            ({data.strengthChange >= 0 ? "+" : ""}
-            {data.strengthChange.toFixed(2)})
-          </span>
+          <span className="text-xs text-gray-500">/ 10</span>
         </div>
 
         {/* Distance to threshold */}
