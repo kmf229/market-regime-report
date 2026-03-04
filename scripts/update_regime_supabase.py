@@ -22,6 +22,8 @@ Usage:
     upload_speedometer("/path/to/speedometer.png")
 """
 
+from __future__ import annotations  # Enables modern type hints on Python 3.8+
+
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
