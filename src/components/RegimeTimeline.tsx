@@ -164,7 +164,7 @@ export default function RegimeTimeline({ history }: RegimeTimelineProps) {
           <div className="w-3 h-3 rounded-sm bg-red-500"></div>
           <span>Bearish (GLD)</span>
         </div>
-        <div className="ml-auto text-gray-400">Click segments for details</div>
+        <div className="ml-auto text-gray-400">Hover for details</div>
       </div>
     </div>
   );
