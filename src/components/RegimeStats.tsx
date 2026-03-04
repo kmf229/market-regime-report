@@ -40,18 +40,11 @@ function getStrengthLabel(scaledStrength: number): string {
   return `Weak ${direction}`;
 }
 
-function getDistanceToFlip(scaledStrength: number): string {
-  const absValue = Math.abs(scaledStrength);
-  if (absValue < 1) return "Near threshold";
-  return `${absValue.toFixed(1)} from threshold`;
-}
-
 export default function RegimeStats({ data }: RegimeStatsProps) {
   const [showStrengthInfo, setShowStrengthInfo] = useState(false);
 
   const scaledStrength = scaleStrength(data.regimeStrength);
   const strengthLabel = getStrengthLabel(scaledStrength);
-  const distanceText = getDistanceToFlip(scaledStrength);
 
   const stats = [
     {
@@ -146,22 +139,16 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
           {strengthLabel}
         </p>
 
-        {/* Numeric value and change */}
-        <div className="flex items-center gap-2 mt-1">
-          <span
-            className={`text-xl font-bold font-mono ${
-              data.currentRegime === "bullish"
-                ? "text-emerald-600"
-                : "text-red-600"
-            }`}
-          >
-            {scaledStrength >= 0 ? "+" : ""}{scaledStrength.toFixed(1)}
-          </span>
-          <span className="text-xs text-gray-500">/ 10</span>
-        </div>
-
-        {/* Distance to threshold */}
-        <p className="text-xs text-gray-500 mt-1">{distanceText}</p>
+        {/* Numeric value */}
+        <p
+          className={`text-2xl font-bold font-mono mt-1 ${
+            data.currentRegime === "bullish"
+              ? "text-emerald-600"
+              : "text-red-600"
+          }`}
+        >
+          {scaledStrength >= 0 ? "+" : ""}{scaledStrength.toFixed(1)}
+        </p>
       </div>
     </div>
   );
