@@ -9,13 +9,11 @@ import {
   getRegimeLabel,
 } from "@/lib/regime-updates";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { RegimeData } from "@/types/regime-data";
 import RegimeStats from "@/components/RegimeStats";
 import RegimeTimeline from "@/components/RegimeTimeline";
 import RegimeContext from "@/components/RegimeContext";
 import RegimeSidebar from "@/components/RegimeSidebar";
-import fs from "fs";
-import path from "path";
+import { getRegimeData } from "@/lib/regime-data";
 
 export const metadata = {
   title: "Current Regime | The Market Regime Report",
@@ -43,12 +41,6 @@ async function checkAccess() {
     user,
     hasAccess: profile?.current_regime_access ?? true,
   };
-}
-
-function getRegimeData(): RegimeData {
-  const filePath = path.join(process.cwd(), "public/data/regime-data.json");
-  const fileContents = fs.readFileSync(filePath, "utf8");
-  return JSON.parse(fileContents) as RegimeData;
 }
 
 function AccessDenied() {
@@ -106,7 +98,7 @@ export default async function CurrentRegimePage() {
   }
 
   const updates = await getAllPublishedUpdates();
-  const regimeData = getRegimeData();
+  const regimeData = await getRegimeData();
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
@@ -142,7 +134,7 @@ export default async function CurrentRegimePage() {
               {/* Speedometer */}
               <div className="relative w-full md:w-[380px] h-64 flex-shrink-0">
                 <Image
-                  src="/images/regime_speedometer.png"
+                  src={regimeData.speedometerUrl || "/images/regime_speedometer.png"}
                   alt="Current Market Regime"
                   fill
                   className="object-contain"
