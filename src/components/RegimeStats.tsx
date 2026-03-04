@@ -152,29 +152,6 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
 
         {/* Distance to threshold */}
         <p className="text-xs text-gray-500 mt-1">{distanceText}</p>
-
-        {/* Mini progress bar showing position relative to threshold */}
-        <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className={`h-full transition-all ${
-              data.currentRegime === "bullish"
-                ? "bg-emerald-500"
-                : "bg-red-500"
-            }`}
-            style={{
-              width: `${Math.min(100, Math.max(0, ((data.regimeStrength + 2) / 4) * 100))}%`,
-              marginLeft:
-                data.regimeStrength < THRESHOLD
-                  ? "0"
-                  : `${((THRESHOLD + 2) / 4) * 100}%`,
-            }}
-          ></div>
-        </div>
-        <div className="flex justify-between text-[9px] text-gray-400 mt-0.5">
-          <span>Bearish</span>
-          <span>Threshold</span>
-          <span>Bullish</span>
-        </div>
       </div>
     </div>
   );
