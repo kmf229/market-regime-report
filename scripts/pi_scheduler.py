@@ -1,7 +1,7 @@
 """
 Raspberry Pi Scheduler for Market Regime Updates
 
-Runs every minute during market hours (Mon-Fri, 9:30am-4pm ET).
+Runs every 10 minutes during market hours (Mon-Fri, 9:30am-4:15pm ET).
 Updates Supabase with latest regime data and speedometer image.
 
 Setup on Pi:
@@ -36,10 +36,11 @@ except ImportError:
 ET = pytz.timezone("America/New_York")
 
 # Market hours (Eastern Time)
+# Runs until 4:15pm to account for 15-minute delayed data
 MARKET_OPEN_HOUR = 9
 MARKET_OPEN_MINUTE = 30
 MARKET_CLOSE_HOUR = 16
-MARKET_CLOSE_MINUTE = 0
+MARKET_CLOSE_MINUTE = 15
 
 
 def is_market_hours() -> bool:
@@ -274,15 +275,15 @@ def main():
     print("Market Regime Updater")
     print("=" * 50)
     print(f"Started at: {datetime.now(ET)}")
-    print("Schedule: Every minute during market hours")
-    print("Market hours: Mon-Fri, 9:30am-4pm ET")
+    print("Schedule: Every 10 minutes during market hours")
+    print("Market hours: Mon-Fri, 9:30am-4:15pm ET")
     print("=" * 50)
 
     # Run once on startup
     update_regime()
 
-    # Schedule to run every minute
-    schedule.every(1).minutes.do(update_regime)
+    # Schedule to run every 10 minutes
+    schedule.every(10).minutes.do(update_regime)
 
     # Keep running
     while True:
