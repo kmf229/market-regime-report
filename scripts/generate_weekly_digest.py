@@ -1,7 +1,8 @@
+from __future__ import annotations
 """
 Generate and send weekly digest emails via Resend.
 
-Runs every Sunday at 5pm ET.
+Runs every Sunday at 8am ET.
 
 Usage:
     # Normal mode (sends to opted-in users)
