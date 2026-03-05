@@ -7,6 +7,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import RegimeSidebar from "@/components/RegimeSidebar";
 import { getRegimeData } from "@/lib/regime-data";
 import LiveRegimeStatus from "@/components/LiveRegimeStatus";
+import AlertPreferences from "@/components/AlertPreferences";
 
 export const metadata = {
   title: "Current Regime | The Market Regime Report",
@@ -26,13 +27,17 @@ async function checkAccess() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("current_regime_access")
+    .select("current_regime_access, regime_change_alerts, weekly_digest")
     .eq("id", user.id)
     .single();
 
   return {
     user,
     hasAccess: profile?.current_regime_access ?? true,
+    alertPreferences: {
+      regime_change_alerts: profile?.regime_change_alerts ?? false,
+      weekly_digest: profile?.weekly_digest ?? false,
+    },
   };
 }
 
@@ -84,7 +89,7 @@ function AccessDenied() {
 }
 
 export default async function CurrentRegimePage() {
-  const { hasAccess } = await checkAccess();
+  const { user, hasAccess, alertPreferences } = await checkAccess();
 
   if (!hasAccess) {
     return <AccessDenied />;
@@ -107,6 +112,14 @@ export default async function CurrentRegimePage() {
         <main className="flex-1 min-w-0">
           {/* Overview Section - Live updating */}
           <LiveRegimeStatus initialData={regimeData} />
+
+          {/* Alert Preferences */}
+          <section className="mb-12">
+            <AlertPreferences
+              userId={user.id}
+              initialPreferences={alertPreferences}
+            />
+          </section>
 
           {/* Daily Updates Section */}
           <section id="updates" className="mb-12">
