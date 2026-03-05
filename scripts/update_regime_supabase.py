@@ -241,6 +241,13 @@ def update_regime_status(
     regime_history = calculate_regime_periods(regime_s, tqqq_prices, gld_prices)
     stats = calculate_regime_stats(regime_history)
 
+    # Get current trade return (first period is current/most recent)
+    current_trade_return = None
+    current_trade_start = None
+    if regime_history and "returnPct" in regime_history[0]:
+        current_trade_return = regime_history[0]["returnPct"]
+        current_trade_start = regime_history[0]["startDate"]
+
     # Build update data
     data = {
         "current_regime": current_regime_str,
@@ -251,6 +258,8 @@ def update_regime_status(
         "regime_changes_this_year": stats["regime_changes_this_year"],
         "avg_regime_duration_days": stats["avg_regime_duration_days"],
         "regime_history": regime_history,
+        "current_trade_return": current_trade_return,
+        "current_trade_start": current_trade_start,
     }
 
     # Check if row exists

@@ -245,12 +245,8 @@ def calculate_regime():
         ax.text(0, -0.32, f"{val:+.1f}", ha="center", va="center",
                 fontsize=12, fontweight="bold", color=dark_gray, family="monospace")
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M ET")
-        ax.text(0, -0.42, f"Last Updated: {timestamp}", ha="center", va="center",
-                fontsize=7, color="#6b7280")
-
         ax.set_xlim(-1.2, 1.2)
-        ax.set_ylim(-0.5, 1.1)
+        ax.set_ylim(-0.5, 1.0)
 
         plt.tight_layout(pad=0.5)
         plt.savefig(out_path, dpi=dpi, bbox_inches="tight", facecolor="white")

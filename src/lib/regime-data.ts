@@ -11,9 +11,11 @@ interface RegimeStatusRow {
   avg_regime_duration_days: number;
   regime_history: RegimePeriod[];
   speedometer_url: string | null;
+  current_trade_return: number | null;
+  current_trade_start: string | null;
 }
 
-export async function getRegimeData(): Promise<RegimeData & { speedometerUrl: string | null }> {
+export async function getRegimeData(): Promise<RegimeData> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -35,6 +37,8 @@ export async function getRegimeData(): Promise<RegimeData & { speedometerUrl: st
       avgRegimeDurationDays: 0,
       regimeHistory: [],
       speedometerUrl: null,
+      currentTradeReturn: null,
+      currentTradeStart: null,
     };
   }
 
@@ -50,5 +54,7 @@ export async function getRegimeData(): Promise<RegimeData & { speedometerUrl: st
     avgRegimeDurationDays: row.avg_regime_duration_days,
     regimeHistory: row.regime_history,
     speedometerUrl: row.speedometer_url,
+    currentTradeReturn: row.current_trade_return,
+    currentTradeStart: row.current_trade_start,
   };
 }

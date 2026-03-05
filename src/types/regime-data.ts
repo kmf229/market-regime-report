@@ -10,8 +10,15 @@ export interface RegimeData {
   regimeChangesThisYear: number;
   avgRegimeDurationDays: number;
 
+  // Current trade
+  currentTradeReturn: number | null; // return since entering current regime
+  currentTradeStart: string | null; // date we entered current regime
+
   // Timeline (last 12 months of regime periods)
   regimeHistory: RegimePeriod[];
+
+  // Speedometer
+  speedometerUrl: string | null;
 }
 
 export interface RegimePeriod {
