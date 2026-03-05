@@ -37,8 +37,8 @@ export default function LiveRegimeStatus({
           avgRegimeDurationDays: row.avg_regime_duration_days,
           regimeHistory: row.regime_history,
           speedometerUrl: row.speedometer_url,
-          currentTradeReturn: row.current_trade_return,
-          currentTradeStart: row.current_trade_start,
+          currentTradeReturn: row.current_trade_return ?? null,
+          currentTradeStart: row.current_trade_start ?? null,
         });
       }
     };

@@ -54,7 +54,8 @@ export async function getRegimeData(): Promise<RegimeData> {
     avgRegimeDurationDays: row.avg_regime_duration_days,
     regimeHistory: row.regime_history,
     speedometerUrl: row.speedometer_url,
-    currentTradeReturn: row.current_trade_return,
-    currentTradeStart: row.current_trade_start,
+    // These fields may not exist yet if migration hasn't run
+    currentTradeReturn: row.current_trade_return ?? null,
+    currentTradeStart: row.current_trade_start ?? null,
   };
 }
