@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { DailyUpdate } from "@/types/daily-update";
 import {
   getRegimeColor,
@@ -13,11 +14,47 @@ interface DailyUpdatesProps {
   initialCount?: number;
 }
 
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr + "T00:00:00");
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 export default function DailyUpdates({
-  updates,
+  updates: initialUpdates,
   initialCount = 5,
 }: DailyUpdatesProps) {
+  const [updates, setUpdates] = useState<DailyUpdate[]>(initialUpdates);
   const [showAll, setShowAll] = useState(false);
+
+  // Poll for new updates every 60 seconds
+  useEffect(() => {
+    const supabase = createClient();
+
+    const fetchUpdates = async () => {
+      const { data, error } = await supabase
+        .from("daily_updates")
+        .select("*")
+        .eq("published", true)
+        .order("date", { ascending: false });
+
+      if (!error && data) {
+        setUpdates(
+          data.map((row) => ({
+            ...row,
+            formattedDate: formatDate(row.date),
+          }))
+        );
+      }
+    };
+
+    const interval = setInterval(fetchUpdates, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const displayedUpdates = showAll ? updates : updates.slice(0, initialCount);
   const hasMore = updates.length > initialCount;

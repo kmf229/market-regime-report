@@ -40,7 +40,7 @@ ET = pytz.timezone("America/New_York")
 MARKET_OPEN_HOUR = 9
 MARKET_OPEN_MINUTE = 30
 MARKET_CLOSE_HOUR = 16
-MARKET_CLOSE_MINUTE = 15
+MARKET_CLOSE_MINUTE = 25
 
 
 def is_trading_day() -> bool:
@@ -388,7 +388,7 @@ def main():
     print("=" * 50)
     print(f"Started at: {datetime.now(ET)}")
     print("Schedule: Every 10 minutes during market hours")
-    print("Market hours: Mon-Fri, 9:30am-4:15pm ET")
+    print("Market hours: Mon-Fri, 9:30am-4:25pm ET")
     print("Regime alerts: 3:30pm ET (weekdays)")
     print("Daily blurb + store closing regime: 4:15pm ET (weekdays)")
     print("Weekly digest: Sunday 8:00am ET")
