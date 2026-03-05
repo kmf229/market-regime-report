@@ -51,26 +51,17 @@ export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps)
       {/* Header + Speedometer */}
       <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
         <div className="flex-1">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              Current Regime
-            </h1>
-            <LastUpdatedTimestamp lastUpdated={data.lastUpdated} />
-          </div>
-          <p className="text-lg text-gray-600 mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            Current Regime
+          </h1>
+          <p className="text-lg text-gray-600 mb-2">
             Real-time market regime status and daily updates
           </p>
+          <LastUpdatedTimestamp lastUpdated={data.lastUpdated} />
 
           {/* What This Means */}
-          <RegimeContext regime={data.currentRegime} strength={data.regimeStrength} />
-
-          {/* Current Trade P&L */}
-          <div className="mt-4">
-            <CurrentTradePnL
-              regime={data.currentRegime}
-              returnPct={data.currentTradeReturn}
-              startDate={data.currentTradeStart}
-            />
+          <div className="mt-6">
+            <RegimeContext regime={data.currentRegime} strength={data.regimeStrength} />
           </div>
         </div>
 
@@ -90,6 +81,15 @@ export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps)
       {/* Stats Panel */}
       <RegimeStats data={data} />
 
+      {/* Current Trade P&L */}
+      <div className="mt-6">
+        <CurrentTradePnL
+          regime={data.currentRegime}
+          returnPct={data.currentTradeReturn}
+          startDate={data.currentTradeStart}
+        />
+      </div>
+
       {/* Timeline */}
       <div className="mt-6">
         <RegimeTimeline history={data.regimeHistory} />
@@ -100,47 +100,31 @@ export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps)
 
 // Helper component to display the last updated timestamp
 export function LastUpdatedTimestamp({ lastUpdated }: { lastUpdated: string }) {
-  const [timeAgo, setTimeAgo] = useState<string>("");
-
-  useEffect(() => {
-    const updateTimeAgo = () => {
-      const updated = new Date(lastUpdated);
-      const now = new Date();
-      const diffMs = now.getTime() - updated.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMins / 60);
-
-      if (diffMins < 1) {
-        setTimeAgo("just now");
-      } else if (diffMins < 60) {
-        setTimeAgo(`${diffMins} min${diffMins === 1 ? "" : "s"} ago`);
-      } else if (diffHours < 24) {
-        setTimeAgo(`${diffHours} hour${diffHours === 1 ? "" : "s"} ago`);
-      } else {
-        setTimeAgo(updated.toLocaleDateString());
-      }
-    };
-
-    updateTimeAgo();
-    const interval = setInterval(updateTimeAgo, 30000);
-    return () => clearInterval(interval);
-  }, [lastUpdated]);
-
-  const formatTime = (isoString: string) => {
+  const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
-    return date.toLocaleTimeString("en-US", {
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+
+    const timeStr = date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
-      timeZoneName: "short",
     });
+
+    if (isToday) {
+      return `Today at ${timeStr}`;
+    }
+
+    const dateStr = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    return `${dateStr} at ${timeStr}`;
   };
 
   return (
     <div className="flex items-center gap-2 text-sm text-gray-500">
       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-      <span>
-        Updated {formatTime(lastUpdated)} ({timeAgo})
-      </span>
+      <span>Updated {formatDateTime(lastUpdated)}</span>
     </div>
   );
 }
