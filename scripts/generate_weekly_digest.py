@@ -30,12 +30,16 @@ from pathlib import Path
 # Load environment variables
 try:
     from dotenv import load_dotenv
-    env_file = Path(__file__).parent / ".env"
-    env_local = Path(__file__).parent.parent / ".env.local"
-    if env_file.exists():
-        load_dotenv(env_file)
-    elif env_local.exists():
+    script_dir = Path(__file__).resolve().parent
+    env_file = script_dir / ".env"
+    env_local = script_dir.parent / ".env.local"
+
+    # Load .env.local from website dir (primary for local dev)
+    if env_local.exists():
         load_dotenv(env_local)
+    # Also load .env from scripts dir (for Pi)
+    if env_file.exists():
+        load_dotenv(env_file, override=False)
 except ImportError:
     pass
 
