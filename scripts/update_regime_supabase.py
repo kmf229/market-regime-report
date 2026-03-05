@@ -25,7 +25,7 @@ Usage:
 from __future__ import annotations  # Enables modern type hints on Python 3.8+
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -253,7 +253,7 @@ def update_regime_status(
         "current_regime": current_regime_str,
         "regime_strength": round(z_today, 4),
         "strength_change": round(z_change, 4),
-        "last_updated": datetime.now().isoformat(),
+        "last_updated": datetime.now(timezone.utc).isoformat(),
         "days_in_current_regime": stats["days_in_current_regime"],
         "regime_changes_this_year": stats["regime_changes_this_year"],
         "avg_regime_duration_days": stats["avg_regime_duration_days"],

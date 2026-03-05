@@ -81,15 +81,6 @@ export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps)
       {/* Stats Panel */}
       <RegimeStats data={data} />
 
-      {/* Current Trade P&L */}
-      <div className="mt-6">
-        <CurrentTradePnL
-          regime={data.currentRegime}
-          returnPct={data.currentTradeReturn}
-          startDate={data.currentTradeStart}
-        />
-      </div>
-
       {/* Timeline */}
       <div className="mt-6">
         <RegimeTimeline history={data.regimeHistory} />
@@ -129,77 +120,3 @@ export function LastUpdatedTimestamp({ lastUpdated }: { lastUpdated: string }) {
   );
 }
 
-// Helper component to display current trade P&L
-export function CurrentTradePnL({
-  regime,
-  returnPct,
-  startDate,
-}: {
-  regime: "bullish" | "bearish";
-  returnPct: number | null;
-  startDate: string | null;
-}) {
-  if (returnPct === null || startDate === null) {
-    return null;
-  }
-
-  const isPositive = returnPct >= 0;
-  const ticker = regime === "bullish" ? "TQQQ" : "GLD";
-  const isBullish = regime === "bullish";
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr + "T00:00:00");
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  // Calculate days in trade
-  const start = new Date(startDate + "T00:00:00");
-  const now = new Date();
-  const diffTime = now.getTime() - start.getTime();
-  const daysInTrade = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-sm font-medium text-gray-600">Current Trade</div>
-        <span
-          className={`px-2 py-0.5 text-xs font-semibold rounded ${
-            isBullish
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
-          {isBullish ? "BULLISH" : "BEARISH"}
-        </span>
-      </div>
-
-      <div className="flex items-baseline gap-3 mb-3">
-        <span
-          className={`text-3xl font-bold ${
-            isPositive ? "text-emerald-600" : "text-red-600"
-          }`}
-        >
-          {isPositive ? "+" : ""}
-          {returnPct.toFixed(1)}%
-        </span>
-        <span className="text-lg font-medium text-gray-700">{ticker}</span>
-      </div>
-
-      <div className="flex items-center gap-4 text-sm text-gray-500">
-        <div>
-          <span className="text-gray-400">Entry:</span>{" "}
-          <span className="text-gray-600">{formatDate(startDate)}</span>
-        </div>
-        <div className="text-gray-300">|</div>
-        <div>
-          <span className="text-gray-400">Duration:</span>{" "}
-          <span className="text-gray-600">{daysInTrade} days</span>
-        </div>
-      </div>
-    </div>
-  );
-}

@@ -46,6 +46,15 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
   const scaledStrength = scaleStrength(data.regimeStrength);
   const strengthLabel = getStrengthLabel(scaledStrength);
 
+  // Format current trade value
+  const formatTradeValue = () => {
+    if (data.currentTradeReturn === null) return "—";
+    const pct = data.currentTradeReturn;
+    const sign = pct >= 0 ? "+" : "";
+    const ticker = data.currentRegime === "bullish" ? "TQQQ" : "GLD";
+    return `${sign}${pct.toFixed(1)}% ${ticker}`;
+  };
+
   const stats = [
     {
       label: "Days in Regime",
@@ -62,22 +71,40 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
       value: `${data.avgRegimeDurationDays}d`,
       subtext: "Per regime period",
     },
+    {
+      label: "Current Trade",
+      value: formatTradeValue(),
+      subtext: data.currentTradeStart
+        ? `Since ${new Date(data.currentTradeStart + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+        : "",
+      isTradeCard: true,
+    },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="p-4 rounded-lg border bg-white border-gray-200"
-        >
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-            {stat.label}
-          </p>
-          <p className="text-2xl font-bold mt-1 text-gray-900">{stat.value}</p>
-          <p className="text-xs text-gray-500 mt-1">{stat.subtext}</p>
-        </div>
-      ))}
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      {stats.map((stat) => {
+        // Special styling for Current Trade card
+        const isPositive = stat.isTradeCard && data.currentTradeReturn !== null && data.currentTradeReturn >= 0;
+        const isNegative = stat.isTradeCard && data.currentTradeReturn !== null && data.currentTradeReturn < 0;
+
+        return (
+          <div
+            key={stat.label}
+            className="p-4 rounded-lg border bg-white border-gray-200"
+          >
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              {stat.label}
+            </p>
+            <p className={`text-2xl font-bold mt-1 ${
+              isPositive ? "text-emerald-600" : isNegative ? "text-red-600" : "text-gray-900"
+            }`}>
+              {stat.value}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">{stat.subtext}</p>
+          </div>
+        );
+      })}
 
       {/* Regime Strength - Special Card */}
       <div
