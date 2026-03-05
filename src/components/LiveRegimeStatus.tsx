@@ -99,6 +99,7 @@ export function LastUpdatedTimestamp({ lastUpdated }: { lastUpdated: string }) {
     const timeStr = date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
+      timeZoneName: "short",
     });
 
     if (isToday) {
