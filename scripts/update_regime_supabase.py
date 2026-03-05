@@ -64,8 +64,19 @@ def get_supabase_client() -> Client:
     return create_client(url, key)
 
 
-def calculate_regime_periods(regime_s: pd.Series) -> list[dict]:
-    """Convert a regime Series into a list of regime periods."""
+def calculate_regime_periods(regime_s: pd.Series, tqqq_prices: pd.Series = None, gld_prices: pd.Series = None) -> list[dict]:
+    """Convert a regime Series into a list of regime periods with returns.
+
+    Args:
+        regime_s: Series with 'Bullish'/'Bearish' values indexed by date
+        tqqq_prices: Series of TQQQ close prices indexed by date (optional)
+        gld_prices: Series of GLD close prices indexed by date (optional)
+
+    Logic for regime transitions:
+    - On the day the regime flips, we sell the old position at close AND buy the new position at close
+    - So the flip date is the END date of the old regime (exit at close)
+    - And the flip date is also the START date of the new regime (enter at close)
+    """
     regime_s = regime_s.dropna().sort_index()
 
     periods = []
@@ -77,26 +88,74 @@ def calculate_regime_periods(regime_s: pd.Series) -> list[dict]:
 
         if regime_str != current_regime:
             if current_regime is not None:
-                periods.append({
+                # The flip date (today) is when we exit the old regime at close
+                end_date = date
+                duration = (date - period_start).days + 1  # Include both start and end dates
+                period = {
                     "regime": current_regime,
                     "startDate": period_start.strftime("%Y-%m-%d"),
-                    "endDate": (date - timedelta(days=1)).strftime("%Y-%m-%d"),
-                    "durationDays": (date - period_start).days,
-                })
+                    "endDate": end_date.strftime("%Y-%m-%d"),
+                    "durationDays": duration,
+                }
+                # Calculate return if price data available
+                if tqqq_prices is not None and gld_prices is not None:
+                    period["returnPct"] = _calculate_period_return(
+                        current_regime, period_start, end_date, tqqq_prices, gld_prices
+                    )
+                periods.append(period)
             current_regime = regime_str
-            period_start = date
+            period_start = date  # New regime starts on flip date (buy at close)
 
     # Add current (open) period
     if current_regime is not None:
         today = regime_s.index.max()
-        periods.append({
+        period = {
             "regime": current_regime,
             "startDate": period_start.strftime("%Y-%m-%d"),
             "endDate": None,
             "durationDays": (today - period_start).days + 1,
-        })
+        }
+        # Calculate return for current period (start to today)
+        if tqqq_prices is not None and gld_prices is not None:
+            period["returnPct"] = _calculate_period_return(
+                current_regime, period_start, today, tqqq_prices, gld_prices
+            )
+        periods.append(period)
 
     return periods[-10:][::-1]  # Last 10, most recent first
+
+
+def _calculate_period_return(regime: str, start_date, end_date, tqqq_prices: pd.Series, gld_prices: pd.Series) -> float:
+    """Calculate the return for a regime period.
+
+    Logic:
+    - Bullish: holding TQQQ, return = (end_price - start_price) / start_price
+    - Bearish: holding GLD, return = (end_price - start_price) / start_price
+
+    The start_date is the day we entered the position (buy at close).
+    The end_date is the day we exited the position (sell at close).
+    """
+    prices = tqqq_prices if regime == "bullish" else gld_prices
+
+    # Get entry price (close on start_date)
+    try:
+        entry_price = prices.loc[start_date]
+    except KeyError:
+        # Find nearest date
+        idx = prices.index.get_indexer([start_date], method='nearest')[0]
+        entry_price = prices.iloc[idx]
+
+    # Get exit price (close on end_date)
+    try:
+        exit_price = prices.loc[end_date]
+    except KeyError:
+        # Find nearest date
+        idx = prices.index.get_indexer([end_date], method='nearest')[0]
+        exit_price = prices.iloc[idx]
+
+    # Calculate return as percentage
+    return_pct = ((exit_price - entry_price) / entry_price) * 100
+    return round(return_pct, 2)
 
 
 def calculate_regime_stats(regime_history: list[dict]) -> dict:
@@ -123,7 +182,9 @@ def calculate_regime_stats(regime_history: list[dict]) -> dict:
 def update_regime_status(
     regime_s: pd.Series,
     z_spread_smoothed: pd.Series,
-    supabase: Client = None
+    supabase: Client = None,
+    tqqq_prices: pd.Series = None,
+    gld_prices: pd.Series = None
 ) -> dict:
     """
     Update regime status in Supabase.
@@ -132,6 +193,8 @@ def update_regime_status(
         regime_s: Series with 'Bullish'/'Bearish' values indexed by date
         z_spread_smoothed: Series with smoothed z-spread values
         supabase: Optional Supabase client (will create one if not provided)
+        tqqq_prices: Optional Series of TQQQ close prices (will fetch if not provided)
+        gld_prices: Optional Series of GLD close prices (will fetch if not provided)
 
     Returns:
         The updated record
@@ -160,8 +223,22 @@ def update_regime_status(
     current_regime = regime_s.loc[today]
     current_regime_str = "bullish" if str(current_regime).lower().startswith("bull") else "bearish"
 
+    # Fetch price data for return calculations if not provided
+    if tqqq_prices is None or gld_prices is None:
+        try:
+            from stocks_simple import Stocks
+            stocks = Stocks()
+            tqqq_df = stocks.ohlc("TQQQ")
+            gld_df = stocks.ohlc("GLD")
+            tqqq_prices = tqqq_df.set_index('date')['close']
+            gld_prices = gld_df.set_index('date')['close']
+        except Exception as e:
+            print(f"Warning: Could not fetch price data for returns: {e}")
+            tqqq_prices = None
+            gld_prices = None
+
     # Calculate regime periods and stats
-    regime_history = calculate_regime_periods(regime_s)
+    regime_history = calculate_regime_periods(regime_s, tqqq_prices, gld_prices)
     stats = calculate_regime_stats(regime_history)
 
     # Build update data

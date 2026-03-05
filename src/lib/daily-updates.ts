@@ -40,5 +40,5 @@ export async function getDailyUpdates(): Promise<DailyUpdate[]> {
   }));
 }
 
-// Re-export color/label helpers from regime-updates
-export { getRegimeColor, getRegimeBgColor, getRegimeLabel } from "./regime-updates";
+// Re-export color/label helpers
+export { getRegimeColor, getRegimeBgColor, getRegimeLabel } from "./regime-helpers";

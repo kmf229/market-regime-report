@@ -2,12 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import {
-  getDailyUpdates,
-  getRegimeColor,
-  getRegimeBgColor,
-  getRegimeLabel,
-} from "@/lib/daily-updates";
+import { getDailyUpdates } from "@/lib/daily-updates";
+import DailyUpdates from "@/components/DailyUpdates";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import RegimeStats from "@/components/RegimeStats";
 import RegimeTimeline from "@/components/RegimeTimeline";
@@ -159,43 +155,7 @@ export default async function CurrentRegimePage() {
               Daily Updates
             </h2>
 
-            {updates.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
-                No updates yet. Check back soon.
-              </p>
-            ) : (
-              <div className="space-y-6">
-                {updates.map((update, index) => (
-                  <article
-                    key={update.date}
-                    className={`border-l-4 pl-6 py-4 ${
-                      index === 0 ? "border-gray-900" : "border-gray-200"
-                    }`}
-                  >
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                      <time className="text-sm font-medium text-gray-900">
-                        {update.formattedDate}
-                      </time>
-                      <span
-                        className={`px-2 py-0.5 text-xs font-semibold rounded ${getRegimeBgColor(
-                          update.regime
-                        )} ${getRegimeColor(update.regime)}`}
-                      >
-                        {getRegimeLabel(update.regime)}
-                      </span>
-                      {index === 0 && (
-                        <span className="px-2 py-0.5 text-xs font-medium text-gray-500 bg-gray-100 rounded">
-                          Latest
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-700 leading-relaxed">
-                      {update.content}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            )}
+            <DailyUpdates updates={updates} initialCount={5} />
           </section>
 
           {/* History Section */}
