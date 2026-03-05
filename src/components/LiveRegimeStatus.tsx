@@ -54,9 +54,6 @@ export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps)
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
             Current Regime
           </h1>
-          <p className="text-lg text-gray-600 mb-2">
-            Real-time market regime status and daily updates
-          </p>
           <LastUpdatedTimestamp lastUpdated={data.lastUpdated} />
 
           {/* What This Means */}
