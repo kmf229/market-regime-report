@@ -1,24 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { RegimeData } from "@/types/regime-data";
+import RegimeStats from "@/components/RegimeStats";
+import RegimeTimeline from "@/components/RegimeTimeline";
+import RegimeContext from "@/components/RegimeContext";
 
 interface LiveRegimeStatusProps {
   initialData: RegimeData;
-  children: (data: RegimeData) => React.ReactNode;
 }
 
-export default function LiveRegimeStatus({
-  initialData,
-  children,
-}: LiveRegimeStatusProps) {
+export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps) {
   const [data, setData] = useState<RegimeData>(initialData);
 
   useEffect(() => {
     const supabase = createClient();
 
-    // Fetch latest data
     const fetchData = async () => {
       const { data: row, error } = await supabase
         .from("regime_status")
@@ -43,14 +42,60 @@ export default function LiveRegimeStatus({
       }
     };
 
-    // Poll every 60 seconds
     const interval = setInterval(fetchData, 60000);
-
-    // Cleanup on unmount
     return () => clearInterval(interval);
   }, []);
 
-  return <>{children(data)}</>;
+  return (
+    <section id="overview" className="mb-12">
+      {/* Header + Speedometer */}
+      <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
+        <div className="flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Current Regime
+            </h1>
+            <LastUpdatedTimestamp lastUpdated={data.lastUpdated} />
+          </div>
+          <p className="text-lg text-gray-600 mb-6">
+            Real-time market regime status and daily updates
+          </p>
+
+          {/* What This Means */}
+          <RegimeContext regime={data.currentRegime} strength={data.regimeStrength} />
+
+          {/* Current Trade P&L */}
+          <div className="mt-4">
+            <CurrentTradePnL
+              regime={data.currentRegime}
+              returnPct={data.currentTradeReturn}
+              startDate={data.currentTradeStart}
+            />
+          </div>
+        </div>
+
+        {/* Speedometer */}
+        <div className="relative w-full md:w-[380px] h-64 flex-shrink-0">
+          <Image
+            src={data.speedometerUrl || "/images/regime_speedometer.png"}
+            alt="Current Market Regime"
+            fill
+            className="object-contain"
+            priority
+            unoptimized
+          />
+        </div>
+      </div>
+
+      {/* Stats Panel */}
+      <RegimeStats data={data} />
+
+      {/* Timeline */}
+      <div className="mt-6">
+        <RegimeTimeline history={data.regimeHistory} />
+      </div>
+    </section>
+  );
 }
 
 // Helper component to display the last updated timestamp
@@ -77,8 +122,7 @@ export function LastUpdatedTimestamp({ lastUpdated }: { lastUpdated: string }) {
     };
 
     updateTimeAgo();
-    const interval = setInterval(updateTimeAgo, 30000); // Update every 30 seconds
-
+    const interval = setInterval(updateTimeAgo, 30000);
     return () => clearInterval(interval);
   }, [lastUpdated]);
 

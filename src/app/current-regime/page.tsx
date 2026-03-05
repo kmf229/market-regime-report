@@ -1,19 +1,12 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getDailyUpdates } from "@/lib/daily-updates";
 import DailyUpdates from "@/components/DailyUpdates";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import RegimeStats from "@/components/RegimeStats";
-import RegimeTimeline from "@/components/RegimeTimeline";
-import RegimeContext from "@/components/RegimeContext";
 import RegimeSidebar from "@/components/RegimeSidebar";
 import { getRegimeData } from "@/lib/regime-data";
-import LiveRegimeStatus, {
-  LastUpdatedTimestamp,
-  CurrentTradePnL,
-} from "@/components/LiveRegimeStatus";
+import LiveRegimeStatus from "@/components/LiveRegimeStatus";
 
 export const metadata = {
   title: "Current Regime | The Market Regime Report",
@@ -112,64 +105,8 @@ export default async function CurrentRegimePage() {
 
         {/* Main Content */}
         <main className="flex-1 min-w-0">
-          <LiveRegimeStatus initialData={regimeData}>
-            {(liveData) => (
-              <>
-                {/* Overview Section */}
-                <section id="overview" className="mb-12">
-                  {/* Header + Speedometer */}
-                  <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                          Current Regime
-                        </h1>
-                        <LastUpdatedTimestamp lastUpdated={liveData.lastUpdated} />
-                      </div>
-                      <p className="text-lg text-gray-600 mb-6">
-                        Real-time market regime status and daily updates
-                      </p>
-
-                      {/* What This Means */}
-                      <RegimeContext
-                        regime={liveData.currentRegime}
-                        strength={liveData.regimeStrength}
-                      />
-
-                      {/* Current Trade P&L */}
-                      <div className="mt-4">
-                        <CurrentTradePnL
-                          regime={liveData.currentRegime}
-                          returnPct={liveData.currentTradeReturn}
-                          startDate={liveData.currentTradeStart}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Speedometer */}
-                    <div className="relative w-full md:w-[380px] h-64 flex-shrink-0">
-                      <Image
-                        src={liveData.speedometerUrl || "/images/regime_speedometer.png"}
-                        alt="Current Market Regime"
-                        fill
-                        className="object-contain"
-                        priority
-                        unoptimized
-                      />
-                    </div>
-                  </div>
-
-                  {/* Stats Panel */}
-                  <RegimeStats data={liveData} />
-
-                  {/* Timeline */}
-                  <div className="mt-6">
-                    <RegimeTimeline history={liveData.regimeHistory} />
-                  </div>
-                </section>
-              </>
-            )}
-          </LiveRegimeStatus>
+          {/* Overview Section - Live updating */}
+          <LiveRegimeStatus initialData={regimeData} />
 
           {/* Daily Updates Section */}
           <section id="updates" className="mb-12">
