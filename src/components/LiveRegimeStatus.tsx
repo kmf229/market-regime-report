@@ -7,12 +7,22 @@ import { RegimeData } from "@/types/regime-data";
 import RegimeStats from "@/components/RegimeStats";
 import RegimeTimeline from "@/components/RegimeTimeline";
 import RegimeContext from "@/components/RegimeContext";
+import AlertPreferences from "@/components/AlertPreferences";
 
 interface LiveRegimeStatusProps {
   initialData: RegimeData;
+  userId: string;
+  alertPreferences: {
+    regime_change_alerts: boolean;
+    weekly_digest: boolean;
+  };
 }
 
-export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps) {
+export default function LiveRegimeStatus({
+  initialData,
+  userId,
+  alertPreferences,
+}: LiveRegimeStatusProps) {
   const [data, setData] = useState<RegimeData>(initialData);
 
   useEffect(() => {
@@ -55,6 +65,9 @@ export default function LiveRegimeStatus({ initialData }: LiveRegimeStatusProps)
             Current Regime
           </h1>
           <LastUpdatedTimestamp lastUpdated={data.lastUpdated} />
+          <div className="mt-2">
+            <AlertPreferences userId={userId} initialPreferences={alertPreferences} />
+          </div>
 
           {/* What This Means */}
           <div className="mt-6">

@@ -7,7 +7,6 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import RegimeSidebar from "@/components/RegimeSidebar";
 import { getRegimeData } from "@/lib/regime-data";
 import LiveRegimeStatus from "@/components/LiveRegimeStatus";
-import AlertPreferences from "@/components/AlertPreferences";
 
 export const metadata = {
   title: "Current Regime | The Market Regime Report",
@@ -111,15 +110,11 @@ export default async function CurrentRegimePage() {
         {/* Main Content */}
         <main className="flex-1 min-w-0">
           {/* Overview Section - Live updating */}
-          <LiveRegimeStatus initialData={regimeData} />
-
-          {/* Alert Preferences */}
-          <section className="mb-12">
-            <AlertPreferences
-              userId={user.id}
-              initialPreferences={alertPreferences}
-            />
-          </section>
+          <LiveRegimeStatus
+            initialData={regimeData}
+            userId={user.id}
+            alertPreferences={alertPreferences}
+          />
 
           {/* Daily Updates Section */}
           <section id="updates" className="mb-12">
