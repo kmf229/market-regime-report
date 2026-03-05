@@ -358,6 +358,29 @@ def store_closing_regime():
         traceback.print_exc()
 
 
+def send_weekly_digest():
+    """Send weekly digest emails every Sunday at 5pm ET."""
+    now = datetime.now(ET)
+
+    # Only run on Sundays
+    if now.weekday() != 6:  # 6 = Sunday
+        print(f"[{now}] Not Sunday, skipping weekly digest")
+        return
+
+    try:
+        print(f"[{now}] Sending weekly digest...")
+
+        from generate_weekly_digest import send_weekly_digest as send_digest
+        send_digest()
+
+        print(f"[{now}] Weekly digest sent!")
+
+    except Exception as e:
+        print(f"[{now}] Error sending weekly digest: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def main():
     """Main entry point."""
     print("=" * 50)
@@ -366,8 +389,9 @@ def main():
     print(f"Started at: {datetime.now(ET)}")
     print("Schedule: Every 10 minutes during market hours")
     print("Market hours: Mon-Fri, 9:30am-4:15pm ET")
-    print("Regime alerts: 3:30pm ET")
-    print("Daily blurb + store closing regime: 4:15pm ET")
+    print("Regime alerts: 3:30pm ET (weekdays)")
+    print("Daily blurb + store closing regime: 4:15pm ET (weekdays)")
+    print("Weekly digest: Sunday 5:00pm ET")
     print("=" * 50)
 
     # Run once on startup
@@ -384,6 +408,9 @@ def main():
 
     # Schedule closing regime storage at 4:15pm ET (right after blurb)
     schedule.every().day.at("16:16").do(store_closing_regime)
+
+    # Schedule weekly digest every Sunday at 5pm ET
+    schedule.every().sunday.at("17:00").do(send_weekly_digest)
 
     # Keep running
     while True:
