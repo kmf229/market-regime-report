@@ -391,7 +391,7 @@ def main():
     print("Market hours: Mon-Fri, 9:30am-4:15pm ET")
     print("Regime alerts: 3:30pm ET (weekdays)")
     print("Daily blurb + store closing regime: 4:15pm ET (weekdays)")
-    print("Weekly digest: Sunday 5:00pm ET")
+    print("Weekly digest: Sunday 8:00am ET")
     print("=" * 50)
 
     # Run once on startup
@@ -409,8 +409,8 @@ def main():
     # Schedule closing regime storage at 4:15pm ET (right after blurb)
     schedule.every().day.at("16:16").do(store_closing_regime)
 
-    # Schedule weekly digest every Sunday at 5pm ET
-    schedule.every().sunday.at("17:00").do(send_weekly_digest)
+    # Schedule weekly digest every Sunday at 8am ET
+    schedule.every().sunday.at("08:00").do(send_weekly_digest)
 
     # Keep running
     while True:
