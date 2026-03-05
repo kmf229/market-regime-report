@@ -3,11 +3,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
-  getAllPublishedUpdates,
+  getDailyUpdates,
   getRegimeColor,
   getRegimeBgColor,
   getRegimeLabel,
-} from "@/lib/regime-updates";
+} from "@/lib/daily-updates";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import RegimeStats from "@/components/RegimeStats";
 import RegimeTimeline from "@/components/RegimeTimeline";
@@ -97,7 +97,7 @@ export default async function CurrentRegimePage() {
     return <AccessDenied />;
   }
 
-  const updates = await getAllPublishedUpdates();
+  const updates = await getDailyUpdates();
   const regimeData = await getRegimeData();
 
   return (
@@ -189,10 +189,9 @@ export default async function CurrentRegimePage() {
                         </span>
                       )}
                     </div>
-                    <div
-                      className="prose prose-sm max-w-none text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: update.htmlContent }}
-                    />
+                    <p className="text-gray-700 leading-relaxed">
+                      {update.content}
+                    </p>
                   </article>
                 ))}
               </div>

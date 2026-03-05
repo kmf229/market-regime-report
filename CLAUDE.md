@@ -78,8 +78,8 @@ website/
 ├── content/
 │   ├── articles/                       # Markdown articles
 │   │   └── *.md                        # Article files with frontmatter
-│   └── regime-updates/                 # Daily regime updates
-│       └── YYYY-MM-DD.md               # Daily update files
+│   └── regime-updates/                 # Legacy: Daily updates (now in Supabase)
+│       └── YYYY-MM-DD.md               # Migrated to daily_updates table
 ├── public/
 │   ├── images/
 │   │   ├── logo.png                    # Site logo
@@ -125,7 +125,8 @@ website/
 │   │   └── RegimeSidebar.tsx           # Left sidebar navigation
 │   ├── lib/
 │   │   ├── articles.ts                 # Article reading/parsing utilities
-│   │   ├── regime-updates.ts           # Regime update reading/parsing
+│   │   ├── regime-updates.ts           # Legacy: Regime update reading (markdown)
+│   │   ├── daily-updates.ts            # Fetch daily updates from Supabase
 │   │   ├── regime-data.ts              # Fetch regime data from Supabase
 │   │   └── supabase/
 │   │       ├── client.ts               # Browser Supabase client
@@ -134,16 +135,20 @@ website/
 │   ├── middleware.ts                   # Next.js middleware for route protection
 │   └── types/
 │       ├── article.ts                  # Article TypeScript interfaces
-│       ├── regime-update.ts            # Regime update TypeScript interfaces
+│       ├── regime-update.ts            # Legacy: Regime update interfaces (markdown)
+│       ├── daily-update.ts             # Daily update interface (Supabase)
 │       ├── regime-data.ts              # Regime data TypeScript interfaces
 │       └── track-record.ts             # Track record TypeScript interfaces
 ├── scripts/
 │   ├── update_regime_supabase.py       # Python: update Supabase from notebook/Pi
-│   └── pi_scheduler.py                 # Python: Raspberry Pi auto-updater
+│   ├── pi_scheduler.py                 # Python: Raspberry Pi auto-updater
+│   ├── generate_blurb.py               # Python: AI-generated daily blurbs (Claude API)
+│   └── migrate_updates.py              # Python: one-time migration of markdown to Supabase
 ├── supabase/
 │   └── migrations/
 │       ├── 001_profiles.sql            # Profiles table + RLS policies
-│       └── 002_regime_status.sql       # Regime status table for real-time data
+│       ├── 002_regime_status.sql       # Regime status table for real-time data
+│       └── 003_daily_updates.sql       # Daily updates table for AI blurbs
 ├── .env.local.example                  # Environment variables template
 ├── SETUP_AUTH.md                       # Supabase auth setup guide
 ├── package.json
@@ -636,20 +641,37 @@ Open http://localhost:3000
    - Runs every 10 minutes during market hours (9:30am-4:15pm ET)
    - Includes systemd service config for auto-start on boot
 
+### Session 5 (Mar 5, 2026)
+1. **Automated Daily Blurbs**:
+   - Created `daily_updates` table in Supabase (migration: `003_daily_updates.sql`)
+   - Created `generate_blurb.py` script for AI-generated daily updates
+   - Uses Claude API (Anthropic) with detailed system prompt
+   - Fetches TQQQ/GLD OHLCV data and regime strength for context
+   - Updated `pi_scheduler.py` to generate blurbs at 4:15pm ET
+
+2. **Website Changes**:
+   - Created `/src/lib/daily-updates.ts` to fetch from Supabase
+   - Created `/src/types/daily-update.ts` TypeScript interface
+   - Updated `/current-regime/page.tsx` to read from Supabase instead of markdown files
+   - Blurbs now stored as plain text (no markdown processing needed)
+
+3. **Migration Script**:
+   - Created `migrate_updates.py` to move existing markdown updates to Supabase
+   - One-time script to run after creating the table
+
 ---
 
-## TODO for Next Session (Mar 5, 2026)
+## TODO for Next Session
 
 ### 1. Set up Raspberry Pi
 - Follow the "Raspberry Pi Setup (TODO)" instructions above
 - Test that regime updates are working
 - Verify speedometer uploads to Supabase Storage
+- **New**: Add `ANTHROPIC_API_KEY` to Pi environment for blurb generation
 
-### 2. Automate Daily Blurbs (Option B - Supabase)
-- Create `daily_updates` table in Supabase
-- Update website to read daily blurbs from Supabase instead of markdown files
-- Add to Pi scheduler: at 4:15pm ET, generate blurb via AI (Claude/OpenAI) and insert into Supabase
-- Kevin has the prompt for generating blurbs
+### 2. Run Supabase Migration
+- Run the SQL in `/supabase/migrations/003_daily_updates.sql` in Supabase dashboard
+- Run `python scripts/migrate_updates.py` to migrate existing markdown updates
 
 ### 3. REMINDER: Update Regime History Returns
 - The Regime History table at the bottom of Current Regime page has empty return values

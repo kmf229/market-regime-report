@@ -269,6 +269,33 @@ def update_regime():
         traceback.print_exc()
 
 
+def generate_daily_blurb():
+    """Generate and store daily AI blurb at market close."""
+    now = datetime.now(ET)
+
+    # Skip weekends
+    if now.weekday() > 4:
+        print(f"[{now}] Weekend, skipping blurb generation")
+        return
+
+    try:
+        print(f"[{now}] Generating daily blurb...")
+
+        # Calculate latest regime data
+        regime_s, z_spread_smoothed, _ = calculate_regime()
+
+        # Generate and store blurb
+        from generate_blurb import generate_and_store_daily_blurb
+        generate_and_store_daily_blurb(regime_s, z_spread_smoothed)
+
+        print(f"[{now}] Daily blurb complete!")
+
+    except Exception as e:
+        print(f"[{now}] Error generating blurb: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def main():
     """Main entry point."""
     print("=" * 50)
@@ -277,13 +304,17 @@ def main():
     print(f"Started at: {datetime.now(ET)}")
     print("Schedule: Every 10 minutes during market hours")
     print("Market hours: Mon-Fri, 9:30am-4:15pm ET")
+    print("Daily blurb: 4:15pm ET")
     print("=" * 50)
 
     # Run once on startup
     update_regime()
 
-    # Schedule to run every 10 minutes
+    # Schedule regime updates every 10 minutes
     schedule.every(10).minutes.do(update_regime)
+
+    # Schedule daily blurb generation at 4:15pm ET
+    schedule.every().day.at("16:15").do(generate_daily_blurb)
 
     # Keep running
     while True:
@@ -311,6 +342,7 @@ if __name__ == "__main__":
 # WorkingDirectory=/home/pi/market-regime
 # Environment=SUPABASE_URL=https://your-project.supabase.co
 # Environment=SUPABASE_SERVICE_KEY=your-service-key
+# Environment=ANTHROPIC_API_KEY=your-anthropic-key
 # ExecStart=/usr/bin/python3 /home/pi/market-regime/pi_scheduler.py
 # Restart=always
 # RestartSec=10

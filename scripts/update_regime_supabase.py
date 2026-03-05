@@ -39,7 +39,13 @@ except ImportError:
 # Load environment variables if .env file exists
 try:
     from dotenv import load_dotenv
-    load_dotenv()
+    # Try .env.local first (Next.js convention), then .env
+    env_local = Path(__file__).parent.parent / ".env.local"
+    env_file = Path(__file__).parent.parent / ".env"
+    if env_local.exists():
+        load_dotenv(env_local)
+    elif env_file.exists():
+        load_dotenv(env_file)
 except ImportError:
     pass  # dotenv is optional
 
