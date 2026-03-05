@@ -62,11 +62,6 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
       subtext: `Current ${data.currentRegime} regime`,
     },
     {
-      label: "Regime Changes (YTD)",
-      value: data.regimeChangesThisYear,
-      subtext: "Signals this year",
-    },
-    {
       label: "Avg Duration",
       value: `${data.avgRegimeDurationDays}d`,
       subtext: "Per regime period",
@@ -82,7 +77,7 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat) => {
         // Special styling for Current Trade card
         const isPositive = stat.isTradeCard && data.currentTradeReturn !== null && data.currentTradeReturn >= 0;
