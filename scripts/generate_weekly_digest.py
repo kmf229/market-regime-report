@@ -277,10 +277,7 @@ Write the market context paragraph:"""
 def build_weekly_digest_email(
     regime_status: dict,
     weekly_returns: dict,
-    ytd_returns: dict,
-    price_action: dict,
     pep_talk: str,
-    market_context: str,
 ) -> tuple[str, str]:
     """Build email subject and HTML body for weekly digest."""
 
@@ -321,7 +318,7 @@ def build_weekly_digest_email(
     else:
         strength_direction = "Moderate conviction"
 
-    subject = f"Market Regime Weekly Digest: {regime_display}, {fmt_return(strategy_weekly)} This Week"
+    subject = f"Weekly Digest: {regime_display}, {fmt_return(strategy_weekly)} This Week"
 
     html = f"""
 <!DOCTYPE html>
@@ -391,29 +388,6 @@ def build_weekly_digest_email(
             <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">{strength_direction}</p>
         </div>
 
-        <!-- Market Context -->
-        <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
-            <h2 style="margin: 0 0 16px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">Market Context</h2>
-            <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.7;">
-                {market_context}
-            </p>
-        </div>
-
-        <!-- YTD Performance -->
-        <div style="padding: 24px; border-bottom: 1px solid #e5e7eb;">
-            <h2 style="margin: 0 0 16px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">YTD Performance</h2>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; font-size: 14px; color: #374151;">Strategy</td>
-                    <td style="padding: 8px 0; font-size: 16px; font-weight: 700; text-align: right; color: {'#059669' if ytd_returns['strategy_ytd'] >= 0 else '#dc2626'};">{fmt_return(ytd_returns['strategy_ytd'])}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; font-size: 14px; color: #374151;">SPY (Benchmark)</td>
-                    <td style="padding: 8px 0; font-size: 14px; font-weight: 600; text-align: right; color: {'#059669' if ytd_returns['spy_ytd'] >= 0 else '#dc2626'};">{fmt_return(ytd_returns['spy_ytd'])}</td>
-                </tr>
-            </table>
-        </div>
-
         <!-- CTA -->
         <div style="padding: 24px; text-align: center; border-bottom: 1px solid #e5e7eb;">
             <a href="https://marketregimes.com/current-regime"
@@ -461,9 +435,6 @@ def send_weekly_digest(test: bool = False, test_email: str = None) -> None:
     if not resend.api_key:
         raise ValueError("Missing RESEND_API_KEY")
 
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        raise ValueError("Missing ANTHROPIC_API_KEY")
-
     supabase = get_supabase_client()
 
     print("Gathering data...")
@@ -473,23 +444,15 @@ def send_weekly_digest(test: bool = False, test_email: str = None) -> None:
     tqqq_df, gld_df, spy_df = get_price_data()
 
     weekly_returns = calculate_weekly_returns(tqqq_df, gld_df, spy_df)
-    ytd_returns = calculate_ytd_returns(tqqq_df, gld_df, spy_df, regime_status.get('regime_history', []))
-    price_action = get_weekly_price_action(tqqq_df, gld_df)
 
     print("Generating pep talk...")
     pep_talk = generate_pep_talk(regime_status.get('current_trade_return'))
-
-    print("Generating market context...")
-    market_context = generate_market_context(price_action, regime_status['current_regime'])
 
     print("Building email...")
     subject, html = build_weekly_digest_email(
         regime_status=regime_status,
         weekly_returns=weekly_returns,
-        ytd_returns=ytd_returns,
-        price_action=price_action,
         pep_talk=pep_talk,
-        market_context=market_context,
     )
 
     if test and not test_email:
@@ -497,9 +460,7 @@ def send_weekly_digest(test: bool = False, test_email: str = None) -> None:
         print(f"Subject: {subject}")
         print(f"\nWould send to opted-in users")
         print(f"\nWeekly returns: TQQQ {weekly_returns['tqqq_weekly']:.1f}%, GLD {weekly_returns['gld_weekly']:.1f}%")
-        print(f"YTD: Strategy {ytd_returns['strategy_ytd']:.1f}%, SPY {ytd_returns['spy_ytd']:.1f}%")
         print(f"\nPep talk: {pep_talk[:100]}...")
-        print(f"\nMarket context: {market_context}")
         return
 
     # Get recipients
