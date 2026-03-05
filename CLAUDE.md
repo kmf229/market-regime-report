@@ -655,6 +655,8 @@ Open http://localhost:3000
    - Created `/src/types/daily-update.ts` TypeScript interface
    - Updated `/current-regime/page.tsx` to read from Supabase instead of markdown files
    - Blurbs now stored as plain text (no markdown processing needed)
+   - Added `DailyUpdates` component with pagination (shows 5, "Show more" for rest)
+   - Created `/src/lib/regime-helpers.ts` for client/server compatible helpers
 
 3. **Migration Script**:
    - Created `migrate_updates.py` to move existing markdown updates to Supabase
@@ -677,33 +679,49 @@ Open http://localhost:3000
    - Scheduler now skips weekends AND holidays (Good Friday, Thanksgiving, etc.)
    - Both regime updates and blurb generation respect trading days
 
+6. **Regime History Returns** (COMPLETED):
+   - Updated `update_regime_supabase.py` to calculate returns for each regime period
+   - Bullish periods: TQQQ return (buy at close on start, sell at close on end)
+   - Bearish periods: GLD return (buy at close on start, sell at close on end)
+   - Fixed date logic: regime flip date is the END of old period (exit at close)
+   - Returns now display in Regime History table on Current Regime page
+
 ---
 
 ## TODO for Next Session
 
-### 1. REMINDER: Update Regime History Returns
-- The Regime History table at the bottom of Current Regime page has empty return values
-- Kevin needs to provide the return percentages for each regime period
-- Update the `regime_history` array in Supabase (or in the Python script that generates it)
+No critical items remaining. See Future Enhancements for potential improvements.
 
 ---
 
 ## Future Enhancements
 
-### Planned
-- [ ] Benchmark comparison (S&P 500/QQQ)
-- [ ] Drawdown chart
+### Current Regime Page Ideas
+- [ ] **Benchmark comparison** - Show strategy cumulative return vs buy-and-hold SPY
+- [ ] **Performance metrics card** - Sharpe ratio, max drawdown, win rate
+- [ ] **"Last updated" timestamp** - Show "Updated X minutes ago" for freshness
+- [ ] **Cumulative return chart** - Visual equity curve for the strategy
+- [ ] **Regime change alerts** - Email notification when regime flips (could integrate with Substack)
+- [ ] **Export data** - Download regime history as CSV
+
+### Other Ideas
+- [ ] Drawdown chart on Track Record page
 - [ ] Rolling returns display
-- [x] Regime history timeline (completed Session 4)
+- [ ] Mobile app / PWA
 
 ### Completed
+- [x] Regime history timeline (Session 4)
 - [x] Open Graph meta tags
 - [x] Related articles
 - [x] Reading time
 - [x] RSS feed
 - [x] Tag filtering
 - [x] Custom 404 page
-- [x] Real-time regime updates (Supabase + Pi)
+- [x] Real-time regime updates via Supabase + Raspberry Pi (Session 5)
+- [x] Automated AI-generated daily blurbs (Session 5)
+- [x] Trading day detection for holidays (Session 5)
+- [x] Regime period returns calculation (Session 5)
+- [x] Daily updates pagination (Session 5)
 
 ---
 
