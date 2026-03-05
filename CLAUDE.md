@@ -648,6 +648,7 @@ Open http://localhost:3000
    - Uses Claude API (Anthropic) with detailed system prompt
    - Fetches TQQQ/GLD OHLCV data and regime strength for context
    - Updated `pi_scheduler.py` to generate blurbs at 4:15pm ET
+   - Added markdown stripping to clean up Claude's output
 
 2. **Website Changes**:
    - Created `/src/lib/daily-updates.ts` to fetch from Supabase
@@ -659,23 +660,30 @@ Open http://localhost:3000
    - Created `migrate_updates.py` to move existing markdown updates to Supabase
    - One-time script to run after creating the table
 
+4. **Raspberry Pi Setup** (COMPLETED):
+   - Connected to Pi at `192.168.1.163` via SSH (user: `kmf229`)
+   - Created `/home/kmf229/market-regime/` working directory
+   - Set up Python virtual environment (`venv`)
+   - Installed dependencies: supabase, python-dotenv, schedule, pandas, numpy, matplotlib, pytz, anthropic, requests
+   - Created `stocks_simple.py` using Polygon.io API (not yfinance)
+   - Copied `trading_days.py` for market holiday detection
+   - Created `.env` file with SUPABASE_URL, SUPABASE_SERVICE_KEY, ANTHROPIC_API_KEY
+   - Set up systemd service (`regime-updater.service`) to run on boot
+   - Added `PYTHONUNBUFFERED=1` for real-time log output
+
+5. **Trading Day Detection**:
+   - Updated `pi_scheduler.py` with `is_trading_day()` function
+   - Uses `trading_days.py` to check for market holidays
+   - Scheduler now skips weekends AND holidays (Good Friday, Thanksgiving, etc.)
+   - Both regime updates and blurb generation respect trading days
+
 ---
 
 ## TODO for Next Session
 
-### 1. Set up Raspberry Pi
-- Follow the "Raspberry Pi Setup (TODO)" instructions above
-- Test that regime updates are working
-- Verify speedometer uploads to Supabase Storage
-- **New**: Add `ANTHROPIC_API_KEY` to Pi environment for blurb generation
-
-### 2. Run Supabase Migration
-- Run the SQL in `/supabase/migrations/003_daily_updates.sql` in Supabase dashboard
-- Run `python scripts/migrate_updates.py` to migrate existing markdown updates
-
-### 3. REMINDER: Update Regime History Returns
+### 1. REMINDER: Update Regime History Returns
 - The Regime History table at the bottom of Current Regime page has empty return values
-- Ask Kevin to provide the return percentages for each regime period
+- Kevin needs to provide the return percentages for each regime period
 - Update the `regime_history` array in Supabase (or in the Python script that generates it)
 
 ---

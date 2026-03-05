@@ -43,12 +43,32 @@ MARKET_CLOSE_HOUR = 16
 MARKET_CLOSE_MINUTE = 15
 
 
+def is_trading_day() -> bool:
+    """Check if today is an actual market trading day (not weekend or holiday)."""
+    from trading_days import trading_days
+
+    # Build list of trading days
+    all_trading_days = []
+    for year in range(2018, 2027):
+        all_trading_days.extend(trading_days(year))
+
+    # Get today's date (no time component)
+    now = datetime.now(ET)
+    today = datetime(now.year, now.month, now.day)
+
+    return today in all_trading_days
+
+
 def is_market_hours() -> bool:
-    """Check if current time is during market hours (Mon-Fri, 9:30am-4pm ET)."""
+    """Check if current time is during market hours on a trading day."""
     now = datetime.now(ET)
 
     # Check if weekday (Monday=0, Friday=4)
     if now.weekday() > 4:
+        return False
+
+    # Check if it's an actual trading day (not a holiday)
+    if not is_trading_day():
         return False
 
     # Check time
@@ -73,7 +93,7 @@ def calculate_regime():
     # ============================================
 
     # Import your stocks module
-    from stocks import Stocks
+    from stocks_simple import Stocks
 
     stocks = Stocks()
 
@@ -273,9 +293,9 @@ def generate_daily_blurb():
     """Generate and store daily AI blurb at market close."""
     now = datetime.now(ET)
 
-    # Skip weekends
-    if now.weekday() > 4:
-        print(f"[{now}] Weekend, skipping blurb generation")
+    # Skip non-trading days (weekends and holidays)
+    if not is_trading_day():
+        print(f"[{now}] Not a trading day, skipping blurb generation")
         return
 
     try:

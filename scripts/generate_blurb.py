@@ -32,13 +32,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from dotenv import load_dotenv
-    # Try .env.local first (Next.js convention), then .env
+    # Try .env in same directory (Pi), then .env.local in parent (Mac/Next.js)
+    env_file = Path(__file__).parent / ".env"
     env_local = Path(__file__).parent.parent / ".env.local"
-    env_file = Path(__file__).parent.parent / ".env"
-    if env_local.exists():
-        load_dotenv(env_local)
-    elif env_file.exists():
+    if env_file.exists():
         load_dotenv(env_file)
+    elif env_local.exists():
+        load_dotenv(env_local)
 except ImportError:
     pass
 
@@ -174,6 +174,8 @@ Your output MUST have:
 - No hype words ("explosive," "massive," "guaranteed")
 - No first-person trading anecdotes
 - No claims of certainty
+- **No markdown formatting** - no headers, no bold, no bullet points, just plain prose
+- Do NOT include a title, date header, or any preamble - start directly with the content
 - Prefer language like:
   - "pressure," "confirmation," "divergence," "alignment," "transition," "structure"
 
@@ -210,7 +212,7 @@ def scale_regime_strength(raw_strength: float, threshold: float = 0.25,
 
 def get_ohlcv_data(ticker: str, days: int = 10) -> pd.DataFrame:
     """Fetch recent OHLCV data for a ticker."""
-    from stocks import Stocks
+    from stocks_simple import Stocks
 
     stocks = Stocks()
     today = datetime.now().strftime('%Y-%m-%d')
@@ -280,7 +282,19 @@ def generate_blurb(tqqq_ohlcv: str, gld_ohlcv: str, regime_strength: str) -> str
         ]
     )
 
-    return message.content[0].text.strip()
+    blurb = message.content[0].text.strip()
+
+    # Clean up any markdown that slipped through
+    import re
+    # Remove markdown headers
+    blurb = re.sub(r'^#{1,6}\s+.*\n*', '', blurb)
+    # Remove bold/italic markers
+    blurb = re.sub(r'\*\*([^*]+)\*\*', r'\1', blurb)
+    blurb = re.sub(r'\*([^*]+)\*', r'\1', blurb)
+    # Remove any remaining leading whitespace/newlines
+    blurb = blurb.strip()
+
+    return blurb
 
 
 # ============================================
@@ -386,15 +400,88 @@ def test_blurb_generation():
     return blurb
 
 
+def run_manual():
+    """Run blurb generation manually with real regime data."""
+    print("=" * 50)
+    print("Manual Blurb Generation")
+    print("=" * 50)
+
+    # Import stocks module and calculate regime
+    from stocks_simple import Stocks
+    import numpy as np
+
+    stocks = Stocks()
+    today = datetime.now().strftime('%Y-%m-%d')
+
+    RISK_ON_TICKERS = ["XLK", "XLY", "XLI", "SMH", "IWM"]
+    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GLD", "TLT"]
+    BENCHMARK = ["SPY"]
+    WINDOW_LENGTH = 45
+    EMA_SMOOTHING = 20
+    BULLISH_THRESHOLD = 0.25
+
+    def fetch_closes(tickers):
+        all_series = {}
+        for ticker in tickers:
+            temp = stocks.ohlc(ticker, end=today)
+            all_series[ticker] = (
+                temp[['date', 'close']]
+                .set_index('date')
+                .to_dict()['close']
+            )
+        df = pd.DataFrame(all_series).sort_index()
+        return df
+
+    print("Fetching market data...")
+    benchmark = fetch_closes(BENCHMARK)
+    risk_on_df = fetch_closes(RISK_ON_TICKERS)
+    risk_off_df = fetch_closes(RISK_OFF_TICKERS)
+    df = pd.concat([risk_on_df, risk_off_df, benchmark], axis=1).dropna()
+
+    # Relative strength vs benchmark
+    risk_on_rs = df[RISK_ON_TICKERS].div(df['SPY'], axis=0)
+    risk_off_rs = df[RISK_OFF_TICKERS].div(df['SPY'], axis=0)
+
+    # Averages
+    risk_on_avg = risk_on_rs.mean(axis=1)
+    risk_off_avg = risk_off_rs.mean(axis=1)
+
+    # Rolling mean/std -> z-scores
+    ro_mean = risk_on_avg.rolling(WINDOW_LENGTH).mean()
+    ro_std = risk_on_avg.rolling(WINDOW_LENGTH).std()
+    rf_mean = risk_off_avg.rolling(WINDOW_LENGTH).mean()
+    rf_std = risk_off_avg.rolling(WINDOW_LENGTH).std()
+
+    risk_on_z = (risk_on_avg - ro_mean) / ro_std
+    risk_off_z = (risk_off_avg - rf_mean) / rf_std
+
+    z_spread = risk_on_z - risk_off_z
+    z_spread_smoothed = z_spread.ewm(span=EMA_SMOOTHING, adjust=False).mean()
+
+    # Regime classification
+    regime_s = pd.Series(index=z_spread_smoothed.index, dtype=object)
+    regime_s[z_spread_smoothed > BULLISH_THRESHOLD] = 'Bullish'
+    regime_s[z_spread_smoothed <= BULLISH_THRESHOLD] = 'Bearish'
+
+    # Generate and store
+    blurb = generate_and_store_daily_blurb(regime_s, z_spread_smoothed)
+
+    return blurb
+
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate daily market blurbs")
     parser.add_argument("--test", action="store_true", help="Run in test mode with sample data")
+    parser.add_argument("--manual", action="store_true", help="Run manually with real market data")
     args = parser.parse_args()
 
     if args.test:
         test_blurb_generation()
+    elif args.manual:
+        run_manual()
     else:
-        print("Usage: python generate_blurb.py --test")
-        print("Or import and call generate_and_store_daily_blurb() from pi_scheduler.py")
+        print("Usage:")
+        print("  python generate_blurb.py --manual   # Generate with real market data")
+        print("  python generate_blurb.py --test     # Generate with sample data")
