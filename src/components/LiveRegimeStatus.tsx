@@ -67,7 +67,7 @@ export default function LiveRegimeStatus({
         {/* Speedometer */}
         <div className="relative w-full md:w-[380px] h-64 flex-shrink-0">
           <Image
-            src={data.speedometerUrl || "/images/regime_speedometer.png"}
+            src={`${data.speedometerUrl || "/images/regime_speedometer.png"}?t=${new Date(data.lastUpdated).getTime()}`}
             alt="Current Market Regime"
             fill
             className="object-contain"
