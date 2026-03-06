@@ -26,12 +26,17 @@ sys.path.insert(0, str(Path(__file__).parent))
 # Load environment variables
 try:
     from dotenv import load_dotenv
-    env_file = Path(__file__).parent / ".env"
-    env_local = Path(__file__).parent.parent / ".env.local"
-    if env_file.exists():
+    script_dir = Path(__file__).resolve().parent
+    env_file = script_dir / ".env"
+    env_local = script_dir.parent / ".env.local"
+
+    # Try .env.local first (local dev), then .env (Pi)
+    if env_local.exists():
+        load_dotenv(env_local)
+        print(f"Loaded env from: {env_local}")
+    elif env_file.exists():
         load_dotenv(env_file)
-    elif env_local.resolve().exists():
-        load_dotenv(env_local.resolve())
+        print(f"Loaded env from: {env_file}")
 except ImportError:
     pass
 
@@ -310,7 +315,7 @@ def generate_note(
     return response.content[0].text.strip()
 
 
-def send_note_email(note: str, to_email: str = "kmf229@stern.nyu.edu") -> None:
+def send_note_email(note: str, to_email: str = "kmf229@gmail.com") -> None:
     """Send the generated note via email."""
     import resend
 
