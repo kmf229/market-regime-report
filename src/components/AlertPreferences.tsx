@@ -53,7 +53,7 @@ export default function AlertPreferences({
   };
 
   return (
-    <div className="space-y-2 px-3 text-sm">
+    <div className="flex items-center gap-6 text-sm">
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
@@ -63,7 +63,7 @@ export default function AlertPreferences({
           }
           className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
         />
-        <span className="text-gray-600">Regime changes</span>
+        <span className="text-gray-600">Regime change alerts</span>
       </label>
 
       <label className="flex items-center gap-2 cursor-pointer">
@@ -76,8 +76,8 @@ export default function AlertPreferences({
         <span className="text-gray-600">Weekly digest</span>
       </label>
 
-      {saving && <span className="text-xs text-gray-400 block mt-1">Saving...</span>}
-      {saved && <span className="text-xs text-emerald-600 block mt-1">Saved</span>}
+      {saving && <span className="text-xs text-gray-400">Saving...</span>}
+      {saved && <span className="text-xs text-emerald-600">Saved</span>}
     </div>
   );
 }

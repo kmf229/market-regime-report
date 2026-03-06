@@ -1,15 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AlertPreferences from "@/components/AlertPreferences";
 
 interface RegimeSidebarProps {
   regime: "bullish" | "bearish";
-  userId: string;
-  alertPreferences: {
-    regime_change_alerts: boolean;
-    weekly_digest: boolean;
-  };
 }
 
 const sections = [
@@ -18,7 +12,7 @@ const sections = [
   { id: "history", label: "History", icon: "chart" },
 ];
 
-export default function RegimeSidebar({ regime, userId, alertPreferences }: RegimeSidebarProps) {
+export default function RegimeSidebar({ regime }: RegimeSidebarProps) {
   const [activeSection, setActiveSection] = useState("overview");
 
   useEffect(() => {
@@ -108,14 +102,6 @@ export default function RegimeSidebar({ regime, userId, alertPreferences }: Regi
           {section.label}
         </button>
       ))}
-
-      {/* Email Alerts */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3 px-3">
-          Email Alerts
-        </div>
-        <AlertPreferences userId={userId} initialPreferences={alertPreferences} />
-      </div>
     </nav>
   );
 }
