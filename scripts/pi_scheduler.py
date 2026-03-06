@@ -381,6 +381,29 @@ def send_weekly_digest():
         traceback.print_exc()
 
 
+def generate_substack_note():
+    """Generate Substack note and email it for manual posting."""
+    now = datetime.now(ET)
+
+    # Skip non-trading days
+    if not is_trading_day():
+        print(f"[{now}] Not a trading day, skipping Substack note")
+        return
+
+    try:
+        print(f"[{now}] Generating Substack note...")
+
+        from generate_substack_note import generate_and_send_note
+        generate_and_send_note()
+
+        print(f"[{now}] Substack note sent!")
+
+    except Exception as e:
+        print(f"[{now}] Error generating Substack note: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def main():
     """Main entry point."""
     print("=" * 50)
@@ -391,6 +414,7 @@ def main():
     print("Market hours: Mon-Fri, 9:30am-4:25pm ET")
     print("Regime alerts: 3:30pm ET (weekdays)")
     print("Daily blurb + store closing regime: 4:15pm ET (weekdays)")
+    print("Substack note: 4:17pm ET (weekdays)")
     print("Weekly digest: Sunday 8:00am ET")
     print("=" * 50)
 
@@ -408,6 +432,9 @@ def main():
 
     # Schedule closing regime storage at 4:15pm ET (right after blurb)
     schedule.every().day.at("16:16").do(store_closing_regime)
+
+    # Schedule Substack note generation at 4:17pm ET
+    schedule.every().day.at("16:17").do(generate_substack_note)
 
     # Schedule weekly digest every Sunday at 8am ET
     schedule.every().sunday.at("08:00").do(send_weekly_digest)
