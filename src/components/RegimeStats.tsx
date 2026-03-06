@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RegimeData } from "@/types/regime-data";
 
 interface RegimeStatsProps {
@@ -42,14 +42,43 @@ function getStrengthLabel(scaledStrength: number): string {
 
 export default function RegimeStats({ data }: RegimeStatsProps) {
   const [showStrengthInfo, setShowStrengthInfo] = useState(false);
+  const [livePrice, setLivePrice] = useState<number | null>(null);
+  const [liveReturn, setLiveReturn] = useState<number | null>(null);
 
   const scaledStrength = scaleStrength(data.regimeStrength);
   const strengthLabel = getStrengthLabel(scaledStrength);
 
-  // Format current trade value
+  // Fetch live price for current trade
+  useEffect(() => {
+    const ticker = data.currentRegime === "bullish" ? "TQQQ" : "GLD";
+
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`/api/stock-price?ticker=${ticker}`);
+        if (response.ok) {
+          const result = await response.json();
+          setLivePrice(result.price);
+
+          // Calculate live return if we have entry price
+          if (data.currentTradeEntryPrice && result.price) {
+            const returnPct = ((result.price - data.currentTradeEntryPrice) / data.currentTradeEntryPrice) * 100;
+            setLiveReturn(returnPct);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching live price:", error);
+      }
+    };
+
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 60000); // Refresh every 60 seconds
+    return () => clearInterval(interval);
+  }, [data.currentRegime, data.currentTradeEntryPrice]);
+
+  // Format current trade value - use live return if available
   const formatTradeValue = () => {
-    if (data.currentTradeReturn === null) return "—";
-    const pct = data.currentTradeReturn;
+    const pct = liveReturn ?? data.currentTradeReturn;
+    if (pct === null) return "—";
     const sign = pct >= 0 ? "+" : "";
     const ticker = data.currentRegime === "bullish" ? "TQQQ" : "GLD";
     return `${sign}${pct.toFixed(1)}% ${ticker}`;
@@ -90,9 +119,10 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat) => {
-        // Special styling for Current Trade card
-        const isPositive = stat.isTradeCard && data.currentTradeReturn !== null && data.currentTradeReturn >= 0;
-        const isNegative = stat.isTradeCard && data.currentTradeReturn !== null && data.currentTradeReturn < 0;
+        // Special styling for Current Trade card - use live return if available
+        const tradeReturn = liveReturn ?? data.currentTradeReturn;
+        const isPositive = stat.isTradeCard && tradeReturn !== null && tradeReturn >= 0;
+        const isNegative = stat.isTradeCard && tradeReturn !== null && tradeReturn < 0;
 
         return (
           <div

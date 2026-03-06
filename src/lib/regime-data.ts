@@ -13,6 +13,7 @@ interface RegimeStatusRow {
   speedometer_url: string | null;
   current_trade_return: number | null;
   current_trade_start: string | null;
+  current_trade_entry_price: number | null;
 }
 
 export async function getRegimeData(): Promise<RegimeData> {
@@ -39,6 +40,7 @@ export async function getRegimeData(): Promise<RegimeData> {
       speedometerUrl: null,
       currentTradeReturn: null,
       currentTradeStart: null,
+      currentTradeEntryPrice: null,
     };
   }
 
@@ -57,5 +59,6 @@ export async function getRegimeData(): Promise<RegimeData> {
     // These fields may not exist yet if migration hasn't run
     currentTradeReturn: row.current_trade_return ?? null,
     currentTradeStart: row.current_trade_start ?? null,
+    currentTradeEntryPrice: row.current_trade_entry_price ?? null,
   };
 }

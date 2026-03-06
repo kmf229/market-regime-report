@@ -40,6 +40,7 @@ export default function LiveRegimeStatus({
           speedometerUrl: row.speedometer_url,
           currentTradeReturn: row.current_trade_return ?? null,
           currentTradeStart: row.current_trade_start ?? null,
+          currentTradeEntryPrice: row.current_trade_entry_price ?? null,
         });
       }
     };

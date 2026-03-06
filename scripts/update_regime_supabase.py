@@ -241,12 +241,24 @@ def update_regime_status(
     regime_history = calculate_regime_periods(regime_s, tqqq_prices, gld_prices)
     stats = calculate_regime_stats(regime_history)
 
-    # Get current trade return (first period is current/most recent)
+    # Get current trade info (first period is current/most recent)
     current_trade_return = None
     current_trade_start = None
+    current_trade_entry_price = None
     if regime_history and "returnPct" in regime_history[0]:
         current_trade_return = regime_history[0]["returnPct"]
         current_trade_start = regime_history[0]["startDate"]
+
+        # Get entry price for live calculations
+        if tqqq_prices is not None and gld_prices is not None:
+            prices = tqqq_prices if current_regime_str == "bullish" else gld_prices
+            start_date = pd.to_datetime(current_trade_start)
+            try:
+                current_trade_entry_price = float(prices.loc[start_date])
+            except KeyError:
+                # Find nearest date
+                idx = prices.index.get_indexer([start_date], method='nearest')[0]
+                current_trade_entry_price = float(prices.iloc[idx])
 
     # Build update data
     data = {
@@ -260,6 +272,7 @@ def update_regime_status(
         "regime_history": regime_history,
         "current_trade_return": current_trade_return,
         "current_trade_start": current_trade_start,
+        "current_trade_entry_price": current_trade_entry_price,
     }
 
     # Check if row exists
