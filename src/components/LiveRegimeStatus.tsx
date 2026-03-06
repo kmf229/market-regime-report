@@ -7,21 +7,12 @@ import { RegimeData } from "@/types/regime-data";
 import RegimeStats from "@/components/RegimeStats";
 import RegimeTimeline from "@/components/RegimeTimeline";
 import RegimeContext from "@/components/RegimeContext";
-import AlertPreferences from "@/components/AlertPreferences";
-
 interface LiveRegimeStatusProps {
   initialData: RegimeData;
-  userId: string;
-  alertPreferences: {
-    regime_change_alerts: boolean;
-    weekly_digest: boolean;
-  };
 }
 
 export default function LiveRegimeStatus({
   initialData,
-  userId,
-  alertPreferences,
 }: LiveRegimeStatusProps) {
   const [data, setData] = useState<RegimeData>(initialData);
 
@@ -58,24 +49,27 @@ export default function LiveRegimeStatus({
 
   return (
     <section id="overview" className="mb-12">
-      {/* Header + Speedometer */}
-      <div className="flex flex-col md:flex-row md:items-start gap-6 mb-8">
-        <div className="flex-1">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Current Regime
-          </h1>
-          <LastUpdatedTimestamp lastUpdated={data.lastUpdated} />
-          <div className="mt-2">
-            <AlertPreferences userId={userId} initialPreferences={alertPreferences} />
-          </div>
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          Current Regime
+        </h1>
+        <LastUpdatedTimestamp lastUpdated={data.lastUpdated} />
+      </div>
 
-          {/* What This Means */}
-          <div className="mt-6">
-            <RegimeContext regime={data.currentRegime} strength={data.regimeStrength} />
-          </div>
+      {/* What This Means */}
+      <div className="mb-8">
+        <RegimeContext regime={data.currentRegime} strength={data.regimeStrength} />
+      </div>
+
+      {/* Speedometer + Stats */}
+      <div className="flex flex-col md:flex-row md:items-end gap-6 mb-6">
+        {/* Stats Panel - takes up left side */}
+        <div className="flex-1">
+          <RegimeStats data={data} />
         </div>
 
-        {/* Speedometer */}
+        {/* Speedometer - right side, aligned to bottom */}
         <div className="relative w-full md:w-[380px] h-64 flex-shrink-0">
           <Image
             src={data.speedometerUrl || "/images/regime_speedometer.png"}
@@ -87,9 +81,6 @@ export default function LiveRegimeStatus({
           />
         </div>
       </div>
-
-      {/* Stats Panel */}
-      <RegimeStats data={data} />
 
       {/* Timeline */}
       <div className="mt-6">

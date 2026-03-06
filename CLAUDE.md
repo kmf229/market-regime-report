@@ -143,12 +143,17 @@ website/
 │   ├── update_regime_supabase.py       # Python: update Supabase from notebook/Pi
 │   ├── pi_scheduler.py                 # Python: Raspberry Pi auto-updater
 │   ├── generate_blurb.py               # Python: AI-generated daily blurbs (Claude API)
+│   ├── send_alerts.py                  # Python: regime change email alerts (Resend)
+│   ├── generate_weekly_digest.py       # Python: weekly digest emails (Resend)
+│   ├── stocks_simple.py                # Python: simple stock data fetcher (Polygon.io)
 │   └── migrate_updates.py              # Python: one-time migration of markdown to Supabase
 ├── supabase/
 │   └── migrations/
 │       ├── 001_profiles.sql            # Profiles table + RLS policies
 │       ├── 002_regime_status.sql       # Regime status table for real-time data
-│       └── 003_daily_updates.sql       # Daily updates table for AI blurbs
+│       ├── 003_daily_updates.sql       # Daily updates table for AI blurbs
+│       ├── 004_current_trade_fields.sql # Current trade return/start fields
+│       └── 005_alert_preferences.sql   # Email alert preferences + previous_regime
 ├── .env.local.example                  # Environment variables template
 ├── SETUP_AUTH.md                       # Supabase auth setup guide
 ├── package.json

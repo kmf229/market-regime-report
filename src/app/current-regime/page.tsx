@@ -104,17 +104,17 @@ export default async function CurrentRegimePage() {
       <div className="flex gap-8">
         {/* Sidebar */}
         <aside className="hidden lg:block w-48 flex-shrink-0">
-          <RegimeSidebar regime={regimeData.currentRegime} />
+          <RegimeSidebar
+            regime={regimeData.currentRegime}
+            userId={user.id}
+            alertPreferences={alertPreferences}
+          />
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 min-w-0">
           {/* Overview Section - Live updating */}
-          <LiveRegimeStatus
-            initialData={regimeData}
-            userId={user.id}
-            alertPreferences={alertPreferences}
-          />
+          <LiveRegimeStatus initialData={regimeData} />
 
           {/* Daily Updates Section */}
           <section id="updates" className="mb-12">
