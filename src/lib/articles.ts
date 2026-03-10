@@ -68,7 +68,7 @@ export async function getArticleWithHtml(
     return null;
   }
 
-  const processedContent = await remark().use(html).process(article.content);
+  const processedContent = await remark().use(html, { sanitize: false }).process(article.content);
   const htmlContent = processedContent.toString();
 
   return {
