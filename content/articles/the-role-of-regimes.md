@@ -66,7 +66,7 @@ This distinction matters. Prediction invites ego and overconfidence. Context inv
 
 When a system aligns exposure with prevailing conditions, the goal is not perfection. The goal is survival through unfavorable environments and participation during favorable ones.
 
-![Compass symolizing predictions](/images/Antique compass and spyglass on map.png)
+![Compass symbolizing predictions](/images/Antique%20compass%20and%20spyglass%20on%20map.png)
 
 ## Why this matters during drawdowns
 

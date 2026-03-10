@@ -54,7 +54,7 @@ Ironically, systematic strategies amplify these psychological pressures. By desi
 
 During drawdowns, that lack of action can feel like helplessness. The absence of decision-making creates space for doubt to grow, and the temptation to intervene becomes strongest at exactly the wrong moment.
 
-![Every drawdown presents a choice](/images/Diverging paths of chaos and peace.png)
+![Every drawdown presents a choice](/images/Diverging%20paths%20of%20chaos%20and%20peace.png)
 
 ## How to avoid abandoning a strategy during drawdowns
 

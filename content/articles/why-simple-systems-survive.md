@@ -52,7 +52,7 @@ This tradeoff matters more than most traders realize.
 
 A system that performs slightly worse on paper but behaves predictably in real time is far more likely to be followed than one that looks exceptional in backtests but feels unstable in practice.
 
-![Robustness](/images/Old hammer on a worn workbench.png)
+![Robustness](/images/Old%20hammer%20on%20a%20worn%20workbench.png)
 
 ## Simplicity protects behavior
 
