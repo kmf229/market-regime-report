@@ -1,58 +1,9 @@
-import { promises as fs } from "fs";
-import path from "path";
-import { Summary, MonthlyReturns } from "@/types/track-record";
+import { getTrackRecordData } from "@/lib/track-record-data";
 import HeroStats from "@/components/HeroStats";
 import MetricsPanel from "@/components/MetricsPanel";
 import MonthlyReturnsTable from "@/components/MonthlyReturnsTable";
 import EquityCurve from "@/components/EquityCurve";
 import { ScrollToTop } from "@/components/ScrollToTop";
-
-interface TrackRecordData {
-  summary: Summary | null;
-  monthlyReturns: MonthlyReturns | null;
-  error: string | null;
-}
-
-async function getTrackRecordData(): Promise<TrackRecordData> {
-  const dataDir = path.join(process.cwd(), "public", "track_record");
-
-  try {
-    const summaryPath = path.join(dataDir, "summary.json");
-    const monthlyPath = path.join(dataDir, "monthly_returns.json");
-
-    const [summaryFile, monthlyFile] = await Promise.all([
-      fs.readFile(summaryPath, "utf-8").catch(() => null),
-      fs.readFile(monthlyPath, "utf-8").catch(() => null),
-    ]);
-
-    if (!summaryFile) {
-      return {
-        summary: null,
-        monthlyReturns: null,
-        error:
-          "Track record data not found. Ensure summary.json exists in public/track_record/",
-      };
-    }
-
-    const summary: Summary = JSON.parse(summaryFile);
-    const monthlyReturns: MonthlyReturns | null = monthlyFile
-      ? JSON.parse(monthlyFile)
-      : null;
-
-    return {
-      summary,
-      monthlyReturns,
-      error: null,
-    };
-  } catch (err) {
-    return {
-      summary: null,
-      monthlyReturns: null,
-      error:
-        "Track record data not found. Ensure summary.json exists in public/track_record/",
-    };
-  }
-}
 
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -65,7 +16,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default async function TrackRecordPage() {
-  const { summary, monthlyReturns, error } = await getTrackRecordData();
+  const { summary, monthlyReturns, equityCurveUrl, error } = await getTrackRecordData();
 
   if (error || !summary) {
     return (
@@ -122,7 +73,7 @@ export default async function TrackRecordPage() {
 
         {/* Equity Curve */}
         <section className="mb-12">
-          <EquityCurve />
+          <EquityCurve imageUrl={equityCurveUrl} />
         </section>
 
         {/* Disclaimer */}
@@ -149,3 +100,6 @@ export const metadata = {
   description:
     "Transparent, auditable track record with time-weighted returns and detailed performance metrics.",
 };
+
+// Revalidate every 60 seconds to pick up updates without redeploy
+export const revalidate = 60;

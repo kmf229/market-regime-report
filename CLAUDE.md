@@ -62,7 +62,7 @@ Or use VS Code: Source Control panel → Stage → Commit → Push
 - **Fonts**:
   - Inter (sans-serif) - navigation and body text
   - Spectral (serif) - site title
-- **Data**: Static JSON files in `/public/track_record/`
+- **Data**: Track record stored in Supabase (updated weekly by Pi)
 - **Articles**: Markdown files in `/content/articles/` with gray-matter frontmatter
 - **Markdown Processing**: gray-matter, remark, remark-html
 - **Authentication**: Supabase Auth (magic link) + Supabase Postgres
@@ -128,6 +128,7 @@ website/
 │   │   ├── regime-updates.ts           # Legacy: Regime update reading (markdown)
 │   │   ├── daily-updates.ts            # Fetch daily updates from Supabase
 │   │   ├── regime-data.ts              # Fetch regime data from Supabase
+│   │   ├── track-record-data.ts        # Fetch track record from Supabase
 │   │   └── supabase/
 │   │       ├── client.ts               # Browser Supabase client
 │   │       ├── server.ts               # Server Supabase client
@@ -141,14 +142,17 @@ website/
 │       └── track-record.ts             # Track record TypeScript interfaces
 ├── scripts/
 │   ├── update_regime_supabase.py       # Python: update Supabase from notebook/Pi
+│   ├── update_track_record.py          # Python: update track record from IBKR
 │   ├── pi_scheduler.py                 # Python: Raspberry Pi auto-updater
 │   ├── generate_blurb.py               # Python: AI-generated daily blurbs (Claude API)
-│   └── migrate_updates.py              # Python: one-time migration of markdown to Supabase
+│   ├── migrate_updates.py              # Python: one-time migration of markdown to Supabase
+│   └── migrate_track_record.py         # Python: one-time migration of track record to Supabase
 ├── supabase/
 │   └── migrations/
 │       ├── 001_profiles.sql            # Profiles table + RLS policies
 │       ├── 002_regime_status.sql       # Regime status table for real-time data
-│       └── 003_daily_updates.sql       # Daily updates table for AI blurbs
+│       ├── 003_daily_updates.sql       # Daily updates table for AI blurbs
+│       └── 004_track_record.sql        # Track record table for performance data
 ├── .env.local.example                  # Environment variables template
 ├── SETUP_AUTH.md                       # Supabase auth setup guide
 ├── package.json
@@ -686,6 +690,30 @@ Open http://localhost:3000
    - Fixed date logic: regime flip date is the END of old period (exit at close)
    - Returns now display in Regime History table on Current Regime page
 
+### Session 6 (Mar 9, 2026)
+1. **Automated Track Record Updates**:
+   - Created `track_record` Supabase table (migration: `004_track_record.sql`)
+   - Stores: summary metrics, monthly returns (JSONB), daily P&L history (JSONB), equity curve URL
+   - Created `update_track_record.py` script for Pi automation
+   - Downloads from IBKR FTP, decrypts with GPG, calculates metrics, uploads to Supabase
+   - Updated `pi_scheduler.py` to run track record update every Monday at 8am ET
+
+2. **Website Changes**:
+   - Created `/src/lib/track-record-data.ts` to fetch from Supabase
+   - Updated `/src/app/track-record/page.tsx` to use Supabase data
+   - Updated `EquityCurve` component to accept external image URL
+   - Added `revalidate = 60` for automatic data refresh without redeploy
+   - Updated `next.config.js` to allow images from Supabase Storage
+
+3. **Migration Script**:
+   - Created `migrate_track_record.py` to load existing JSON data into Supabase
+   - One-time script to run after creating the table
+
+4. **Pi Requirements for Track Record**:
+   - GPG must be installed with decryption key for IBKR files
+   - Environment variables needed: `IBKR_FTP_USER`, `IBKR_FTP_PASS`
+   - Daily history now stored in Supabase (no local CSV needed)
+
 ---
 
 ## TODO for Next Session
@@ -722,6 +750,7 @@ No critical items remaining. See Future Enhancements for potential improvements.
 - [x] Trading day detection for holidays (Session 5)
 - [x] Regime period returns calculation (Session 5)
 - [x] Daily updates pagination (Session 5)
+- [x] Automated Track Record updates via Supabase + Pi (Session 6)
 
 ---
 

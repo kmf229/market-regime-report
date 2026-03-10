@@ -4,7 +4,7 @@ date: "2026-02-17"
 description: "Most people struggle with trading because they expect progress to be visible far too quickly. That's why a lot of people quit."
 slug: "trading-is-a-lot-like-working-out"
 tags: ["trading", "discipline", "systematic"]
-image: "/images/weight_lifting.png"
+image: "/images/weight_lifting.jpg"
 published: true
 ---
 

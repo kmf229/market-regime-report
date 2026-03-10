@@ -404,6 +404,29 @@ def generate_substack_note():
         traceback.print_exc()
 
 
+def update_track_record():
+    """Update track record from IBKR data every Monday at 8am ET."""
+    now = datetime.now(ET)
+
+    # Only run on Mondays
+    if now.weekday() != 0:  # 0 = Monday
+        print(f"[{now}] Not Monday, skipping track record update")
+        return
+
+    try:
+        print(f"[{now}] Updating track record...")
+
+        from update_track_record import update_track_record as do_update
+        do_update()
+
+        print(f"[{now}] Track record update complete!")
+
+    except Exception as e:
+        print(f"[{now}] Error updating track record: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def main():
     """Main entry point."""
     print("=" * 50)
@@ -415,6 +438,7 @@ def main():
     print("Regime alerts: 3:30pm ET (weekdays)")
     print("Daily blurb + store closing regime: 4:15pm ET (weekdays)")
     print("Substack note: 4:17pm ET (weekdays)")
+    print("Track record update: Monday 8:00am ET")
     print("Weekly digest: Sunday 8:00am ET")
     print("=" * 50)
 
@@ -435,6 +459,9 @@ def main():
 
     # Schedule Substack note generation at 4:17pm ET
     schedule.every().day.at("16:17").do(generate_substack_note)
+
+    # Schedule track record update every Monday at 8am ET
+    schedule.every().monday.at("08:00").do(update_track_record)
 
     # Schedule weekly digest every Sunday at 8am ET
     schedule.every().sunday.at("08:00").do(send_weekly_digest)

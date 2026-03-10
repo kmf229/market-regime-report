@@ -47,10 +47,11 @@ try:
     import resend
     import anthropic
     import pandas as pd
+    import requests
     from supabase import create_client, Client
 except ImportError as e:
     print(f"Missing dependency: {e}")
-    print("Install with: pip install resend anthropic pandas supabase")
+    print("Install with: pip install resend anthropic pandas supabase requests")
     sys.exit(1)
 
 
@@ -75,8 +76,15 @@ def get_opted_in_users(supabase: Client) -> list[dict]:
     return result.data or []
 
 
-def get_price_data() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Fetch TQQQ and GLD price data."""
+def get_daily_updates_this_week(supabase: Client) -> list[dict]:
+    """Get daily updates from this past week for context."""
+    week_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+    result = supabase.table("daily_updates").select("*").gte("date", week_ago).order("date", desc=True).execute()
+    return result.data or []
+
+
+def get_price_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Fetch TQQQ, GLD, and SPY price data."""
     from stocks_simple import Stocks
     stocks = Stocks()
 
@@ -85,6 +93,69 @@ def get_price_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     spy_df = stocks.ohlc("SPY")
 
     return tqqq_df, gld_df, spy_df
+
+
+def get_live_price(ticker: str) -> float | None:
+    """Fetch live/latest price from Polygon API (same as website uses)."""
+    api_key = os.environ.get("POLYGON_API_KEY")
+    if not api_key:
+        print(f"Warning: POLYGON_API_KEY not set, cannot get live price for {ticker}")
+        return None
+
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    try:
+        # Try to get today's latest minute bar
+        url = f"https://api.polygon.io/v2/aggs/ticker/{ticker}/range/1/minute/{today}/{today}?apiKey={api_key}&limit=1&sort=desc"
+        response = requests.get(url, timeout=10)
+
+        if response.ok:
+            data = response.json()
+            if data.get("results") and len(data["results"]) > 0:
+                return data["results"][0]["c"]
+
+        # Fall back to previous close
+        prev_url = f"https://api.polygon.io/v2/aggs/ticker/{ticker}/prev?apiKey={api_key}"
+        prev_response = requests.get(prev_url, timeout=10)
+
+        if prev_response.ok:
+            prev_data = prev_response.json()
+            if prev_data.get("results") and len(prev_data["results"]) > 0:
+                return prev_data["results"][0]["c"]
+
+    except Exception as e:
+        print(f"Error fetching live price for {ticker}: {e}")
+
+    return None
+
+
+def calculate_current_trade_return(
+    regime_status: dict,
+    tqqq_df: pd.DataFrame,
+    gld_df: pd.DataFrame
+) -> float:
+    """Calculate current trade return using live prices (same as website)."""
+    current_regime = regime_status['current_regime']
+    entry_price = regime_status.get('current_trade_entry_price')
+
+    if not entry_price:
+        return regime_status.get('current_trade_return', 0)
+
+    ticker = "TQQQ" if current_regime == 'bullish' else "GLD"
+
+    # Try to get live price first (matches website behavior)
+    latest_price = get_live_price(ticker)
+
+    # Fall back to historical data if live price unavailable
+    if latest_price is None:
+        df = tqqq_df.copy() if current_regime == 'bullish' else gld_df.copy()
+        df['date'] = pd.to_datetime(df['date']).dt.date
+        df = df.sort_values('date')
+        latest_price = df.iloc[-1]['close']
+
+    # Calculate return
+    return_pct = ((latest_price - entry_price) / entry_price) * 100
+    return return_pct
 
 
 def calculate_weekly_returns(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame, spy_df: pd.DataFrame) -> dict:
@@ -111,33 +182,6 @@ def calculate_weekly_returns(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame, spy_df
         'tqqq_weekly': get_return(tqqq_df, week_ago, today),
         'gld_weekly': get_return(gld_df, week_ago, today),
         'spy_weekly': get_return(spy_df, week_ago, today),
-    }
-
-
-def calculate_ytd_returns(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame, spy_df: pd.DataFrame, regime_history: list) -> dict:
-    """Calculate YTD returns for strategy and SPY."""
-    today = datetime.now().date()
-    year_start = datetime(today.year, 1, 1).date()
-
-    # SPY YTD
-    spy_df = spy_df.copy()
-    spy_df['date'] = pd.to_datetime(spy_df['date']).dt.date
-    spy_df = spy_df.sort_values('date')
-
-    spy_start = spy_df[spy_df['date'] >= year_start].iloc[0]['close']
-    spy_end = spy_df.iloc[-1]['close']
-    spy_ytd = ((spy_end - spy_start) / spy_start) * 100
-
-    # Strategy YTD - sum up returns from regime history for this year
-    strategy_ytd = 0.0
-    for period in regime_history:
-        start_date = datetime.strptime(period['startDate'], '%Y-%m-%d').date()
-        if start_date.year == today.year and period.get('returnPct') is not None:
-            strategy_ytd += period['returnPct']
-
-    return {
-        'strategy_ytd': strategy_ytd,
-        'spy_ytd': spy_ytd,
     }
 
 
@@ -196,78 +240,149 @@ def get_strength_label(scaled: float) -> str:
         return f"Weak {direction}"
 
 
-def generate_pep_talk(current_trade_return: float) -> str:
-    """Generate pep talk based on current trade performance."""
-    if current_trade_return is None:
-        return "Stay focused on the system. Consistent execution over time is what generates returns."
-
-    if current_trade_return > 15:
-        return (
-            "The current trade is performing exceptionally well. But remember: no trend lasts forever. "
-            "This is not the time to increase position size or get overconfident. Stay disciplined and "
-            "let the system tell you when to exit - not emotions or profit targets. The best traders "
-            "know that big winners can reverse quickly."
-        )
-    elif current_trade_return > 5:
-        return (
-            "The current trade is in solid profit territory. Stay the course and trust the process. "
-            "Resist the urge to take profits early - the system will signal when it's time to switch. "
-            "Letting winners run is how systematic strategies outperform over time."
-        )
-    elif current_trade_return > -5:
-        return (
-            "The current trade is roughly flat - and that's perfectly normal. Markets don't move in "
-            "straight lines. Patience is part of the process. The system is working as designed, "
-            "waiting for a clear directional move. Stay ready."
-        )
-    elif current_trade_return > -15:
-        return (
-            "The current trade is underwater, and that's never comfortable. But this is exactly when "
-            "discipline matters most. Drawdowns are a normal part of any strategy - they're the price "
-            "of admission for long-term returns. The worst thing you can do is abandon the system "
-            "right before it turns around."
-        )
-    else:
-        return (
-            "The current trade has experienced a significant drawdown. This is uncomfortable, but it's "
-            "also when most people make emotional decisions they regret. The system has weathered "
-            "drawdowns before and recovered. Every systematic strategy goes through difficult periods - "
-            "what separates successful investors is the discipline to stick with it. Trust the process."
-        )
-
-
-def generate_market_context(price_action: dict, current_regime: str) -> str:
-    """Use Claude to generate market context paragraph."""
+def generate_current_trade_blurb(
+    regime_status: dict,
+    price_action: dict,
+    current_trade_return: float,
+    weekly_returns: dict,
+    daily_updates: list[dict]
+) -> str:
+    """Generate contextual blurb about the current trade using Claude."""
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-    tqqq_data = price_action.get('tqqq_ohlc', [])
-    gld_data = price_action.get('gld_ohlc', [])
+    current_regime = regime_status['current_regime']
+    is_bullish = current_regime == 'bullish'
+    ticker = "TQQQ" if is_bullish else "GLD"
+    days_in_regime = regime_status.get('days_in_current_regime', 0)
+    trade_start = regime_status.get('current_trade_start', 'unknown')
 
-    tqqq_str = "\n".join([f"{d['date']}: O={d['open']:.2f} H={d['high']:.2f} L={d['low']:.2f} C={d['close']:.2f}" for d in tqqq_data])
-    gld_str = "\n".join([f"{d['date']}: O={d['open']:.2f} H={d['high']:.2f} L={d['low']:.2f} C={d['close']:.2f}" for d in gld_data])
+    # Get OHLC data for the held asset
+    ohlc_data = price_action.get('tqqq_ohlc' if is_bullish else 'gld_ohlc', [])
+    ohlc_str = "\n".join([
+        f"{d['date']}: O={d['open']:.2f} H={d['high']:.2f} L={d['low']:.2f} C={d['close']:.2f}"
+        for d in ohlc_data
+    ])
 
-    prompt = f"""Based on the following week's price action, write 2-3 sentences describing how TQQQ and GLD traded this week.
+    # Calculate intra-week volatility
+    if ohlc_data:
+        week_high = max(d['high'] for d in ohlc_data)
+        week_low = min(d['low'] for d in ohlc_data)
+        week_range_pct = ((week_high - week_low) / week_low) * 100
+    else:
+        week_range_pct = 0
 
-IMPORTANT RULES:
-- Only describe the price action (up, down, volatile, steady, etc.)
-- Do NOT attribute moves to any specific news, events, or reasons
-- Do NOT speculate about why prices moved
-- Keep it factual and observational
-- No emojis
+    weekly_return = weekly_returns['tqqq_weekly'] if is_bullish else weekly_returns['gld_weekly']
 
-Current regime: {current_regime}
+    # Get summaries from daily updates for context
+    daily_summaries = ""
+    if daily_updates:
+        for update in daily_updates[:5]:  # Last 5 days
+            daily_summaries += f"- {update.get('date', 'N/A')}: {update.get('content', '')[:150]}...\n"
 
-TQQQ Daily OHLC:
-{tqqq_str}
+    prompt = f"""Write a 3-4 sentence paragraph about the current trade for a weekly digest email. Be specific about what happened THIS WEEK.
 
-GLD Daily OHLC:
-{gld_str}
+CONTEXT:
+- Current regime: {current_regime.upper()}
+- Holding: {ticker}
+- Trade started: {trade_start} ({days_in_regime} days ago)
+- Current trade return (total since entry): {current_trade_return:+.1f}%
+- This week's {ticker} return: {weekly_return:+.1f}%
+- This week's price range: {week_range_pct:.1f}% (high to low swing)
 
-Write the market context paragraph:"""
+THIS WEEK'S DAILY PRICE ACTION for {ticker}:
+{ohlc_str}
+
+DAILY UPDATE SUMMARIES FROM THIS WEEK:
+{daily_summaries if daily_summaries else "No daily updates available"}
+
+REQUIREMENTS:
+1. Start by stating the current trade's total return and how this week contributed (added or subtracted)
+2. Describe the week's price action specifically - was it choppy, trending, volatile, calm?
+3. If there were significant swings (>5% range), mention the whipsaw/volatile nature
+4. End with a forward-looking but non-predictive statement about discipline and the system
+5. Do NOT use emojis
+6. Do NOT make predictions about future price movement
+7. Do NOT attribute moves to any news or events
+8. Do NOT use "your" or "you" - write in third person about "the position" or "the trade"
+9. Do NOT mention specific dollar prices - only use percentages
+10. Keep it factual but engaging
+
+Write the paragraph:"""
 
     response = client.messages.create(
         model="claude-sonnet-4-20250514",
-        max_tokens=200,
+        max_tokens=300,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    return response.content[0].text.strip()
+
+
+def generate_strength_change_blurb(
+    regime_status: dict,
+    daily_updates: list[dict]
+) -> str:
+    """Generate 1-2 sentence blurb about regime strength change over the week."""
+    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+    current_strength = regime_status.get('regime_strength', 0)
+    scaled_strength = scale_strength(current_strength)
+    current_regime = regime_status['current_regime']
+
+    # Get strength label
+    strength_label = get_strength_label(scaled_strength)
+
+    # Build context from daily updates about strength direction
+    strength_context = []
+    if daily_updates:
+        for update in daily_updates[:5]:
+            content = update.get('content', '').lower()
+            date = update.get('date', '')
+            # Look for directional language
+            if any(word in content for word in ['strengthen', 'stronger', 'intensif', 'increas', 'accelerat']):
+                strength_context.append(f"{date}: signal strengthening")
+            elif any(word in content for word in ['weaken', 'soften', 'decreas', 'fad', 'diminish']):
+                strength_context.append(f"{date}: signal weakening")
+            elif any(word in content for word in ['stable', 'steady', 'unchanged', 'flat']):
+                strength_context.append(f"{date}: stable")
+
+    weekly_direction = "unknown"
+    if len(strength_context) >= 2:
+        strengthening_count = sum(1 for c in strength_context if 'strengthening' in c)
+        weakening_count = sum(1 for c in strength_context if 'weakening' in c)
+        if strengthening_count > weakening_count:
+            weekly_direction = "strengthening"
+        elif weakening_count > strengthening_count:
+            weekly_direction = "weakening"
+        else:
+            weekly_direction = "mixed/stable"
+
+    prompt = f"""Write 1-2 sentences describing the change in regime strength over the past week.
+
+CONTEXT:
+- Current regime: {current_regime.upper()}
+- Current regime strength: {scaled_strength:+.1f} on a scale of -10 to +10
+  (where -10 is strong bearish, 0 is the threshold, +10 is strong bullish)
+- Strength label: {strength_label}
+- Weekly trend based on daily updates: {weekly_direction}
+
+DAILY STRENGTH OBSERVATIONS:
+{chr(10).join(strength_context) if strength_context else "No specific observations available"}
+
+REQUIREMENTS:
+1. Describe whether the {current_regime} signal strengthened, weakened, or stayed stable this week
+2. Reference the current strength level ({scaled_strength:+.1f}) as context
+3. ONLY use the -10 to +10 scale when mentioning numbers - never use raw values
+4. Put this in context - is the conviction increasing or decreasing?
+5. Do NOT make predictions about future direction
+6. Do NOT use emojis
+7. Keep it to 1-2 sentences maximum
+
+Write the strength change blurb:"""
+
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=100,
         messages=[{"role": "user", "content": prompt}]
     )
 
@@ -277,7 +392,9 @@ Write the market context paragraph:"""
 def build_weekly_digest_email(
     regime_status: dict,
     weekly_returns: dict,
-    pep_talk: str,
+    current_trade_return: float,
+    current_trade_blurb: str,
+    strength_change_blurb: str,
 ) -> tuple[str, str]:
     """Build email subject and HTML body for weekly digest."""
 
@@ -295,11 +412,10 @@ def build_weekly_digest_email(
     strength_display = f"{'+' if scaled_strength >= 0 else ''}{scaled_strength:.1f}"
 
     # Current trade info
-    current_trade_return = regime_status.get('current_trade_return')
     current_trade_start = regime_status.get('current_trade_start')
     days_in_regime = regime_status.get('days_in_current_regime', 0)
 
-    trade_return_str = f"{'+' if current_trade_return >= 0 else ''}{current_trade_return:.1f}%" if current_trade_return is not None else "N/A"
+    trade_return_str = f"{'+' if current_trade_return >= 0 else ''}{current_trade_return:.1f}%"
     trade_start_str = ""
     if current_trade_start:
         start_date = datetime.strptime(current_trade_start, '%Y-%m-%d')
@@ -309,14 +425,10 @@ def build_weekly_digest_email(
     def fmt_return(val):
         return f"{'+' if val >= 0 else ''}{val:.1f}%"
 
-    # Regime strength direction (simplified - would need historical data for accurate change)
-    strength_direction = "Stable"
-    if abs(scaled_strength) < 3:
-        strength_direction = "Near threshold - monitor closely"
-    elif abs(scaled_strength) > 7:
-        strength_direction = "Firmly in current regime"
-    else:
-        strength_direction = "Moderate conviction"
+    # Only show threshold warning if strength is between -1 and +1
+    threshold_warning = ""
+    if -1 <= scaled_strength <= 1:
+        threshold_warning = '<p style="margin: 8px 0 0 0; font-size: 14px; color: #dc2626; font-weight: 500;">Near threshold - monitor closely for potential regime change</p>'
 
     subject = f"Weekly Digest: {regime_display}, {fmt_return(strategy_weekly)} This Week"
 
@@ -371,11 +483,11 @@ def build_weekly_digest_email(
         <!-- Current Trade -->
         <div style="padding: 24px; border-bottom: 1px solid #e5e7eb; background-color: #f9fafb;">
             <h2 style="margin: 0 0 16px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">Current Trade</h2>
-            <p style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: {'#059669' if current_trade_return and current_trade_return >= 0 else '#dc2626'};">
+            <p style="margin: 0 0 16px 0; font-size: 24px; font-weight: 700; color: {'#059669' if current_trade_return >= 0 else '#dc2626'};">
                 {trade_return_str} <span style="font-size: 14px; font-weight: 400; color: #6b7280;">since {trade_start_str}</span>
             </p>
             <p style="margin: 0; font-size: 14px; color: #374151; line-height: 1.7;">
-                {pep_talk}
+                {current_trade_blurb}
             </p>
         </div>
 
@@ -385,7 +497,10 @@ def build_weekly_digest_email(
             <p style="margin: 0; font-size: 18px; font-weight: 600; color: {'#059669' if is_bullish else '#dc2626'};">
                 {strength_label} ({strength_display})
             </p>
-            <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">{strength_direction}</p>
+            <p style="margin: 12px 0 0 0; font-size: 14px; color: #374151; line-height: 1.6;">
+                {strength_change_blurb}
+            </p>
+            {threshold_warning}
         </div>
 
         <!-- CTA -->
@@ -442,25 +557,47 @@ def send_weekly_digest(test: bool = False, test_email: str = None) -> None:
     # Get all required data
     regime_status = get_regime_status(supabase)
     tqqq_df, gld_df, spy_df = get_price_data()
+    daily_updates = get_daily_updates_this_week(supabase)
 
     weekly_returns = calculate_weekly_returns(tqqq_df, gld_df, spy_df)
+    price_action = get_weekly_price_action(tqqq_df, gld_df)
 
-    print("Generating pep talk...")
-    pep_talk = generate_pep_talk(regime_status.get('current_trade_return'))
+    # Calculate current trade return fresh (not from cached Supabase value)
+    current_trade_return = calculate_current_trade_return(regime_status, tqqq_df, gld_df)
+    print(f"Current trade return (fresh calc): {current_trade_return:.2f}%")
+
+    print("Generating current trade blurb...")
+    current_trade_blurb = generate_current_trade_blurb(
+        regime_status=regime_status,
+        price_action=price_action,
+        current_trade_return=current_trade_return,
+        weekly_returns=weekly_returns,
+        daily_updates=daily_updates
+    )
+
+    print("Generating strength change blurb...")
+    strength_change_blurb = generate_strength_change_blurb(
+        regime_status=regime_status,
+        daily_updates=daily_updates
+    )
 
     print("Building email...")
     subject, html = build_weekly_digest_email(
         regime_status=regime_status,
         weekly_returns=weekly_returns,
-        pep_talk=pep_talk,
+        current_trade_return=current_trade_return,
+        current_trade_blurb=current_trade_blurb,
+        strength_change_blurb=strength_change_blurb,
     )
 
     if test and not test_email:
         print("\n--- TEST MODE ---")
         print(f"Subject: {subject}")
-        print(f"\nWould send to opted-in users")
         print(f"\nWeekly returns: TQQQ {weekly_returns['tqqq_weekly']:.1f}%, GLD {weekly_returns['gld_weekly']:.1f}%")
-        print(f"\nPep talk: {pep_talk[:100]}...")
+        print(f"Current trade return: {current_trade_return:.1f}%")
+        print(f"\nCurrent trade blurb:\n{current_trade_blurb}")
+        print(f"\nStrength change blurb:\n{strength_change_blurb}")
+        print(f"\nWould send to opted-in users")
         return
 
     # Get recipients
