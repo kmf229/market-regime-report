@@ -1,5 +1,6 @@
 import { getTrackRecordData } from "@/lib/track-record-data";
 import HeroStats from "@/components/HeroStats";
+import BenchmarkComparison from "@/components/BenchmarkComparison";
 import MetricsPanel from "@/components/MetricsPanel";
 import MonthlyReturnsTable from "@/components/MonthlyReturnsTable";
 import EquityCurve from "@/components/EquityCurve";
@@ -59,6 +60,11 @@ export default async function TrackRecordPage() {
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Benchmark Comparison */}
+        <section className="mb-12">
+          <BenchmarkComparison summary={summary} />
+        </section>
+
         {/* Monthly Returns */}
         {monthlyReturns && (
           <section className="mb-12">

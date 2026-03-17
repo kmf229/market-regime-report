@@ -13,6 +13,11 @@ export interface Summary {
   worst_month_return: number;
   worst_month_label: string;
   up_months_pct: number;
+  // S&P 500 benchmark metrics
+  sp500_cumulative_return: number | null;
+  sp500_cagr: number | null;
+  sp500_max_drawdown: number | null;
+  alpha_vs_sp500: number | null;
 }
 
 export interface MonthlyReturnsRow {

@@ -21,6 +21,11 @@ export default function HeroStats({ summary }: HeroStatsProps) {
       positive: summary.cumulative_return >= 0,
     },
     {
+      label: "Alpha vs S&P 500",
+      value: summary.alpha_vs_sp500 !== null ? formatPercent(summary.alpha_vs_sp500) : "N/A",
+      positive: (summary.alpha_vs_sp500 ?? 0) >= 0,
+    },
+    {
       label: "CAGR",
       value: formatPercent(summary.cagr),
       positive: summary.cagr >= 0,
@@ -38,7 +43,7 @@ export default function HeroStats({ summary }: HeroStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
       {stats.map((stat) => (
         <div
           key={stat.label}

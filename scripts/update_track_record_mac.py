@@ -34,14 +34,17 @@ except ImportError:
     print("Please install supabase: pip install supabase")
     raise
 
+# Import Stocks class for Polygon.io API (same as regime scripts)
+from stocks_simple import Stocks
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env.local
-env_local = Path(__file__).parent.parent / ".env.local"
+env_local = Path(__file__).resolve().parent.parent / ".env.local"
 if env_local.exists():
-    load_dotenv(env_local)
+    load_dotenv(env_local, override=True)
 else:
-    load_dotenv()  # Try default .env
+    load_dotenv(override=True)  # Try default .env
 
 # =====================================================
 # CONFIG - Same as your notebook
@@ -165,6 +168,91 @@ def merge_append_new(stored_df: pd.DataFrame, new_df: pd.DataFrame, min_date: st
     return combined, num_added
 
 
+def fetch_sp500_data(start_date: str, end_date: str, baseline_equity: float = 100000.0) -> pd.DataFrame:
+    """Fetch S&P 500 (SPY) data using Polygon.io API and calculate equity curve."""
+    # Add buffer days to ensure we have data for start date
+    start_dt = pd.Timestamp(start_date) - pd.Timedelta(days=5)
+
+    try:
+        stocks = Stocks()
+        spy_raw = stocks.ohlc("SPY", start=start_dt.strftime("%Y-%m-%d"), end=end_date)
+    except Exception as e:
+        print(f"Warning: Could not fetch SPY data from Polygon.io: {e}")
+        return pd.DataFrame()
+
+    if spy_raw.empty:
+        print("Warning: Could not fetch SPY data")
+        return pd.DataFrame()
+
+    spy = spy_raw[["date", "close"]].copy()
+    spy = spy.set_index("date")
+    spy.index = pd.to_datetime(spy.index)
+
+    # Calculate daily returns
+    spy["daily_return"] = spy["close"].pct_change()
+
+    # Filter to strategy period (start_date onwards)
+    start_ts = pd.Timestamp(start_date)
+    spy = spy[spy.index >= start_ts].copy()
+
+    if spy.empty:
+        print("Warning: No SPY data for the strategy period")
+        return pd.DataFrame()
+
+    # Build equity curve starting at baseline
+    # First day has no return (or we use the return from that day)
+    spy["daily_return"] = spy["daily_return"].fillna(0)
+
+    # Add baseline day before first day
+    first_date = spy.index[0]
+    baseline_date = first_date - pd.Timedelta(days=1)
+    baseline_row = pd.DataFrame({"close": [0], "daily_return": [0]}, index=[baseline_date])
+    spy = pd.concat([baseline_row, spy])
+
+    spy["equity_index"] = baseline_equity * (1 + spy["daily_return"]).cumprod()
+
+    return spy
+
+
+def calculate_sp500_metrics(spy_df: pd.DataFrame) -> dict:
+    """Calculate S&P 500 benchmark metrics."""
+    if spy_df.empty:
+        return {
+            "sp500_cumulative_return": None,
+            "sp500_cagr": None,
+            "sp500_max_drawdown": None,
+        }
+
+    # Filter out the baseline day for calculations
+    spy = spy_df[spy_df["daily_return"] != 0].copy() if len(spy_df) > 1 else spy_df.copy()
+
+    if spy.empty or len(spy) < 2:
+        return {
+            "sp500_cumulative_return": None,
+            "sp500_cagr": None,
+            "sp500_max_drawdown": None,
+        }
+
+    # Cumulative return
+    cum_return = (1 + spy["daily_return"]).prod() - 1
+
+    # CAGR
+    start_ts = spy.index.min()
+    end_ts = spy.index.max()
+    n_days = max((end_ts - start_ts).days, 1)
+    cagr = (1 + cum_return) ** (365.25 / n_days) - 1
+
+    # Max drawdown
+    eq = spy_df["equity_index"].dropna()
+    max_dd = (eq / eq.cummax() - 1).min()
+
+    return {
+        "sp500_cumulative_return": float(cum_return),
+        "sp500_cagr": float(cagr),
+        "sp500_max_drawdown": float(max_dd),
+    }
+
+
 def build_equity_index_with_baseline(twr_dec: pd.Series, baseline_equity: float = 100000.0) -> pd.Series:
     """Add baseline day so curve starts at baseline_equity."""
     twr_dec = twr_dec.sort_index()
@@ -176,8 +264,8 @@ def build_equity_index_with_baseline(twr_dec: pd.Series, baseline_equity: float 
     return eq
 
 
-def plot_equity_curve(df: pd.DataFrame, save_path: Path) -> None:
-    """Generate institutional-style equity curve chart."""
+def plot_equity_curve(df: pd.DataFrame, save_path: Path, spy_df: pd.DataFrame = None) -> None:
+    """Generate institutional-style equity curve chart with optional S&P 500 comparison."""
     d = df[["equity_index"]].dropna().copy()
     d = d.sort_index()
 
@@ -187,15 +275,29 @@ def plot_equity_curve(df: pd.DataFrame, save_path: Path) -> None:
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
 
+    # Strategy drawdown shading
     ax.fill_between(
         d.index,
         d["equity_index"],
         rolling_max,
         where=d["equity_index"] < rolling_max,
-        alpha=0.08
+        alpha=0.08,
+        color="#3b82f6"  # Blue for strategy
     )
 
-    ax.plot(d.index, d["equity_index"], linewidth=2.4)
+    # S&P 500 line (gray, no shading)
+    if spy_df is not None and not spy_df.empty:
+        spy_plot = spy_df[["equity_index"]].dropna().copy()
+        spy_plot = spy_plot.sort_index()
+        ax.plot(spy_plot.index, spy_plot["equity_index"], linewidth=1.8, color="#9ca3af",
+                linestyle="-", label="S&P 500", alpha=0.8)
+
+    # Strategy line (on top)
+    ax.plot(d.index, d["equity_index"], linewidth=2.4, color="#3b82f6", label="Strategy")
+
+    # Legend
+    if spy_df is not None and not spy_df.empty:
+        ax.legend(loc="upper left", fontsize=9, framealpha=0.9)
 
     fig.text(
         0.06, 0.96,
@@ -320,9 +422,21 @@ def upload_to_supabase(df: pd.DataFrame, supabase: Client) -> dict:
 
     monthly_returns = {"columns": cols, "rows": rows}
 
-    # Generate and upload equity curve
+    # Fetch S&P 500 data for the same period
+    print("\nFetching S&P 500 benchmark data...")
+    spy_df = fetch_sp500_data(str(start_ts.date()), str(end_ts.date()), baseline_equity=100000.0)
+    sp500_metrics = calculate_sp500_metrics(spy_df)
+
+    # Calculate alpha (strategy excess return over S&P 500)
+    alpha = None
+    if sp500_metrics["sp500_cumulative_return"] is not None:
+        alpha = float(cum_return) - sp500_metrics["sp500_cumulative_return"]
+        print(f"  S&P 500 Cumulative Return: {sp500_metrics['sp500_cumulative_return']*100:.2f}%")
+        print(f"  Alpha vs S&P 500: {alpha*100:.2f}%")
+
+    # Generate and upload equity curve (with S&P 500 line)
     equity_curve_path = DATA_DIR / "equity_curve_temp.png"
-    plot_equity_curve(df, equity_curve_path)
+    plot_equity_curve(df, equity_curve_path, spy_df=spy_df)
     equity_curve_url = upload_equity_curve(equity_curve_path, supabase)
     equity_curve_path.unlink(missing_ok=True)  # Clean up temp file
 
@@ -345,6 +459,10 @@ def upload_to_supabase(df: pd.DataFrame, supabase: Client) -> dict:
         "monthly_returns": monthly_returns,
         "daily_history": [],  # Not storing full history in Supabase to save space
         "equity_curve_url": equity_curve_url,
+        "sp500_cumulative_return": sp500_metrics["sp500_cumulative_return"],
+        "sp500_cagr": sp500_metrics["sp500_cagr"],
+        "sp500_max_drawdown": sp500_metrics["sp500_max_drawdown"],
+        "alpha_vs_sp500": alpha,
         "last_updated": datetime.now(timezone.utc).isoformat(),
     }
 
