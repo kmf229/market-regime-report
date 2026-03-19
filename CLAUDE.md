@@ -394,77 +394,85 @@ from update_regime_supabase import update_all
 update_all(regime_s, z_spread_smoothed, "path/to/speedometer.png")
 ```
 
-### Raspberry Pi Setup (TODO)
+### Raspberry Pi Setup (COMPLETED)
 The Pi automatically updates regime data every 10 minutes during market hours.
 
-**Files to copy to Pi:**
+**Pi Details:**
+- **IP**: `192.168.1.163`
+- **User**: `kmf229`
+- **Working directory**: `/home/kmf229/market-regime/`
+- **Python**: Virtual environment (`venv`)
+
+**Files on Pi:**
 ```
-/home/pi/market-regime/
-├── pi_scheduler.py          # Main scheduler script
+/home/kmf229/market-regime/
+├── pi_scheduler.py           # Main scheduler script
 ├── update_regime_supabase.py # Supabase update functions
-├── stocks.py                 # Your stock data module
-└── .env                      # Supabase credentials
+├── update_track_record.py    # IBKR track record updates
+├── generate_blurb.py         # AI daily blurb generation
+├── stocks_simple.py          # Polygon.io API wrapper
+├── trading_days.py           # Market holiday detection
+├── venv/                     # Python virtual environment
+└── .env                      # All credentials
 ```
 
-**Setup steps:**
-1. Copy files to Pi:
-   ```bash
-   scp -r scripts/ pi@<PI_IP>:/home/pi/market-regime/
-   scp stocks.py pi@<PI_IP>:/home/pi/market-regime/
-   ```
+**Environment variables in `.env`:**
+```
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-key
+ANTHROPIC_API_KEY=your-anthropic-key
+RESEND_API_KEY=re_your-resend-key
+IBKR_FTP_USER=your-ibkr-ftp-username
+IBKR_FTP_PASS=your-ibkr-ftp-password
+```
 
-2. SSH into Pi and install dependencies:
-   ```bash
-   ssh pi@<PI_IP>
-   cd /home/pi/market-regime
-   pip install supabase python-dotenv schedule pandas numpy matplotlib pytz
-   ```
+**Systemd service** (`/etc/systemd/system/regime-updater.service`):
+```ini
+[Unit]
+Description=Market Regime Updater
+After=network.target
 
-3. Create `.env` file:
-   ```
-   SUPABASE_URL=https://your-project.supabase.co
-   SUPABASE_SERVICE_KEY=your-service-key
-   ```
+[Service]
+Type=simple
+User=kmf229
+WorkingDirectory=/home/kmf229/market-regime
+EnvironmentFile=/home/kmf229/market-regime/.env
+ExecStart=/home/kmf229/market-regime/venv/bin/python /home/kmf229/market-regime/pi_scheduler.py
+Restart=always
+RestartSec=10
 
-4. Test the script:
-   ```bash
-   python pi_scheduler.py
-   ```
+[Install]
+WantedBy=multi-user.target
+```
 
-5. Set up as systemd service (survives reboot):
-   ```bash
-   sudo nano /etc/systemd/system/regime-updater.service
-   ```
+**Manage service:**
+```bash
+sudo systemctl restart regime-updater  # Restart after changes
+sudo systemctl status regime-updater   # Check status
+journalctl -u regime-updater -f        # View logs
+```
 
-   Paste:
-   ```ini
-   [Unit]
-   Description=Market Regime Updater
-   After=network.target
+**Scheduled tasks:**
+| Task | Schedule | Description |
+|------|----------|-------------|
+| Regime updates | Every 10 min (market hours) | Update regime data + speedometer |
+| Regime alerts | 3:30pm ET | Check for regime changes |
+| Daily blurb | 4:15pm ET | Generate AI market commentary |
+| Store closing regime | 4:16pm ET | Save for next day comparison |
+| Substack note | 4:17pm ET | Generate and email note |
+| Track record | Monday 8:00am ET | Update from IBKR FTP |
+| Weekly digest | Sunday 8:00am ET | Send weekly summary email |
 
-   [Service]
-   Type=simple
-   User=pi
-   WorkingDirectory=/home/pi/market-regime
-   Environment=SUPABASE_URL=https://your-project.supabase.co
-   Environment=SUPABASE_SERVICE_KEY=your-service-key
-   ExecStart=/usr/bin/python3 /home/pi/market-regime/pi_scheduler.py
-   Restart=always
-   RestartSec=10
+**GPG Setup for IBKR Decryption:**
+GPG private key is installed on Pi with no passphrase for automated decryption.
+```bash
+# gpg-agent configured for loopback pinentry
+~/.gnupg/gpg-agent.conf:
+  allow-loopback-pinentry
 
-   [Install]
-   WantedBy=multi-user.target
-   ```
-
-6. Enable and start:
-   ```bash
-   sudo systemctl daemon-reload
-   sudo systemctl enable regime-updater
-   sudo systemctl start regime-updater
-   sudo systemctl status regime-updater
-   ```
-
-**Schedule**: Every 10 minutes, Mon-Fri, 9:30am-4:15pm ET (extra 15 min for delayed data)
+~/.gnupg/gpg.conf:
+  pinentry-mode loopback
+```
 
 ---
 
@@ -714,6 +722,38 @@ Open http://localhost:3000
    - Environment variables needed: `IBKR_FTP_USER`, `IBKR_FTP_PASS`
    - Daily history now stored in Supabase (no local CSV needed)
 
+### Session 7 (Mar 19, 2026)
+1. **Improved Daily Blurb Generation**:
+   - Updated `generate_blurb.py` prompt to highlight significant daily moves
+   - TQQQ moves >2% must be mentioned with actual percentage
+   - GLD moves >1.5% must be mentioned with actual percentage
+   - Prevents vague language like "mixed action" when big moves happen
+
+2. **Track Record Pi Automation** (COMPLETED):
+   - Updated `update_track_record.py` for Pi compatibility:
+     - Uses plain FTP (not FTPS) for IBKR connection
+     - Added S&P 500 benchmark comparison (same as mac version)
+     - Fixed pandas `"ME"` deprecation (was `"M"` for month-end resample)
+     - Added `--yes` flag to GPG for non-interactive decryption
+     - Added `matplotlib.use('Agg')` for headless operation
+   - Set up GPG on Pi:
+     - Exported private key from Mac, imported on Pi
+     - Configured `gpg-agent` for loopback pinentry mode
+     - Removed passphrase from key for fully automated operation
+   - Updated `pi_scheduler.py` systemd config for `kmf229` user
+   - Track record now auto-updates every Monday at 8am ET
+
+3. **Deploying Scripts to Pi**:
+   ```bash
+   # Copy updated scripts
+   scp scripts/generate_blurb.py kmf229@192.168.1.163:/home/kmf229/market-regime/
+   scp scripts/update_track_record.py kmf229@192.168.1.163:/home/kmf229/market-regime/
+   scp scripts/pi_scheduler.py kmf229@192.168.1.163:/home/kmf229/market-regime/
+
+   # Restart service
+   ssh kmf229@192.168.1.163 "sudo systemctl restart regime-updater"
+   ```
+
 ---
 
 ## TODO for Next Session
@@ -751,6 +791,9 @@ No critical items remaining. See Future Enhancements for potential improvements.
 - [x] Regime period returns calculation (Session 5)
 - [x] Daily updates pagination (Session 5)
 - [x] Automated Track Record updates via Supabase + Pi (Session 6)
+- [x] Track Record Pi automation with GPG (Session 7)
+- [x] S&P 500 benchmark in Track Record (Session 7)
+- [x] Improved daily blurb prompt for significant moves (Session 7)
 
 ---
 
