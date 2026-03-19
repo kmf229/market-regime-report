@@ -140,9 +140,17 @@ Use these inputs to understand:
 Your output MUST have:
 
 - Direct commentary on the **current regime**
-- Discussion of **tech vs gold behavior**
+- Discussion of **tech vs gold behavior**, including specific percentage moves
 - Interpretation of the **Regime Strength line**
 - Reinforce why discipline matters _right now_
+
+**CRITICAL: Highlight Significant Moves**
+
+- Calculate the daily percentage change for TQQQ and GLD from the most recent two days of OHLCV data (today's close vs yesterday's close)
+- If TQQQ moved more than 2% in either direction, you MUST mention it with the actual percentage (e.g., "TQQQ dropped 4.2% today")
+- If GLD moved more than 1.5% in either direction, you MUST mention it with the actual percentage (e.g., "Gold surged 2.1%")
+- These are leveraged/volatile instruments - significant daily moves are newsworthy and readers expect them to be acknowledged
+- Do NOT gloss over big moves with vague language like "mixed action" or "choppy session"
 
 **Guidelines:**
 

@@ -5,7 +5,7 @@ Downloads daily P&L data from IBKR FTP, decrypts it, calculates metrics,
 and uploads everything to Supabase.
 
 Requirements:
-    pip install supabase python-dotenv pandas numpy matplotlib
+    pip install supabase python-dotenv pandas numpy matplotlib requests
 
 Environment variables needed:
     SUPABASE_URL=https://your-project.supabase.co
@@ -23,6 +23,7 @@ Usage:
 from __future__ import annotations
 
 import os
+import ssl
 import ftplib
 import subprocess
 import time
@@ -33,6 +34,8 @@ from typing import Tuple, Optional
 
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for Pi
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import FuncFormatter
@@ -54,6 +57,14 @@ try:
         load_dotenv(env_local)
 except ImportError:
     pass
+
+# Import Stocks class for S&P 500 benchmark data
+try:
+    from stocks_simple import Stocks
+    HAS_STOCKS = True
+except ImportError:
+    HAS_STOCKS = False
+    print("Warning: stocks_simple not available, S&P 500 benchmark will be skipped")
 
 # =====================================================
 # CONFIG
@@ -119,6 +130,8 @@ def download_and_decrypt_ibkr() -> Path:
     user, passwd = get_ibkr_credentials()
 
     print("Connecting to IBKR FTP...")
+
+    # IBKR uses plain FTP (not FTPS)
     ftp = ftplib.FTP(HOSTNAME, user, passwd)
     ftp.encoding = "utf-8"
 
@@ -137,7 +150,7 @@ def download_and_decrypt_ibkr() -> Path:
 
     print("Decrypting via gpg...")
     result = subprocess.run(
-        ["gpg", "--output", str(decrypted_file), "--decrypt", str(encrypted_file)],
+        ["gpg", "--yes", "--output", str(decrypted_file), "--decrypt", str(encrypted_file)],
         capture_output=True,
         text=True
     )
@@ -258,8 +271,95 @@ def build_equity_index_with_baseline(twr_dec: pd.Series, baseline_equity: float 
     return eq
 
 
-def plot_equity_curve(df: pd.DataFrame, save_path: Path) -> None:
-    """Generate institutional-style equity curve chart."""
+def fetch_sp500_data(start_date: str, end_date: str, baseline_equity: float = 100000.0) -> pd.DataFrame:
+    """Fetch S&P 500 (SPY) data using Polygon.io API and calculate equity curve."""
+    if not HAS_STOCKS:
+        return pd.DataFrame()
+
+    # Add buffer days to ensure we have data for start date
+    start_dt = pd.Timestamp(start_date) - pd.Timedelta(days=5)
+
+    try:
+        stocks = Stocks()
+        spy_raw = stocks.ohlc("SPY", start=start_dt.strftime("%Y-%m-%d"), end=end_date)
+    except Exception as e:
+        print(f"Warning: Could not fetch SPY data from Polygon.io: {e}")
+        return pd.DataFrame()
+
+    if spy_raw.empty:
+        print("Warning: Could not fetch SPY data")
+        return pd.DataFrame()
+
+    spy = spy_raw[["date", "close"]].copy()
+    spy = spy.set_index("date")
+    spy.index = pd.to_datetime(spy.index)
+
+    # Calculate daily returns
+    spy["daily_return"] = spy["close"].pct_change()
+
+    # Filter to strategy period (start_date onwards)
+    start_ts = pd.Timestamp(start_date)
+    spy = spy[spy.index >= start_ts].copy()
+
+    if spy.empty:
+        print("Warning: No SPY data for the strategy period")
+        return pd.DataFrame()
+
+    # Build equity curve starting at baseline
+    spy["daily_return"] = spy["daily_return"].fillna(0)
+
+    # Add baseline day before first day
+    first_date = spy.index[0]
+    baseline_date = first_date - pd.Timedelta(days=1)
+    baseline_row = pd.DataFrame({"close": [0], "daily_return": [0]}, index=[baseline_date])
+    spy = pd.concat([baseline_row, spy])
+
+    spy["equity_index"] = baseline_equity * (1 + spy["daily_return"]).cumprod()
+
+    return spy
+
+
+def calculate_sp500_metrics(spy_df: pd.DataFrame) -> dict:
+    """Calculate S&P 500 benchmark metrics."""
+    if spy_df.empty:
+        return {
+            "sp500_cumulative_return": None,
+            "sp500_cagr": None,
+            "sp500_max_drawdown": None,
+        }
+
+    # Filter out the baseline day for calculations
+    spy = spy_df[spy_df["daily_return"] != 0].copy() if len(spy_df) > 1 else spy_df.copy()
+
+    if spy.empty or len(spy) < 2:
+        return {
+            "sp500_cumulative_return": None,
+            "sp500_cagr": None,
+            "sp500_max_drawdown": None,
+        }
+
+    # Cumulative return
+    cum_return = (1 + spy["daily_return"]).prod() - 1
+
+    # CAGR
+    start_ts = spy.index.min()
+    end_ts = spy.index.max()
+    n_days = max((end_ts - start_ts).days, 1)
+    cagr = (1 + cum_return) ** (365.25 / n_days) - 1
+
+    # Max drawdown
+    eq = spy_df["equity_index"].dropna()
+    max_dd = (eq / eq.cummax() - 1).min()
+
+    return {
+        "sp500_cumulative_return": float(cum_return),
+        "sp500_cagr": float(cagr),
+        "sp500_max_drawdown": float(max_dd),
+    }
+
+
+def plot_equity_curve(df: pd.DataFrame, save_path: Path, spy_df: pd.DataFrame = None) -> None:
+    """Generate institutional-style equity curve chart with optional S&P 500 comparison."""
     d = df[["equity_index"]].dropna().copy()
     d = d.sort_index()
 
@@ -270,17 +370,29 @@ def plot_equity_curve(df: pd.DataFrame, save_path: Path) -> None:
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
 
-    # Drawdown shading
+    # Strategy drawdown shading
     ax.fill_between(
         d.index,
         d["equity_index"],
         rolling_max,
         where=d["equity_index"] < rolling_max,
-        alpha=0.08
+        alpha=0.08,
+        color="#3b82f6"  # Blue for strategy
     )
 
-    # Equity curve line
-    ax.plot(d.index, d["equity_index"], linewidth=2.4)
+    # S&P 500 line (gray, no shading)
+    if spy_df is not None and not spy_df.empty:
+        spy_plot = spy_df[["equity_index"]].dropna().copy()
+        spy_plot = spy_plot.sort_index()
+        ax.plot(spy_plot.index, spy_plot["equity_index"], linewidth=1.8, color="#9ca3af",
+                linestyle="-", label="S&P 500", alpha=0.8)
+
+    # Strategy line (on top)
+    ax.plot(d.index, d["equity_index"], linewidth=2.4, color="#3b82f6", label="Strategy")
+
+    # Legend
+    if spy_df is not None and not spy_df.empty:
+        ax.legend(loc="upper left", fontsize=9, framealpha=0.9)
 
     # Title
     fig.text(
@@ -392,7 +504,7 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     if daily_std > 0:
         sharpe = float(np.sqrt(252) * (float(daily.mean()) / daily_std))
 
-    monthly = (1 + df["twr_dec"]).resample("M").prod() - 1
+    monthly = (1 + df["twr_dec"]).resample("ME").prod() - 1
     avg_month = float(monthly.mean()) if len(monthly) else None
     best_month = float(monthly.max()) if len(monthly) else None
     worst_month = float(monthly.min()) if len(monthly) else None
@@ -422,9 +534,21 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
 
     monthly_returns = {"columns": cols, "rows": rows}
 
-    # Generate and upload equity curve
+    # Fetch S&P 500 data for the same period
+    print("Fetching S&P 500 benchmark data...")
+    spy_df = fetch_sp500_data(str(start_ts.date()), str(end_ts.date()), baseline_equity=100000.0)
+    sp500_metrics = calculate_sp500_metrics(spy_df)
+
+    # Calculate alpha (strategy excess return over S&P 500)
+    alpha = None
+    if sp500_metrics["sp500_cumulative_return"] is not None:
+        alpha = float(cum_return) - sp500_metrics["sp500_cumulative_return"]
+        print(f"  S&P 500 Cumulative Return: {sp500_metrics['sp500_cumulative_return']*100:.2f}%")
+        print(f"  Alpha vs S&P 500: {alpha*100:.2f}%")
+
+    # Generate and upload equity curve (with S&P 500 line)
     equity_curve_path = DATA_DIR / "equity_curve.png"
-    plot_equity_curve(df, equity_curve_path)
+    plot_equity_curve(df, equity_curve_path, spy_df=spy_df)
     equity_curve_url = upload_equity_curve(equity_curve_path, supabase)
 
     # Convert daily history to JSON-serializable format
@@ -451,6 +575,10 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         "monthly_returns": monthly_returns,
         "daily_history": daily_history,
         "equity_curve_url": equity_curve_url,
+        "sp500_cumulative_return": sp500_metrics["sp500_cumulative_return"],
+        "sp500_cagr": sp500_metrics["sp500_cagr"],
+        "sp500_max_drawdown": sp500_metrics["sp500_max_drawdown"],
+        "alpha_vs_sp500": alpha,
         "last_updated": datetime.now(timezone.utc).isoformat(),
     }
 

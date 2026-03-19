@@ -488,18 +488,23 @@ if __name__ == "__main__":
 #
 # [Service]
 # Type=simple
-# User=pi
-# WorkingDirectory=/home/pi/market-regime
-# Environment=SUPABASE_URL=https://your-project.supabase.co
-# Environment=SUPABASE_SERVICE_KEY=your-service-key
-# Environment=ANTHROPIC_API_KEY=your-anthropic-key
-# Environment=RESEND_API_KEY=re_your-resend-key
-# ExecStart=/usr/bin/python3 /home/pi/market-regime/pi_scheduler.py
+# User=kmf229
+# WorkingDirectory=/home/kmf229/market-regime
+# EnvironmentFile=/home/kmf229/market-regime/.env
+# ExecStart=/home/kmf229/market-regime/venv/bin/python /home/kmf229/market-regime/pi_scheduler.py
 # Restart=always
 # RestartSec=10
 #
 # [Install]
 # WantedBy=multi-user.target
+#
+# Required environment variables in .env:
+#   SUPABASE_URL=https://your-project.supabase.co
+#   SUPABASE_SERVICE_KEY=your-service-key
+#   ANTHROPIC_API_KEY=your-anthropic-key
+#   RESEND_API_KEY=re_your-resend-key
+#   IBKR_FTP_USER=your-ibkr-ftp-username
+#   IBKR_FTP_PASS=your-ibkr-ftp-password
 #
 # Then run:
 #   sudo systemctl daemon-reload
