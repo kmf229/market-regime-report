@@ -743,7 +743,25 @@ Open http://localhost:3000
    - Updated `pi_scheduler.py` systemd config for `kmf229` user
    - Track record now auto-updates every Monday at 8am ET
 
-3. **Deploying Scripts to Pi**:
+3. **Fixed Daily Blurb Accuracy Issues** (CRITICAL FIX):
+   - **Problem**: Claude was calculating daily percentages incorrectly (had TQQQ/GLD swapped)
+   - **Solution**: Pre-calculate percentages in Python, pass exact values to Claude
+   - Changes to `generate_blurb.py`:
+     - Added `calculate_daily_change()` function to compute exact daily % moves
+     - Added `format_daily_performance()` to create explicit data for prompt
+     - Removed raw OHLCV data from prompt (Claude was misreading it)
+     - Updated prompt to use pre-calculated values only
+     - Added explicit instruction: "Do NOT compute your own percentages"
+     - Added `--debug` flag to verify data without calling Claude
+   - Removed prices from output:
+     - Updated prompt with "NEVER mention prices or dollar values"
+     - Only percentages are discussed now
+   - Added P&L milestone tracking:
+     - Uses `regime_status.current_trade_return` for real-time trade P&L
+     - Uses `track_record.summary` for overall strategy return
+     - Detects milestones: crossing zero, significant drawdowns, etc.
+
+4. **Deploying Scripts to Pi**:
    ```bash
    # Copy updated scripts
    scp scripts/generate_blurb.py kmf229@192.168.1.163:/home/kmf229/market-regime/
@@ -751,6 +769,48 @@ Open http://localhost:3000
    scp scripts/pi_scheduler.py kmf229@192.168.1.163:/home/kmf229/market-regime/
 
    # Restart service
+   ssh kmf229@192.168.1.163 "sudo systemctl restart regime-updater"
+   ```
+
+### Session 8 (Mar 25, 2026)
+1. **Intraday vs Close Regime Logic** (MAJOR CHANGE):
+   - **Problem**: Regime was flipping intraday before market close, showing TQQQ stats when still officially in GLD
+   - **Solution**: Separate "signal regime" (real-time) from "official regime" (confirmed at close)
+   - Database changes:
+     - Added `signal_regime` column to `regime_status` table (migration: `007_signal_regime.sql`)
+     - `signal_regime`: Real-time intraday signal (updated every 10 min)
+     - `current_regime`: Official confirmed regime (only changes at 4pm ET close)
+   - Python changes (`update_regime_supabase.py`):
+     - Added `update_intraday()` function: Only updates signal_regime, strength, speedometer
+     - Added `update_intraday_all()` convenience function
+     - Modified `update_regime_status()` to be the "close" update
+   - Python changes (`pi_scheduler.py`):
+     - 10-min updates now use `update_intraday_all()` (signal only)
+     - 4:16pm close update now does full regime flip via `update_all()`
+   - Frontend changes:
+     - Added `signalRegime` to TypeScript types
+     - RegimeStats: Trade stats use `currentRegime` (official), Strength card uses `signalRegime`
+     - LiveRegimeStatus: Added "Potential Regime Change" alert card (amber warning)
+     - RegimeContext: Receives `signalRegime` prop, adjusted "approaching threshold" logic
+
+2. **Potential Regime Change Alert**:
+   - New amber alert card appears when `signalRegime != currentRegime`
+   - Shows: "The intraday signal is now showing [bullish/bearish], but the regime won't officially flip until market close at 4pm ET"
+   - Disappears once the close confirms the new regime
+
+3. **Deploying Changes**:
+   ```bash
+   # 1. Run SQL migration on Supabase Dashboard:
+   #    Copy contents of supabase/migrations/007_signal_regime.sql
+
+   # 2. Push website changes (auto-deploys to Vercel)
+   git add -A && git commit -m "Add intraday signal regime logic" && git push
+
+   # 3. Copy updated scripts to Pi
+   scp scripts/update_regime_supabase.py kmf229@192.168.1.163:/home/kmf229/market-regime/
+   scp scripts/pi_scheduler.py kmf229@192.168.1.163:/home/kmf229/market-regime/
+
+   # 4. Restart Pi service
    ssh kmf229@192.168.1.163 "sudo systemctl restart regime-updater"
    ```
 
@@ -794,6 +854,11 @@ No critical items remaining. See Future Enhancements for potential improvements.
 - [x] Track Record Pi automation with GPG (Session 7)
 - [x] S&P 500 benchmark in Track Record (Session 7)
 - [x] Improved daily blurb prompt for significant moves (Session 7)
+- [x] Fixed daily blurb accuracy (pre-calculated percentages) (Session 7)
+- [x] Removed prices from daily blurbs (Session 7)
+- [x] P&L milestone tracking in daily blurbs (Session 7)
+- [x] Intraday vs close regime confirmation logic (Session 8)
+- [x] Potential regime change alert card (Session 8)
 
 ---
 

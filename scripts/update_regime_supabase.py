@@ -179,6 +179,71 @@ def calculate_regime_stats(regime_history: list[dict]) -> dict:
     }
 
 
+def update_intraday(
+    regime_s: pd.Series,
+    z_spread_smoothed: pd.Series,
+    supabase: Client = None
+) -> dict:
+    """
+    Update intraday regime signal data in Supabase.
+
+    Only updates signal_regime, regime_strength, strength_change, and last_updated.
+    Does NOT update current_regime, trade stats, or regime_history (those only change at close).
+
+    Args:
+        regime_s: Series with 'Bullish'/'Bearish' values indexed by date
+        z_spread_smoothed: Series with smoothed z-spread values
+        supabase: Optional Supabase client
+
+    Returns:
+        The updated record
+    """
+    if supabase is None:
+        supabase = get_supabase_client()
+
+    # Ensure datetime index
+    if not isinstance(regime_s.index, pd.DatetimeIndex):
+        regime_s.index = pd.to_datetime(regime_s.index)
+    if not isinstance(z_spread_smoothed.index, pd.DatetimeIndex):
+        z_spread_smoothed.index = pd.to_datetime(z_spread_smoothed.index)
+
+    regime_s = regime_s.sort_index()
+    z_spread_smoothed = z_spread_smoothed.sort_index()
+
+    today = regime_s.index.max()
+    z_today = float(z_spread_smoothed.loc[today])
+
+    # Yesterday's z-spread for change calculation
+    yday_idx = z_spread_smoothed.index.get_loc(today) - 1
+    z_yday = float(z_spread_smoothed.iloc[yday_idx])
+    z_change = z_today - z_yday
+
+    # Current signal (what z-spread says right now)
+    signal_regime = regime_s.loc[today]
+    signal_regime_str = "bullish" if str(signal_regime).lower().startswith("bull") else "bearish"
+
+    # Build intraday update data (signal only, not official regime)
+    data = {
+        "signal_regime": signal_regime_str,
+        "regime_strength": round(z_today, 4),
+        "strength_change": round(z_change, 4),
+        "last_updated": datetime.now(timezone.utc).isoformat(),
+    }
+
+    # Update existing row
+    existing = supabase.table("regime_status").select("id").limit(1).execute()
+
+    if existing.data:
+        result = supabase.table("regime_status").update(data).eq("id", existing.data[0]["id"]).execute()
+    else:
+        # Insert new row (shouldn't happen in normal operation)
+        data["current_regime"] = signal_regime_str  # Initialize both to same value
+        result = supabase.table("regime_status").insert(data).execute()
+
+    print(f"Updated intraday signal: {signal_regime_str}, strength: {z_today:.3f}")
+    return result.data[0] if result.data else data
+
+
 def update_regime_status(
     regime_s: pd.Series,
     z_spread_smoothed: pd.Series,
@@ -187,7 +252,10 @@ def update_regime_status(
     gld_prices: pd.Series = None
 ) -> dict:
     """
-    Update regime status in Supabase.
+    Update full regime status in Supabase (for market close updates).
+
+    Updates both signal_regime AND current_regime, plus trade stats and history.
+    Call this at market close (4pm ET) to officially flip regimes.
 
     Args:
         regime_s: Series with 'Bullish'/'Bearish' values indexed by date
@@ -260,9 +328,10 @@ def update_regime_status(
                 idx = prices.index.get_indexer([start_date], method='nearest')[0]
                 current_trade_entry_price = float(prices.iloc[idx])
 
-    # Build update data
+    # Build update data (at close, signal and current regime are the same)
     data = {
         "current_regime": current_regime_str,
+        "signal_regime": current_regime_str,  # At close, signal matches official
         "regime_strength": round(z_today, 4),
         "strength_change": round(z_change, 4),
         "last_updated": datetime.now(timezone.utc).isoformat(),
@@ -350,10 +419,13 @@ def upload_speedometer(
     return public_url
 
 
-# Convenience function for notebooks
+# Convenience function for notebooks / close updates
 def update_all(regime_s, z_spread_smoothed, speedometer_path=None):
     """
-    Update both regime status and speedometer in one call.
+    Update full regime status and speedometer (for market close).
+
+    Updates both signal_regime and current_regime, plus trade stats and history.
+    Call this at market close (4pm ET) to officially flip regimes.
 
     Args:
         regime_s: Series with 'Bullish'/'Bearish' values indexed by date
@@ -362,11 +434,38 @@ def update_all(regime_s, z_spread_smoothed, speedometer_path=None):
     """
     supabase = get_supabase_client()
 
-    # Update regime data
+    # Update regime data (full update including current_regime)
     update_regime_status(regime_s, z_spread_smoothed, supabase)
 
     # Upload speedometer if provided
     if speedometer_path:
         upload_speedometer(speedometer_path, supabase)
+
+    print("Done! (close update)")
+
+
+# Convenience function for intraday updates
+def update_intraday_all(regime_s, z_spread_smoothed, speedometer_path=None):
+    """
+    Update intraday signal and speedometer only (for 10-min market hour updates).
+
+    Only updates signal_regime, regime_strength, and speedometer.
+    Does NOT update current_regime, trade stats, or regime_history.
+
+    Args:
+        regime_s: Series with 'Bullish'/'Bearish' values indexed by date
+        z_spread_smoothed: Series with smoothed z-spread values
+        speedometer_path: Optional path to speedometer PNG
+    """
+    supabase = get_supabase_client()
+
+    # Update intraday signal only
+    update_intraday(regime_s, z_spread_smoothed, supabase)
+
+    # Upload speedometer if provided
+    if speedometer_path:
+        upload_speedometer(speedometer_path, supabase)
+
+    print("Done! (intraday update)")
 
     print("Done!")

@@ -1,6 +1,7 @@
 export interface RegimeData {
   // Current state
-  currentRegime: "bullish" | "bearish";
+  currentRegime: "bullish" | "bearish"; // Official regime (confirmed at close)
+  signalRegime: "bullish" | "bearish"; // Real-time intraday signal
   regimeStrength: number;
   strengthChange: number; // vs yesterday
   lastUpdated: string; // ISO date

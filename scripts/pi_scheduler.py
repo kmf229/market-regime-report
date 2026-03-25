@@ -264,7 +264,11 @@ def calculate_regime():
 
 
 def update_regime():
-    """Main update function called by scheduler."""
+    """Intraday update function called by scheduler every 10 minutes.
+
+    Only updates signal_regime, regime_strength, and speedometer.
+    Does NOT flip the official current_regime (that happens at close).
+    """
     if not is_market_hours():
         print(f"[{datetime.now(ET)}] Outside market hours, skipping update")
         return
@@ -273,11 +277,11 @@ def update_regime():
         print(f"[{datetime.now(ET)}] Calculating regime...")
         regime_s, z_spread_smoothed, speedometer_path = calculate_regime()
 
-        print(f"[{datetime.now(ET)}] Updating Supabase...")
-        from update_regime_supabase import update_all
-        update_all(regime_s, z_spread_smoothed, speedometer_path)
+        print(f"[{datetime.now(ET)}] Updating Supabase (intraday)...")
+        from update_regime_supabase import update_intraday_all
+        update_intraday_all(regime_s, z_spread_smoothed, speedometer_path)
 
-        print(f"[{datetime.now(ET)}] Update complete!")
+        print(f"[{datetime.now(ET)}] Intraday update complete!")
 
     except Exception as e:
         print(f"[{datetime.now(ET)}] Error: {e}")
@@ -336,7 +340,11 @@ def check_regime_change_alerts():
 
 
 def store_closing_regime():
-    """Store the closing regime at 4:15 PM for tomorrow's comparison."""
+    """Store the closing regime at 4:16 PM and do the official regime update.
+
+    This is when current_regime officially flips (if signal changed).
+    Updates current_regime, trade stats, regime_history, etc.
+    """
     now = datetime.now(ET)
 
     # Skip non-trading days
@@ -345,8 +353,17 @@ def store_closing_regime():
         return
 
     try:
-        print(f"[{now}] Storing closing regime...")
+        # First, do the full regime update (officially flip current_regime if needed)
+        print(f"[{now}] Performing close regime update (official flip if applicable)...")
+        regime_s, z_spread_smoothed, speedometer_path = calculate_regime()
 
+        from update_regime_supabase import update_all
+        update_all(regime_s, z_spread_smoothed, speedometer_path)
+
+        print(f"[{now}] Close regime update complete!")
+
+        # Then store the closing regime for tomorrow's comparison
+        print(f"[{now}] Storing closing regime for alerts...")
         from send_alerts import store_closing_regime as store_regime
         store_regime()
 
@@ -433,10 +450,11 @@ def main():
     print("Market Regime Updater")
     print("=" * 50)
     print(f"Started at: {datetime.now(ET)}")
-    print("Schedule: Every 10 minutes during market hours")
+    print("Schedule: Every 10 minutes during market hours (intraday signal only)")
     print("Market hours: Mon-Fri, 9:30am-4:25pm ET")
     print("Regime alerts: 3:30pm ET (weekdays)")
-    print("Daily blurb + store closing regime: 4:15pm ET (weekdays)")
+    print("Daily blurb: 4:15pm ET (weekdays)")
+    print("Official regime flip: 4:16pm ET (weekdays)")
     print("Substack note: 4:17pm ET (weekdays)")
     print("Track record update: Monday 8:00am ET")
     print("Weekly digest: Sunday 8:00am ET")

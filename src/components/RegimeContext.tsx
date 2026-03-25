@@ -1,15 +1,22 @@
 interface RegimeContextProps {
-  regime: "bullish" | "bearish";
+  regime: "bullish" | "bearish"; // Official confirmed regime
   strength: number;
+  signalRegime?: "bullish" | "bearish"; // Real-time intraday signal
 }
 
-export default function RegimeContext({ regime, strength }: RegimeContextProps) {
+export default function RegimeContext({
+  regime,
+  strength,
+  signalRegime,
+}: RegimeContextProps) {
   const isBullish = regime === "bullish";
   const threshold = 0.25;
   const distanceToFlip = isBullish
     ? strength - threshold
     : threshold - strength;
-  const isNearFlip = Math.abs(distanceToFlip) < 0.15;
+  // Only show "approaching threshold" if signal still matches official regime
+  const isPotentialFlip = signalRegime && signalRegime !== regime;
+  const isNearFlip = !isPotentialFlip && Math.abs(distanceToFlip) < 0.15;
 
   return (
     <div

@@ -3,6 +3,7 @@ import { RegimeData, RegimePeriod } from "@/types/regime-data";
 
 interface RegimeStatusRow {
   current_regime: "bullish" | "bearish";
+  signal_regime: "bullish" | "bearish" | null;
   regime_strength: number;
   strength_change: number;
   last_updated: string;
@@ -30,6 +31,7 @@ export async function getRegimeData(): Promise<RegimeData> {
     // Return fallback data
     return {
       currentRegime: "bearish",
+      signalRegime: "bearish",
       regimeStrength: 0,
       strengthChange: 0,
       lastUpdated: new Date().toISOString().split("T")[0],
@@ -48,6 +50,8 @@ export async function getRegimeData(): Promise<RegimeData> {
 
   return {
     currentRegime: row.current_regime,
+    // Fall back to current_regime if signal_regime not set (migration not run yet)
+    signalRegime: row.signal_regime ?? row.current_regime,
     regimeStrength: row.regime_strength,
     strengthChange: row.strength_change,
     lastUpdated: row.last_updated,

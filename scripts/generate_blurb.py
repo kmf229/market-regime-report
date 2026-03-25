@@ -105,19 +105,17 @@ Assume the audience includes:
 
 ## Daily Inputs (Injected Each Run — REQUIRED)
 
-### TQQQ OHLCV (most recent N days)
+### Today's Daily Performance (PRE-CALCULATED - USE THESE EXACT VALUES)
 
-Pasted as a compact table or CSV-like rows with:
-date, open, high, low, close, volume
+{daily_performance}
 
-{tqqq_ohlcv}
+IMPORTANT: The daily percentage changes above are pre-calculated and verified. Use these exact percentages in your commentary. Do NOT attempt to calculate them yourself.
 
-### GLD OHLCV (most recent N days)
+### Cumulative Strategy Performance
 
-Pasted as a compact table or CSV-like rows with:
-date, open, high, low, close, volume
+{cumulative_pnl}
 
-{gld_ohlcv}
+If there are significant P&L milestones (strategy going from profitable to unprofitable, or vice versa; crossing round-number thresholds like +10%, -5%, etc.), this should be mentioned.
 
 ### Regime Strength Line (most recent N values)
 
@@ -140,16 +138,17 @@ Use these inputs to understand:
 Your output MUST have:
 
 - Direct commentary on the **current regime**
-- Discussion of **tech vs gold behavior**, including specific percentage moves
+- Discussion of **tech vs gold behavior**, using the pre-calculated percentages provided
 - Interpretation of the **Regime Strength line**
+- Any significant P&L milestones if applicable
 - Reinforce why discipline matters _right now_
 
-**CRITICAL: Highlight Significant Moves**
+**CRITICAL: Use the Pre-Calculated Daily Performance**
 
-- Calculate the daily percentage change for TQQQ and GLD from the most recent two days of OHLCV data (today's close vs yesterday's close)
-- If TQQQ moved more than 2% in either direction, you MUST mention it with the actual percentage (e.g., "TQQQ dropped 4.2% today")
-- If GLD moved more than 1.5% in either direction, you MUST mention it with the actual percentage (e.g., "Gold surged 2.1%")
-- These are leveraged/volatile instruments - significant daily moves are newsworthy and readers expect them to be acknowledged
+- The daily percentage changes are provided to you pre-calculated in the "Today's Daily Performance" section
+- You MUST use these exact values - do not compute your own
+- If TQQQ moved more than 2% in either direction, you MUST mention it with the percentage provided
+- If GLD moved more than 1.5% in either direction, you MUST mention it with the percentage provided
 - Do NOT gloss over big moves with vague language like "mixed action" or "choppy session"
 
 **Guidelines:**
@@ -161,6 +160,7 @@ Your output MUST have:
   - Give exact thresholds
   - Predict future moves
   - Override the model
+  - Mention any prices, closing prices, or dollar values (only percentages)
 - Emphasize **process over outcome**
 
 **Tone:**
@@ -184,6 +184,7 @@ Your output MUST have:
 - No claims of certainty
 - **No markdown formatting** - no headers, no bold, no bullet points, just plain prose
 - Do NOT include a title, date header, or any preamble - start directly with the content
+- **NEVER mention prices or dollar values** - only discuss percentage moves
 - Prefer language like:
   - "pressure," "confirmation," "divergence," "alignment," "transition," "structure"
 
@@ -235,15 +236,158 @@ def get_ohlcv_data(ticker: str, days: int = 10) -> pd.DataFrame:
     return df
 
 
-def format_ohlcv_for_prompt(df: pd.DataFrame) -> str:
-    """Format OHLCV DataFrame as CSV-like string for the prompt."""
+def calculate_daily_change(df: pd.DataFrame) -> tuple[float, str, str]:
+    """
+    Calculate the daily percentage change from the most recent two days.
+
+    Returns:
+        tuple: (percentage_change, today_date, yesterday_date)
+    """
+    if len(df) < 2:
+        return 0.0, "", ""
+
+    # Sort by date descending to get most recent first
+    df_sorted = df.sort_values('date', ascending=False)
+    today_row = df_sorted.iloc[0]
+    yesterday_row = df_sorted.iloc[1]
+
+    today_close = float(today_row['close'])
+    yesterday_close = float(yesterday_row['close'])
+
+    pct_change = ((today_close - yesterday_close) / yesterday_close) * 100
+
+    today_date = today_row['date'].strftime('%Y-%m-%d') if hasattr(today_row['date'], 'strftime') else str(today_row['date'])[:10]
+    yesterday_date = yesterday_row['date'].strftime('%Y-%m-%d') if hasattr(yesterday_row['date'], 'strftime') else str(yesterday_row['date'])[:10]
+
+    return pct_change, today_date, yesterday_date
+
+
+def get_cumulative_pnl() -> dict:
+    """
+    Fetch cumulative P&L data from Supabase.
+
+    Uses:
+    - regime_status.current_trade_return for real-time current trade P&L
+    - track_record.cumulative_return for overall cumulative strategy return
+
+    Returns:
+        dict with cumulative_return, current_trade_return, and milestone flags
+    """
+    result = {
+        "cumulative_return": None,
+        "current_trade_return": None,
+        "current_regime": None,
+        "days_in_trade": None,
+        "milestone": None
+    }
+
+    try:
+        supabase = get_supabase_client()
+    except Exception as e:
+        print(f"Warning: Could not connect to Supabase: {e}")
+        return result
+
+    # Get current trade return from regime_status (real-time)
+    try:
+        regime_result = supabase.table("regime_status").select(
+            "current_trade_return, current_regime, days_in_current_regime"
+        ).limit(1).execute()
+
+        if regime_result.data:
+            result["current_trade_return"] = regime_result.data[0].get("current_trade_return")
+            result["current_regime"] = regime_result.data[0].get("current_regime")
+            result["days_in_trade"] = regime_result.data[0].get("days_in_current_regime")
+    except Exception as e:
+        print(f"Warning: Could not fetch regime_status: {e}")
+
+    # Get cumulative strategy return from track_record (updated weekly)
+    try:
+        track_result = supabase.table("track_record").select(
+            "cumulative_return"
+        ).order("last_updated", desc=True).limit(1).execute()
+
+        if track_result.data:
+            result["cumulative_return"] = track_result.data[0].get("cumulative_return")
+    except Exception as e:
+        print(f"Warning: Could not fetch track_record: {e}")
+
+    # Detect milestones based on current trade return
+    current_trade_return = result["current_trade_return"]
+    if current_trade_return is not None:
+        # Current trade went negative (losing trade)
+        if current_trade_return < 0 and abs(current_trade_return) > 2:
+            result["milestone"] = f"Current trade is down {abs(current_trade_return):.1f}% since entry"
+        # Current trade crossed into profit
+        elif current_trade_return > 5:
+            result["milestone"] = f"Current trade is up {current_trade_return:.1f}% since entry"
+
+        # Note large current drawdowns
+        if current_trade_return < -5:
+            result["milestone"] = f"Current trade is now down {abs(current_trade_return):.1f}% - significant drawdown"
+
+    return result
+
+
+def format_daily_performance(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame, current_regime: str) -> str:
+    """
+    Format pre-calculated daily performance for the prompt.
+
+    Returns a clear summary of today's moves with explicit percentages.
+    """
+    tqqq_change, tqqq_today, tqqq_yesterday = calculate_daily_change(tqqq_df)
+    gld_change, gld_today, gld_yesterday = calculate_daily_change(gld_df)
+
+    # Format the direction words
+    tqqq_direction = "up" if tqqq_change >= 0 else "down"
+    gld_direction = "up" if gld_change >= 0 else "down"
+
+    lines = [
+        f"Date: {tqqq_today}",
+        f"Current Regime: {current_regime}",
+        f"",
+        f"TQQQ (tech/risk-on proxy): {tqqq_direction} {abs(tqqq_change):.1f}% today",
+        f"GLD (gold/risk-off proxy): {gld_direction} {abs(gld_change):.1f}% today",
+        f"",
+        f"In {current_regime} regime, we hold {'TQQQ (tech)' if current_regime.lower() == 'bullish' else 'GLD (gold)'}.",
+    ]
+
+    # Add significance notes
+    if abs(tqqq_change) > 2:
+        lines.append(f"NOTE: TQQQ move of {abs(tqqq_change):.1f}% is significant and MUST be mentioned.")
+    if abs(gld_change) > 1.5:
+        lines.append(f"NOTE: GLD move of {abs(gld_change):.1f}% is significant and MUST be mentioned.")
+
+    return "\n".join(lines)
+
+
+def format_cumulative_pnl(pnl_data: dict) -> str:
+    """Format cumulative P&L data for the prompt."""
     lines = []
-    for _, row in df.iterrows():
-        date_str = row['date'].strftime('%Y-%m-%d') if hasattr(row['date'], 'strftime') else str(row['date'])[:10]
-        lines.append(
-            f"{date_str}, {row['open']:.2f}, {row['high']:.2f}, "
-            f"{row['low']:.2f}, {row['close']:.2f}, {int(row['volume'])}"
-        )
+
+    # Current trade performance (real-time from regime_status)
+    if pnl_data.get("current_trade_return") is not None:
+        trade_ret = pnl_data["current_trade_return"]
+        trade_status = "profitable" if trade_ret >= 0 else "unprofitable"
+        regime = pnl_data.get("current_regime", "unknown")
+        days = pnl_data.get("days_in_trade", 0)
+        asset = "tech (MNQ)" if regime == "bullish" else "gold (MGC)"
+        lines.append(f"Current trade: Holding {asset}, {trade_ret:+.1f}% return over {days} days ({trade_status})")
+    else:
+        lines.append("Current trade return: Not available")
+
+    # Overall strategy performance (from track_record)
+    if pnl_data.get("cumulative_return") is not None:
+        cum_ret = pnl_data["cumulative_return"] * 100  # Convert to percentage
+        status = "profitable" if cum_ret >= 0 else "unprofitable"
+        lines.append(f"Overall strategy return since inception: {cum_ret:+.1f}% ({status})")
+    else:
+        lines.append("Overall strategy return: Not available (updated weekly)")
+
+    if pnl_data.get("milestone"):
+        lines.append(f"")
+        lines.append(f"MILESTONE: {pnl_data['milestone']}")
+        lines.append(f"This is significant and should be mentioned in the commentary.")
+
     return "\n".join(lines)
 
 
@@ -265,7 +409,7 @@ def format_regime_strength_for_prompt(z_spread_smoothed: pd.Series, days: int = 
 # CLAUDE API INTEGRATION
 # ============================================
 
-def generate_blurb(tqqq_ohlcv: str, gld_ohlcv: str, regime_strength: str) -> str:
+def generate_blurb(daily_performance: str, cumulative_pnl: str, regime_strength: str) -> str:
     """Generate daily blurb using Claude API."""
     import anthropic
 
@@ -277,10 +421,21 @@ def generate_blurb(tqqq_ohlcv: str, gld_ohlcv: str, regime_strength: str) -> str
 
     # Fill in the prompt template
     filled_prompt = SYSTEM_PROMPT.format(
-        tqqq_ohlcv=tqqq_ohlcv,
-        gld_ohlcv=gld_ohlcv,
+        daily_performance=daily_performance,
+        cumulative_pnl=cumulative_pnl,
         regime_strength=regime_strength
     )
+
+    # Log the data being sent for debugging
+    print("  Data sent to Claude:")
+    print("  " + "-" * 40)
+    print("  Daily Performance:")
+    for line in daily_performance.split("\n"):
+        print(f"    {line}")
+    print("  Cumulative P&L:")
+    for line in cumulative_pnl.split("\n"):
+        print(f"    {line}")
+    print("  " + "-" * 40)
 
     message = client.messages.create(
         model="claude-sonnet-4-20250514",
@@ -348,15 +503,23 @@ def generate_and_store_daily_blurb(regime_s: pd.Series, z_spread_smoothed: pd.Se
     today_str = today.strftime('%Y-%m-%d')
     current_regime = regime_s.loc[today]
     regime_str = "bullish" if str(current_regime).lower().startswith("bull") else "bearish"
+    regime_display = "Bullish" if regime_str == "bullish" else "Bearish"
 
     # Fetch OHLCV data
     print("  Fetching TQQQ data...")
     tqqq_df = get_ohlcv_data("TQQQ", days=10)
-    tqqq_ohlcv = format_ohlcv_for_prompt(tqqq_df)
 
     print("  Fetching GLD data...")
     gld_df = get_ohlcv_data("GLD", days=10)
-    gld_ohlcv = format_ohlcv_for_prompt(gld_df)
+
+    # Pre-calculate daily performance (this is the key fix - don't let Claude compute it)
+    print("  Calculating daily performance...")
+    daily_performance = format_daily_performance(tqqq_df, gld_df, regime_display)
+
+    # Fetch cumulative P&L from Supabase
+    print("  Fetching cumulative P&L...")
+    pnl_data = get_cumulative_pnl()
+    cumulative_pnl = format_cumulative_pnl(pnl_data)
 
     # Format regime strength
     print("  Formatting regime strength...")
@@ -364,7 +527,7 @@ def generate_and_store_daily_blurb(regime_s: pd.Series, z_spread_smoothed: pd.Se
 
     # Generate blurb via Claude
     print("  Calling Claude API...")
-    blurb = generate_blurb(tqqq_ohlcv, gld_ohlcv, regime_strength)
+    blurb = generate_blurb(daily_performance, cumulative_pnl, regime_strength)
 
     # Store in Supabase
     print("  Storing in Supabase...")
@@ -477,19 +640,67 @@ def run_manual():
     return blurb
 
 
+def debug_data():
+    """Debug mode: fetch and display data without calling Claude."""
+    print("=" * 50)
+    print("DEBUG MODE - Showing data that would be sent to Claude")
+    print("=" * 50)
+
+    # Fetch TQQQ data
+    print("\nFetching TQQQ data...")
+    tqqq_df = get_ohlcv_data("TQQQ", days=5)
+    print("\nTQQQ Recent Data:")
+    print(tqqq_df.to_string(index=False))
+
+    tqqq_change, tqqq_today, tqqq_yesterday = calculate_daily_change(tqqq_df)
+    print(f"\nTQQQ Daily Change: {tqqq_change:+.2f}% ({tqqq_yesterday} -> {tqqq_today})")
+
+    # Fetch GLD data
+    print("\nFetching GLD data...")
+    gld_df = get_ohlcv_data("GLD", days=5)
+    print("\nGLD Recent Data:")
+    print(gld_df.to_string(index=False))
+
+    gld_change, gld_today, gld_yesterday = calculate_daily_change(gld_df)
+    print(f"\nGLD Daily Change: {gld_change:+.2f}% ({gld_yesterday} -> {gld_today})")
+
+    # Show formatted daily performance
+    print("\n" + "=" * 50)
+    print("FORMATTED DAILY PERFORMANCE (sent to Claude):")
+    print("=" * 50)
+    daily_perf = format_daily_performance(tqqq_df, gld_df, "Bearish")  # Assume bearish for test
+    print(daily_perf)
+
+    # Fetch cumulative P&L
+    print("\n" + "=" * 50)
+    print("CUMULATIVE P&L DATA:")
+    print("=" * 50)
+    pnl_data = get_cumulative_pnl()
+    cumulative_pnl = format_cumulative_pnl(pnl_data)
+    print(cumulative_pnl)
+
+    print("\n" + "=" * 50)
+    print("DEBUG COMPLETE - No Claude API call made")
+    print("=" * 50)
+
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate daily market blurbs")
     parser.add_argument("--test", action="store_true", help="Run in test mode with sample data")
     parser.add_argument("--manual", action="store_true", help="Run manually with real market data")
+    parser.add_argument("--debug", action="store_true", help="Debug mode: show data without calling Claude")
     args = parser.parse_args()
 
     if args.test:
         test_blurb_generation()
     elif args.manual:
         run_manual()
+    elif args.debug:
+        debug_data()
     else:
         print("Usage:")
         print("  python generate_blurb.py --manual   # Generate with real market data")
         print("  python generate_blurb.py --test     # Generate with sample data")
+        print("  python generate_blurb.py --debug    # Show data without calling Claude")

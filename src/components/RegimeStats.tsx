@@ -142,10 +142,10 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
         );
       })}
 
-      {/* Regime Strength - Special Card */}
+      {/* Regime Strength - Special Card (uses signal regime for real-time display) */}
       <div
         className={`p-4 rounded-lg border relative ${
-          data.currentRegime === "bullish"
+          data.signalRegime === "bullish"
             ? "bg-emerald-50 border-emerald-200"
             : "bg-red-50 border-red-200"
         }`}
@@ -191,10 +191,10 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
           )}
         </div>
 
-        {/* Strength label (intuitive) */}
+        {/* Strength label (intuitive) - uses signal regime for real-time display */}
         <p
           className={`text-lg font-bold mt-1 ${
-            data.currentRegime === "bullish"
+            data.signalRegime === "bullish"
               ? "text-emerald-700"
               : "text-red-700"
           }`}
@@ -205,7 +205,7 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
         {/* Numeric value */}
         <p
           className={`text-2xl font-bold font-mono mt-1 ${
-            data.currentRegime === "bullish"
+            data.signalRegime === "bullish"
               ? "text-emerald-600"
               : "text-red-600"
           }`}
