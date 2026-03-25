@@ -85,13 +85,14 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
   };
 
   // Calculate days in regime dynamically from start date
+  // Shows 0 on entry day, 1 after first full day, etc.
   const calculateDaysInRegime = () => {
     if (!data.currentTradeStart) return data.daysInCurrentRegime;
     const start = new Date(data.currentTradeStart + "T00:00:00");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diffTime = today.getTime() - start.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include start day
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 

@@ -113,7 +113,7 @@ def calculate_regime_periods(regime_s: pd.Series, tqqq_prices: pd.Series = None,
             "regime": current_regime,
             "startDate": period_start.strftime("%Y-%m-%d"),
             "endDate": None,
-            "durationDays": (today - period_start).days + 1,
+            "durationDays": (today - period_start).days,  # 0 on entry day
         }
         # Calculate return for current period (start to today)
         if tqqq_prices is not None and gld_prices is not None:

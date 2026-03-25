@@ -192,6 +192,9 @@ def send_regime_change_alerts(force: bool = False, test: bool = False) -> None:
     """
     Check for regime change and send alerts if needed.
 
+    Compares signal_regime (today's intraday signal) with previous_regime (yesterday's close).
+    This alerts users 30 min before close that a regime flip is imminent.
+
     Args:
         force: If True, send alerts regardless of regime change
         test: If True, print email content instead of sending
@@ -205,15 +208,16 @@ def send_regime_change_alerts(force: bool = False, test: bool = False) -> None:
 
     # Get current regime status
     status = get_regime_status(supabase)
-    current_regime = status["current_regime"]
+    # Use signal_regime (intraday) to detect potential change vs yesterday's close
+    signal_regime = status.get("signal_regime") or status["current_regime"]
     previous_regime = status.get("previous_regime")
     regime_strength = status["regime_strength"]
 
-    print(f"Current regime: {current_regime}")
-    print(f"Previous regime: {previous_regime}")
+    print(f"Signal regime (intraday): {signal_regime}")
+    print(f"Previous regime (yesterday): {previous_regime}")
 
-    # Check if regime changed
-    regime_changed = previous_regime is not None and current_regime != previous_regime
+    # Check if regime is changing (signal differs from yesterday's close)
+    regime_changed = previous_regime is not None and signal_regime != previous_regime
 
     if not regime_changed and not force:
         print("No regime change detected. No alerts to send.")
@@ -222,7 +226,7 @@ def send_regime_change_alerts(force: bool = False, test: bool = False) -> None:
     if force:
         print("Force mode: sending alerts regardless of change.")
     else:
-        print(f"Regime changed from {previous_regime} to {current_regime}!")
+        print(f"Regime changing from {previous_regime} to {signal_regime}!")
 
     # Get opted-in users
     users = get_opted_in_users(supabase, "regime_change_alerts")
@@ -232,8 +236,8 @@ def send_regime_change_alerts(force: bool = False, test: bool = False) -> None:
         print("No users to notify.")
         return
 
-    # Build email
-    subject, html = build_regime_change_email(current_regime, regime_strength)
+    # Build email (use signal_regime for the new regime)
+    subject, html = build_regime_change_email(signal_regime, regime_strength)
 
     if test:
         print("\n--- TEST MODE ---")
