@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getDailyUpdates } from "@/lib/daily-updates";
-import DailyUpdates from "@/components/DailyUpdates";
+// Daily updates disabled - kept for future use
+// import { getDailyUpdates } from "@/lib/daily-updates";
+// import DailyUpdates from "@/components/DailyUpdates";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import RegimeSidebar from "@/components/RegimeSidebar";
 import { getRegimeData } from "@/lib/regime-data";
@@ -94,7 +95,8 @@ export default async function CurrentRegimePage() {
     return <AccessDenied />;
   }
 
-  const updates = await getDailyUpdates();
+  // Daily updates disabled - kept for future use
+  // const updates = await getDailyUpdates();
   const regimeData = await getRegimeData();
 
   return (
@@ -116,7 +118,7 @@ export default async function CurrentRegimePage() {
           {/* Overview Section - Live updating */}
           <LiveRegimeStatus initialData={regimeData} />
 
-          {/* Daily Updates Section */}
+          {/* Daily Updates Section - DISABLED (kept for potential future use)
           <section id="updates" className="mb-12">
             <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-6">
               Daily Updates
@@ -124,6 +126,7 @@ export default async function CurrentRegimePage() {
 
             <DailyUpdates updates={updates} initialCount={5} />
           </section>
+          */}
 
           {/* Disclaimer */}
           <div className="pt-8 border-t border-gray-200">

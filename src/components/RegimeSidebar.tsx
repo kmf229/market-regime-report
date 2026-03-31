@@ -14,7 +14,8 @@ interface RegimeSidebarProps {
 
 const sections = [
   { id: "overview", label: "Overview", icon: "gauge" },
-  { id: "updates", label: "Daily Updates", icon: "calendar" },
+  // Daily updates disabled - kept for future use
+  // { id: "updates", label: "Daily Updates", icon: "calendar" },
 ];
 
 export default function RegimeSidebar({ regime, userId, alertPreferences }: RegimeSidebarProps) {

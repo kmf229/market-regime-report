@@ -5,7 +5,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { RegimeData } from "@/types/regime-data";
 import RegimeStats from "@/components/RegimeStats";
-import RegimeTimeline from "@/components/RegimeTimeline";
+import RegimeCalendar from "@/components/RegimeCalendar";
 import RegimeContext from "@/components/RegimeContext";
 
 interface LiveRegimeStatusProps {
@@ -99,9 +99,9 @@ export default function LiveRegimeStatus({
       {/* Stats Panel */}
       <RegimeStats data={data} />
 
-      {/* Timeline */}
+      {/* Regime Calendar */}
       <div className="mt-6">
-        <RegimeTimeline history={data.regimeHistory} />
+        <RegimeCalendar history={data.regimeHistory} />
       </div>
     </section>
   );
