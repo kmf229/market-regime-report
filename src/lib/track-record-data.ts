@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Summary, MonthlyReturns } from "@/types/track-record";
+import { Summary, MonthlyReturns, Trade } from "@/types/track-record";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -11,6 +11,7 @@ export interface TrackRecordData {
   summary: Summary | null;
   monthlyReturns: MonthlyReturns | null;
   equityCurveUrl: string | null;
+  trades: Trade[];
   error: string | null;
 }
 
@@ -28,6 +29,7 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
         summary: null,
         monthlyReturns: null,
         equityCurveUrl: null,
+        trades: [],
         error: "Failed to fetch track record data from database.",
       };
     }
@@ -37,6 +39,7 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
         summary: null,
         monthlyReturns: null,
         equityCurveUrl: null,
+        trades: [],
         error: "Track record data not found in database.",
       };
     }
@@ -66,11 +69,13 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
 
     const monthlyReturns: MonthlyReturns | null = data.monthly_returns || null;
     const equityCurveUrl: string | null = data.equity_curve_url || null;
+    const trades: Trade[] = data.trades_history || [];
 
     return {
       summary,
       monthlyReturns,
       equityCurveUrl,
+      trades,
       error: null,
     };
   } catch (err) {
@@ -79,6 +84,7 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
       summary: null,
       monthlyReturns: null,
       equityCurveUrl: null,
+      trades: [],
       error: "An error occurred while fetching track record data.",
     };
   }

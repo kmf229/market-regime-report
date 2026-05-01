@@ -89,6 +89,12 @@ DTYPE_MAP = {
     "twr": "float64",
 }
 
+# Trades config
+STARTING_EQUITY = 250000.0  # 10x real account
+TRADES_MULTIPLIER = 10  # Mask account size
+BULLISH_SYMBOLS = ["TQQQ", "MNQ"]
+BEARISH_SYMBOLS = ["GLD", "MGC", "GC"]
+
 
 def get_supabase_client() -> Client:
     """Get Supabase client using environment variables."""
@@ -165,6 +171,259 @@ def download_and_decrypt_ibkr() -> Path:
 
     print(f"Decrypted file to: {decrypted_file}")
     return decrypted_file
+
+
+def get_latest_trades_file(files: list) -> str:
+    """Choose the most recent IBKR 'Trailing_1-Year_Trades' file."""
+    file_name = "Trailing_1-Year_Trades"
+    candidates = sorted([f for f in files if file_name in f])
+    if not candidates:
+        raise RuntimeError("No 'Trailing_1-Year_Trades' files found in IBKR outgoing folder.")
+    return candidates[-1]
+
+
+def download_and_decrypt_trades() -> Path:
+    """Download latest IBKR trades file and decrypt it."""
+    user, passwd = get_ibkr_credentials()
+
+    print("Connecting to IBKR FTP for trades...")
+
+    # IBKR uses plain FTP (not FTPS)
+    ftp = ftplib.FTP(HOSTNAME, user, passwd)
+    ftp.encoding = "utf-8"
+
+    files = ftp.nlst("outgoing")
+    latest_file = get_latest_trades_file(files)
+    print(f"Latest trades file: {latest_file}")
+
+    encrypted_file = DATA_DIR / "trades.csv.pgp"
+    decrypted_file = DATA_DIR / "trades.csv"
+
+    with open(encrypted_file, "wb") as f:
+        ftp.retrbinary(f"RETR {latest_file}", f.write)
+
+    ftp.quit()
+    print(f"Downloaded encrypted trades file to: {encrypted_file}")
+
+    print("Decrypting trades via gpg...")
+    result = subprocess.run(
+        ["gpg", "--yes", "--output", str(decrypted_file), "--decrypt", str(encrypted_file)],
+        capture_output=True,
+        text=True
+    )
+
+    time.sleep(1)
+
+    if result.returncode != 0 or not decrypted_file.exists():
+        raise RuntimeError(f"GPG decrypt failed: {result.stderr}")
+
+    # Clean up encrypted file
+    encrypted_file.unlink(missing_ok=True)
+
+    print(f"Decrypted trades file to: {decrypted_file}")
+    return decrypted_file
+
+
+def is_bullish(symbol: str) -> bool:
+    """Check if symbol is bullish."""
+    for s in BULLISH_SYMBOLS:
+        if symbol.startswith(s):
+            return True
+    return False
+
+
+def is_bearish(symbol: str) -> bool:
+    """Check if symbol is bearish."""
+    for s in BEARISH_SYMBOLS:
+        if symbol.startswith(s):
+            return True
+    return False
+
+
+def parse_trades_csv(csv_path: Path) -> pd.DataFrame:
+    """Parse IBKR trades CSV and extract strategy trades."""
+
+    # Read CSV, skip first 4 rows (BOF, BOA, BOS, HEADER)
+    df = pd.read_csv(csv_path, skiprows=4, header=None, low_memory=False)
+
+    # Assign column names based on IBKR format
+    df.columns = [
+        "RecordType", "SectionID", "ClientAccountID", "AccountAlias", "Model",
+        "CurrencyPrimary", "FXRateToBase", "AssetClass", "Symbol", "Description",
+        "Conid", "SecurityID", "SecurityIDType", "CUSIP", "ISIN", "ListingExchange",
+        "UnderlyingConid", "UnderlyingSymbol", "UnderlyingSecurityID", "UnderlyingListingExchange",
+        "Issuer", "Multiplier", "Strike", "Expiry", "TradeID", "PutCall", "RelatedTradeID",
+        "PrincipalAdjustFactor", "ReportDate", "DateTime", "TradeDate", "SettleDateTarget",
+        "TransactionType", "Exchange", "Quantity", "TradePrice", "TradeMoney", "Proceeds",
+        "Taxes", "IBCommission", "IBCommissionCurrency", "NetCash", "ClosePrice",
+        "OpenCloseIndicator", "NotesCodes", "CostBasis", "FifoPnlRealized", "FxPnl",
+        "MtmPnl", "OrigTradePrice", "OrigTradeDate", "OrigTradeID", "OrigOrderID",
+        "OrigTransactionID", "BuySell", "ClearingFirmID", "IBOrderID", "TransactionID",
+        "IBExecID", "RelatedTransactionID", "BrokerageOrderID", "OrderReference",
+        "VolatilityOrderLink", "ExchOrderID", "ExtExecID", "OrderTime", "OpenDateTime",
+        "HoldingPeriodDateTime", "WhenRealized", "WhenReopened", "LevelOfDetail",
+        "ChangeInPrice", "ChangeInQuantity", "OrderType", "TraderID", "IsAPIOrder",
+        "AccruedInterest", "SerialNumber", "DeliveryType", "CommodityType", "Fineness", "Weight"
+    ]
+
+    # Filter for strategy symbols only
+    strategy_symbols = BULLISH_SYMBOLS + BEARISH_SYMBOLS
+    df = df[df["Symbol"].str.contains("|".join(strategy_symbols), na=False)].copy()
+
+    # Convert TradeDate to datetime (handle both "2025-09-10" and "2025-09-10;160000" formats)
+    df["TradeDate"] = pd.to_datetime(df["TradeDate"].str.split(";").str[0])
+
+    # Filter for trades >= MIN_DATE
+    df = df[df["TradeDate"] >= MIN_DATE].copy()
+
+    # Convert numeric columns
+    df["Quantity"] = pd.to_numeric(df["Quantity"])
+    df["TradePrice"] = pd.to_numeric(df["TradePrice"])
+    df["FifoPnlRealized"] = pd.to_numeric(df["FifoPnlRealized"])
+
+    # Sort by date, and within same date, put SELLs before BUYs (so we close positions before opening new ones)
+    df["IsBuy"] = df["Quantity"] > 0
+    df = df.sort_values(["TradeDate", "IsBuy"]).reset_index(drop=True)
+
+    return df[["TradeDate", "Symbol", "Quantity", "TradePrice", "FifoPnlRealized", "BuySell"]]
+
+
+def group_regime_trades(df: pd.DataFrame) -> list:
+    """Group trades into regime trades."""
+
+    trades = []
+    current_trade = None
+    current_regime = None
+
+    for idx, row in df.iterrows():
+        symbol = row["Symbol"]
+        date = row["TradeDate"]
+        qty = row["Quantity"]
+        price = row["TradePrice"]
+        pnl = row["FifoPnlRealized"]
+        is_buy = qty > 0
+
+        regime = "Bullish" if is_bullish(symbol) else "Bearish"
+
+        # Closing a position (SELL) - process first to accumulate P&L before regime switch
+        if not is_buy:
+            if current_trade is not None and current_trade["regime"] == regime:
+                # This is closing the current regime position
+                current_trade["pnl"] += pnl
+                current_trade["date_out"] = date
+                current_trade["exit_price"] = price
+
+        # Opening a new position (BUY)
+        if is_buy:
+            # Check if this is a regime switch
+            if current_regime != regime:
+                # Close previous trade if exists
+                if current_trade is not None:
+                    current_trade["status"] = "Closed"
+                    trades.append(current_trade)
+
+                # Start new regime trade
+                current_regime = regime
+                current_trade = {
+                    "regime": regime,
+                    "date_in": date,
+                    "date_out": None,
+                    "symbol": symbol[:3] if symbol.startswith("M") else symbol,  # MNQ, MGC, TQQQ
+                    "contracts": abs(qty),
+                    "entry_price": price,
+                    "exit_price": None,
+                    "pnl": 0,
+                    "status": "Open"
+                }
+
+    # Handle final open trade
+    if current_trade is not None:
+        if current_trade["date_out"] is None:
+            current_trade["status"] = "Pending"
+        else:
+            current_trade["status"] = "Closed"
+        trades.append(current_trade)
+
+    return trades
+
+
+def calculate_trades_equity_curve(trades: list) -> list:
+    """Add running equity to each trade."""
+    equity = STARTING_EQUITY
+
+    for trade in trades:
+        if trade["status"] == "Closed":
+            # Apply 10x multiplier to P&L
+            scaled_pnl = trade["pnl"] * TRADES_MULTIPLIER
+            equity += scaled_pnl
+            trade["pnl_scaled"] = scaled_pnl
+            trade["equity_after"] = equity
+        else:
+            # Pending trade
+            trade["pnl_scaled"] = None
+            trade["equity_after"] = None
+
+    return trades
+
+
+def format_trades_for_supabase(trades: list) -> list:
+    """Format trades for Supabase storage."""
+
+    table = []
+
+    for i, trade in enumerate(trades, 1):
+        # Scale contracts by 10x
+        contracts_scaled = int(trade["contracts"] * TRADES_MULTIPLIER)
+
+        row = {
+            "trade_number": i,
+            "regime": trade["regime"],
+            "date_in": trade["date_in"].strftime("%Y-%m-%d"),
+            "date_out": trade["date_out"].strftime("%Y-%m-%d") if trade["date_out"] else None,
+            "symbol": trade["symbol"],
+            "contracts": contracts_scaled,
+            "entry_price": float(trade["entry_price"]),
+            "exit_price": float(trade["exit_price"]) if trade["exit_price"] else None,
+            "pnl": float(trade["pnl_scaled"]) if trade["pnl_scaled"] is not None else None,
+            "equity": float(trade["equity_after"]) if trade["equity_after"] else None,
+            "status": trade["status"]
+        }
+
+        table.append(row)
+
+    return table
+
+
+def parse_trades() -> list:
+    """Download and parse trades file, return formatted trades list."""
+    try:
+        # Download and decrypt trades file
+        trades_file = download_and_decrypt_trades()
+
+        # Parse trades
+        df = parse_trades_csv(trades_file)
+        print(f"Found {len(df)} strategy trades")
+
+        # Group into regime trades
+        trades = group_regime_trades(df)
+        print(f"Grouped into {len(trades)} regime trades")
+
+        # Calculate equity curve
+        trades = calculate_trades_equity_curve(trades)
+
+        # Format for Supabase
+        formatted_trades = format_trades_for_supabase(trades)
+
+        # Clean up temp file
+        trades_file.unlink(missing_ok=True)
+
+        return formatted_trades
+
+    except Exception as e:
+        print(f"Error parsing trades: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
 
 
 def read_ftp_csv(path: Path) -> pd.DataFrame:
@@ -556,6 +815,11 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     history_df["date"] = history_df["date"].dt.strftime("%Y-%m-%d")
     daily_history = history_df.to_dict(orient="records")
 
+    # Parse trades history
+    print("Parsing trades history...")
+    trades_history = parse_trades()
+    print(f"  Found {len(trades_history)} regime trades")
+
     # Build update data
     data = {
         "start_date": str(start_ts.date()),
@@ -574,6 +838,7 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         "up_months_pct": up_month_pct,
         "monthly_returns": monthly_returns,
         "daily_history": daily_history,
+        "trades_history": trades_history,
         "equity_curve_url": equity_curve_url,
         "sp500_cumulative_return": sp500_metrics["sp500_cumulative_return"],
         "sp500_cagr": sp500_metrics["sp500_cagr"],

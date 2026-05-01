@@ -4,6 +4,7 @@ import BenchmarkComparison from "@/components/BenchmarkComparison";
 import MetricsPanel from "@/components/MetricsPanel";
 import MonthlyReturnsTable from "@/components/MonthlyReturnsTable";
 import EquityCurve from "@/components/EquityCurve";
+import TradesTable from "@/components/TradesTable";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
 function formatDate(dateStr: string): string {
@@ -17,7 +18,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default async function TrackRecordPage() {
-  const { summary, monthlyReturns, equityCurveUrl, error } = await getTrackRecordData();
+  const { summary, monthlyReturns, equityCurveUrl, trades, error } = await getTrackRecordData();
 
   if (error || !summary) {
     return (
@@ -81,6 +82,13 @@ export default async function TrackRecordPage() {
         <section className="mb-12">
           <EquityCurve imageUrl={equityCurveUrl} />
         </section>
+
+        {/* Trades Table */}
+        {trades && trades.length > 0 && (
+          <section className="mb-12">
+            <TradesTable trades={trades} />
+          </section>
+        )}
 
         {/* Disclaimer */}
         <section className="p-6 bg-gray-50 border border-gray-200 rounded-lg">

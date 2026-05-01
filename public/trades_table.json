@@ -1,0 +1,80 @@
+[
+  {
+    "trade_number": 1,
+    "regime": "Bearish",
+    "date_in": "2025-11-21",
+    "date_out": "2026-01-09",
+    "symbol": "MGC",
+    "contracts": 10,
+    "entry_price": "$4,111.30",
+    "exit_price": "$4,512.10",
+    "pnl": "$40,062.60",
+    "equity": "$290,062.60",
+    "status": "Closed"
+  },
+  {
+    "trade_number": 2,
+    "regime": "Bullish",
+    "date_in": "2026-01-09",
+    "date_out": "2026-01-20",
+    "symbol": "MNQ",
+    "contracts": 20,
+    "entry_price": "$25,940.75",
+    "exit_price": "$25,124.75",
+    "pnl": "$-32,664.80",
+    "equity": "$257,397.80",
+    "status": "Closed"
+  },
+  {
+    "trade_number": 3,
+    "regime": "Bearish",
+    "date_in": "2026-01-20",
+    "date_out": "2026-03-25",
+    "symbol": "MGC",
+    "contracts": 10,
+    "entry_price": "$4,758.80",
+    "exit_price": "$4,528.00",
+    "pnl": "$-26,974.80",
+    "equity": "$230,423.00",
+    "status": "Closed"
+  },
+  {
+    "trade_number": 4,
+    "regime": "Bullish",
+    "date_in": "2026-03-25",
+    "date_out": "2026-03-30",
+    "symbol": "MNQ",
+    "contracts": 10,
+    "entry_price": "$24,385.50",
+    "exit_price": "$23,121.25",
+    "pnl": "$-25,297.40",
+    "equity": "$205,125.60",
+    "status": "Closed"
+  },
+  {
+    "trade_number": 5,
+    "regime": "Bearish",
+    "date_in": "2026-03-30",
+    "date_out": "2026-03-31",
+    "symbol": "MGC",
+    "contracts": 10,
+    "entry_price": "$4,546.00",
+    "exit_price": "$4,590.00",
+    "pnl": "$4,382.60",
+    "equity": "$209,508.20",
+    "status": "Closed"
+  },
+  {
+    "trade_number": 6,
+    "regime": "Bullish",
+    "date_in": "2026-04-02",
+    "date_out": "\u2014",
+    "symbol": "MNQ",
+    "contracts": 10,
+    "entry_price": "$24,216.50",
+    "exit_price": "\u2014",
+    "pnl": "Pending",
+    "equity": "\u2014",
+    "status": "Pending"
+  }
+]

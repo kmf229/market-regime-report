@@ -41,3 +41,17 @@ export interface MonthlyReturns {
   columns: string[];
   rows: MonthlyReturnsRow[];
 }
+
+export interface Trade {
+  trade_number: number;
+  regime: string;
+  date_in: string;
+  date_out: string | null;
+  symbol: string;
+  contracts: number;
+  entry_price: number;
+  exit_price: number | null;
+  pnl: number | null;
+  equity: number | null;
+  status: string;
+}

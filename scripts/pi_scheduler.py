@@ -422,12 +422,12 @@ def generate_substack_note():
 
 
 def update_track_record():
-    """Update track record from IBKR data every Monday at 8am ET."""
+    """Update track record from IBKR data every weekday at 8am ET."""
     now = datetime.now(ET)
 
-    # Only run on Mondays
-    if now.weekday() != 0:  # 0 = Monday
-        print(f"[{now}] Not Monday, skipping track record update")
+    # Skip weekends
+    if now.weekday() > 4:  # 5=Saturday, 6=Sunday
+        print(f"[{now}] Weekend, skipping track record update")
         return
 
     try:
@@ -456,7 +456,7 @@ def main():
     print("Daily blurb: 4:15pm ET (weekdays)")
     print("Official regime flip: 4:16pm ET (weekdays)")
     print("Substack note: 4:17pm ET (weekdays)")
-    print("Track record update: Monday 8:00am ET")
+    print("Track record update: Weekdays 8:00am ET")
     print("Weekly digest: Sunday 8:00am ET")
     print("=" * 50)
 
@@ -478,8 +478,8 @@ def main():
     # Schedule Substack note generation at 4:17pm ET
     schedule.every().day.at("16:17").do(generate_substack_note)
 
-    # Schedule track record update every Monday at 8am ET
-    schedule.every().monday.at("08:00").do(update_track_record)
+    # Schedule track record update every weekday at 8am ET
+    schedule.every().day.at("08:00").do(update_track_record)
 
     # Schedule weekly digest every Sunday at 8am ET
     schedule.every().sunday.at("08:00").do(send_weekly_digest)

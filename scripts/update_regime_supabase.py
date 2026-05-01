@@ -122,7 +122,7 @@ def calculate_regime_periods(regime_s: pd.Series, tqqq_prices: pd.Series = None,
             )
         periods.append(period)
 
-    return periods[-10:][::-1]  # Last 10, most recent first
+    return periods[-30:][::-1]  # Last 30, most recent first (enough to cover 12+ months)
 
 
 def _calculate_period_return(regime: str, start_date, end_date, tqqq_prices: pd.Series, gld_prices: pd.Series) -> float:
