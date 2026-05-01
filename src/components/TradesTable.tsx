@@ -25,13 +25,13 @@ export default function TradesTable({ trades }: TradesTableProps) {
 
   const STARTING_EQUITY = 250000;
 
-  const formatCurrency = (value: number | null) => {
+  const formatCurrency = (value: number | null, compact: boolean = false) => {
     if (value === null) return "—";
     const formatted = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: compact ? 0 : 2,
+      maximumFractionDigits: compact ? 0 : 2,
     }).format(value);
     return formatted;
   };
@@ -45,11 +45,13 @@ export default function TradesTable({ trades }: TradesTableProps) {
     // Parse as local date (YYYY-MM-DD) to avoid timezone issues
     const [year, month, day] = date.split("-").map(Number);
     const localDate = new Date(year, month - 1, day);
-    return localDate.toLocaleDateString("en-US", {
-      year: "numeric",
+    // Use more compact format: "Jan 9, '26" instead of "Jan 9, 2026"
+    const formatted = localDate.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     });
+    const yearShort = `'${String(year).slice(-2)}`;
+    return `${formatted}, ${yearShort}`;
   };
 
   const calculateCumulativeReturn = (equity: number | null) => {
@@ -63,46 +65,46 @@ export default function TradesTable({ trades }: TradesTableProps) {
 
       {/* Desktop table */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="min-w-full border-collapse">
+        <table className="min-w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-gray-300">
-              <th className="text-left py-3 px-4 font-semibold text-sm">#</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm">Regime</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm">Entry</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm">Exit</th>
-              <th className="text-left py-3 px-4 font-semibold text-sm">Symbol</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm">Contracts</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm">Entry Price</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm">Exit Price</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm">P&L</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm">Equity</th>
-              <th className="text-right py-3 px-4 font-semibold text-sm">Cumulative Return</th>
+              <th className="text-left py-2 px-2 font-semibold text-xs">#</th>
+              <th className="text-left py-2 px-2 font-semibold text-xs">Regime</th>
+              <th className="text-left py-2 px-2 font-semibold text-xs">Entry</th>
+              <th className="text-left py-2 px-2 font-semibold text-xs">Exit</th>
+              <th className="text-left py-2 px-2 font-semibold text-xs">Symbol</th>
+              <th className="text-right py-2 px-2 font-semibold text-xs">Qty</th>
+              <th className="text-right py-2 px-2 font-semibold text-xs">Entry $</th>
+              <th className="text-right py-2 px-2 font-semibold text-xs">Exit $</th>
+              <th className="text-right py-2 px-2 font-semibold text-xs">P&L</th>
+              <th className="text-right py-2 px-2 font-semibold text-xs">Equity</th>
+              <th className="text-right py-2 px-2 font-semibold text-xs">Return</th>
             </tr>
           </thead>
           <tbody>
             {/* Starting equity row */}
             <tr className="border-b border-gray-200 bg-gray-50">
-              <td className="py-3 px-4 text-sm">—</td>
-              <td className="py-3 px-4 text-sm">—</td>
-              <td className="py-3 px-4 text-sm">—</td>
-              <td className="py-3 px-4 text-sm">—</td>
-              <td className="py-3 px-4 text-sm">—</td>
-              <td className="py-3 px-4 text-sm text-right">—</td>
-              <td className="py-3 px-4 text-sm text-right">—</td>
-              <td className="py-3 px-4 text-sm text-right">—</td>
-              <td className="py-3 px-4 text-sm text-right">—</td>
-              <td className="py-3 px-4 text-sm text-right font-mono font-semibold">{formatCurrency(STARTING_EQUITY)}</td>
-              <td className="py-3 px-4 text-sm text-right font-mono">0.00%</td>
+              <td className="py-2 px-2 text-xs">—</td>
+              <td className="py-2 px-2 text-xs">—</td>
+              <td className="py-2 px-2 text-xs">—</td>
+              <td className="py-2 px-2 text-xs">—</td>
+              <td className="py-2 px-2 text-xs">—</td>
+              <td className="py-2 px-2 text-xs text-right">—</td>
+              <td className="py-2 px-2 text-xs text-right">—</td>
+              <td className="py-2 px-2 text-xs text-right">—</td>
+              <td className="py-2 px-2 text-xs text-right">—</td>
+              <td className="py-2 px-2 text-xs text-right font-mono font-semibold">{formatCurrency(STARTING_EQUITY)}</td>
+              <td className="py-2 px-2 text-xs text-right font-mono">0.00%</td>
             </tr>
 
             {trades.map((trade) => {
               const cumulativeReturn = calculateCumulativeReturn(trade.equity);
               return (
               <tr key={trade.trade_number} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="py-3 px-4 text-sm">{trade.trade_number}</td>
-                <td className="py-3 px-4 text-sm">
+                <td className="py-2 px-2 text-xs">{trade.trade_number}</td>
+                <td className="py-2 px-2 text-xs">
                   <span
-                    className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                    className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                       trade.regime === "Bullish"
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-red-100 text-red-700"
@@ -111,14 +113,14 @@ export default function TradesTable({ trades }: TradesTableProps) {
                     {trade.regime}
                   </span>
                 </td>
-                <td className="py-3 px-4 text-sm text-gray-600">{formatDate(trade.date_in)}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">{formatDate(trade.date_out)}</td>
-                <td className="py-3 px-4 text-sm font-mono">{trade.symbol}</td>
-                <td className="py-3 px-4 text-sm text-right font-mono">{trade.contracts}</td>
-                <td className="py-3 px-4 text-sm text-right font-mono">{formatCurrency(trade.entry_price)}</td>
-                <td className="py-3 px-4 text-sm text-right font-mono">{formatCurrency(trade.exit_price)}</td>
+                <td className="py-2 px-2 text-xs text-gray-600">{formatDate(trade.date_in)}</td>
+                <td className="py-2 px-2 text-xs text-gray-600">{formatDate(trade.date_out)}</td>
+                <td className="py-2 px-2 text-xs font-mono">{trade.symbol}</td>
+                <td className="py-2 px-2 text-xs text-right font-mono">{trade.contracts}</td>
+                <td className="py-2 px-2 text-xs text-right font-mono">{formatCurrency(trade.entry_price, true)}</td>
+                <td className="py-2 px-2 text-xs text-right font-mono">{formatCurrency(trade.exit_price, true)}</td>
                 <td
-                  className={`py-3 px-4 text-sm text-right font-mono font-semibold ${
+                  className={`py-2 px-2 text-xs text-right font-mono font-semibold ${
                     trade.pnl === null
                       ? "text-gray-400"
                       : trade.pnl >= 0
@@ -128,11 +130,11 @@ export default function TradesTable({ trades }: TradesTableProps) {
                 >
                   {trade.pnl === null ? "Pending" : formatCurrency(trade.pnl)}
                 </td>
-                <td className="py-3 px-4 text-sm text-right font-mono font-semibold">
+                <td className="py-2 px-2 text-xs text-right font-mono font-semibold">
                   {formatCurrency(trade.equity)}
                 </td>
                 <td
-                  className={`py-3 px-4 text-sm text-right font-mono font-semibold ${
+                  className={`py-2 px-2 text-xs text-right font-mono font-semibold whitespace-nowrap ${
                     cumulativeReturn === null
                       ? "text-gray-400"
                       : cumulativeReturn >= 0
