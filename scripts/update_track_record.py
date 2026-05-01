@@ -93,7 +93,7 @@ DTYPE_MAP = {
 STARTING_EQUITY = 250000.0  # 10x real account
 TRADES_MULTIPLIER = 10  # Mask account size
 BULLISH_SYMBOLS = ["TQQQ", "MNQ"]
-BEARISH_SYMBOLS = ["GLD", "MGC", "GC"]
+BEARISH_SYMBOLS = ["GLD", "MGC", "GC", "1OZ"]
 
 
 def get_supabase_client() -> Client:
@@ -288,6 +288,15 @@ def parse_trades_csv(csv_path: Path) -> pd.DataFrame:
     return df[["TradeDate", "Symbol", "Quantity", "TradePrice", "FifoPnlRealized", "BuySell"]]
 
 
+def extract_base_symbol(symbol: str) -> str:
+    """Extract base symbol from futures contracts or ETFs."""
+    # Futures: MNQ, MGC, 1OZ have contract codes like MNQH6, MGCG6, 1OZM6
+    if symbol.startswith("M") or symbol.startswith("1"):
+        return symbol[:3]
+    # ETFs: TQQQ, GLD, etc. - return as-is
+    return symbol
+
+
 def group_regime_trades(df: pd.DataFrame) -> list:
     """Group trades into regime trades."""
 
@@ -312,6 +321,8 @@ def group_regime_trades(df: pd.DataFrame) -> list:
                 current_trade["pnl"] += pnl
                 current_trade["date_out"] = date
                 current_trade["exit_price"] = price
+                # Update symbol to the exit symbol (in case of rollovers)
+                current_trade["symbol"] = extract_base_symbol(symbol)
 
         # Opening a new position (BUY)
         if is_buy:
@@ -320,6 +331,8 @@ def group_regime_trades(df: pd.DataFrame) -> list:
                 # Close previous trade if exists
                 if current_trade is not None:
                     current_trade["status"] = "Closed"
+                    # Remove internal tracking fields
+                    current_trade.pop("full_symbol", None)
                     trades.append(current_trade)
 
                 # Start new regime trade
@@ -328,13 +341,26 @@ def group_regime_trades(df: pd.DataFrame) -> list:
                     "regime": regime,
                     "date_in": date,
                     "date_out": None,
-                    "symbol": symbol[:3] if symbol.startswith("M") else symbol,  # MNQ, MGC, TQQQ
+                    "symbol": extract_base_symbol(symbol),
+                    "full_symbol": symbol,  # Track full symbol for rollover detection
                     "contracts": abs(qty),
                     "entry_price": price,
                     "exit_price": None,
                     "pnl": 0,
                     "status": "Open"
                 }
+            else:
+                # Check if this is a rollover to a different symbol
+                if current_trade is not None:
+                    # Compare full symbols to detect rollovers between different contract months
+                    if symbol != current_trade.get("full_symbol", symbol):
+                        # This is a rollover to a different contract (different expiry or symbol)
+                        # Reset contracts
+                        current_trade["contracts"] = abs(qty)
+                        current_trade["full_symbol"] = symbol
+                    else:
+                        # Same exact symbol/contract, just adding to position
+                        current_trade["contracts"] += abs(qty)
 
     # Handle final open trade
     if current_trade is not None:
@@ -342,6 +368,8 @@ def group_regime_trades(df: pd.DataFrame) -> list:
             current_trade["status"] = "Pending"
         else:
             current_trade["status"] = "Closed"
+        # Remove internal tracking fields
+        current_trade.pop("full_symbol", None)
         trades.append(current_trade)
 
     return trades

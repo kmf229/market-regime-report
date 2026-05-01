@@ -23,6 +23,8 @@ export default function TradesTable({ trades }: TradesTableProps) {
     return null;
   }
 
+  const STARTING_EQUITY = 250000;
+
   const formatCurrency = (value: number | null) => {
     if (value === null) return "—";
     const formatted = new Intl.NumberFormat("en-US", {
@@ -34,13 +36,25 @@ export default function TradesTable({ trades }: TradesTableProps) {
     return formatted;
   };
 
+  const formatPercent = (value: number) => {
+    return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
+  };
+
   const formatDate = (date: string | null) => {
     if (!date) return "—";
-    return new Date(date).toLocaleDateString("en-US", {
+    // Parse as local date (YYYY-MM-DD) to avoid timezone issues
+    const [year, month, day] = date.split("-").map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
+  };
+
+  const calculateCumulativeReturn = (equity: number | null) => {
+    if (equity === null) return null;
+    return ((equity - STARTING_EQUITY) / STARTING_EQUITY) * 100;
   };
 
   return (
@@ -62,10 +76,28 @@ export default function TradesTable({ trades }: TradesTableProps) {
               <th className="text-right py-3 px-4 font-semibold text-sm">Exit Price</th>
               <th className="text-right py-3 px-4 font-semibold text-sm">P&L</th>
               <th className="text-right py-3 px-4 font-semibold text-sm">Equity</th>
+              <th className="text-right py-3 px-4 font-semibold text-sm">Cumulative Return</th>
             </tr>
           </thead>
           <tbody>
-            {trades.map((trade) => (
+            {/* Starting equity row */}
+            <tr className="border-b border-gray-200 bg-gray-50">
+              <td className="py-3 px-4 text-sm">—</td>
+              <td className="py-3 px-4 text-sm">—</td>
+              <td className="py-3 px-4 text-sm">—</td>
+              <td className="py-3 px-4 text-sm">—</td>
+              <td className="py-3 px-4 text-sm">—</td>
+              <td className="py-3 px-4 text-sm text-right">—</td>
+              <td className="py-3 px-4 text-sm text-right">—</td>
+              <td className="py-3 px-4 text-sm text-right">—</td>
+              <td className="py-3 px-4 text-sm text-right">—</td>
+              <td className="py-3 px-4 text-sm text-right font-mono font-semibold">{formatCurrency(STARTING_EQUITY)}</td>
+              <td className="py-3 px-4 text-sm text-right font-mono">0.00%</td>
+            </tr>
+
+            {trades.map((trade) => {
+              const cumulativeReturn = calculateCumulativeReturn(trade.equity);
+              return (
               <tr key={trade.trade_number} className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="py-3 px-4 text-sm">{trade.trade_number}</td>
                 <td className="py-3 px-4 text-sm">
@@ -73,7 +105,7 @@ export default function TradesTable({ trades }: TradesTableProps) {
                     className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
                       trade.regime === "Bullish"
                         ? "bg-emerald-100 text-emerald-700"
-                        : "bg-amber-100 text-amber-700"
+                        : "bg-red-100 text-red-700"
                     }`}
                   >
                     {trade.regime}
@@ -99,15 +131,46 @@ export default function TradesTable({ trades }: TradesTableProps) {
                 <td className="py-3 px-4 text-sm text-right font-mono font-semibold">
                   {formatCurrency(trade.equity)}
                 </td>
+                <td
+                  className={`py-3 px-4 text-sm text-right font-mono font-semibold ${
+                    cumulativeReturn === null
+                      ? "text-gray-400"
+                      : cumulativeReturn >= 0
+                      ? "text-emerald-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {cumulativeReturn === null ? "—" : formatPercent(cumulativeReturn)}
+                </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Mobile cards */}
       <div className="md:hidden space-y-4">
-        {trades.map((trade) => (
+        {/* Starting equity card */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-sm font-semibold text-gray-500">Starting Equity</span>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between pt-2 border-t border-gray-200">
+              <span className="text-gray-600 font-semibold">Equity:</span>
+              <span className="font-mono font-semibold">{formatCurrency(STARTING_EQUITY)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 font-semibold">Cumulative Return:</span>
+              <span className="font-mono">0.00%</span>
+            </div>
+          </div>
+        </div>
+
+        {trades.map((trade) => {
+          const cumulativeReturn = calculateCumulativeReturn(trade.equity);
+          return (
           <div key={trade.trade_number} className="border border-gray-200 rounded-lg p-4 bg-white">
             <div className="flex justify-between items-center mb-3">
               <span className="text-sm font-semibold text-gray-500">Trade #{trade.trade_number}</span>
@@ -115,7 +178,7 @@ export default function TradesTable({ trades }: TradesTableProps) {
                 className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
                   trade.regime === "Bullish"
                     ? "bg-emerald-100 text-emerald-700"
-                    : "bg-amber-100 text-amber-700"
+                    : "bg-red-100 text-red-700"
                 }`}
               >
                 {trade.regime}
@@ -172,15 +235,26 @@ export default function TradesTable({ trades }: TradesTableProps) {
                 <span className="text-gray-600 font-semibold">Equity:</span>
                 <span className="font-mono font-semibold">{formatCurrency(trade.equity)}</span>
               </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-600 font-semibold">Cumulative Return:</span>
+                <span
+                  className={`font-mono font-semibold ${
+                    cumulativeReturn === null
+                      ? "text-gray-400"
+                      : cumulativeReturn >= 0
+                      ? "text-emerald-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {cumulativeReturn === null ? "—" : formatPercent(cumulativeReturn)}
+                </span>
+              </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
-
-      {/* Note */}
-      <p className="mt-4 text-xs text-gray-500">
-        * All figures are scaled 10x for display purposes. Starting equity: $250,000.
-      </p>
     </div>
   );
 }
