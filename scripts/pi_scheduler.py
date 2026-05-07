@@ -5,7 +5,7 @@ Runs every 10 minutes during market hours (Mon-Fri, 9:30am-4:15pm ET).
 Updates Supabase with latest regime data and speedometer image.
 
 Setup on Pi:
-    1. pip install supabase python-dotenv schedule pandas numpy matplotlib
+    1. pip install supabase python-dotenv schedule pandas numpy matplotlib anthropic resend
     2. Create .env file with SUPABASE_URL and SUPABASE_SERVICE_KEY
     3. Copy your stocks.py module and any dependencies
     4. Run: python pi_scheduler.py
@@ -22,6 +22,7 @@ import schedule
 from datetime import datetime
 from pathlib import Path
 import pytz
+import random
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -289,31 +290,32 @@ def update_regime():
         traceback.print_exc()
 
 
-def generate_daily_blurb():
-    """Generate and store daily AI blurb at market close."""
-    now = datetime.now(ET)
-
-    # Skip non-trading days (weekends and holidays)
-    if not is_trading_day():
-        print(f"[{now}] Not a trading day, skipping blurb generation")
-        return
-
-    try:
-        print(f"[{now}] Generating daily blurb...")
-
-        # Calculate latest regime data
-        regime_s, z_spread_smoothed, _ = calculate_regime()
-
-        # Generate and store blurb
-        from generate_blurb import generate_and_store_daily_blurb
-        generate_and_store_daily_blurb(regime_s, z_spread_smoothed)
-
-        print(f"[{now}] Daily blurb complete!")
-
-    except Exception as e:
-        print(f"[{now}] Error generating blurb: {e}")
-        import traceback
-        traceback.print_exc()
+# DISABLED: Daily blurb generation (replaced by Substack Notes automation)
+# def generate_daily_blurb():
+#     """Generate and store daily AI blurb at market close."""
+#     now = datetime.now(ET)
+#
+#     # Skip non-trading days (weekends and holidays)
+#     if not is_trading_day():
+#         print(f"[{now}] Not a trading day, skipping blurb generation")
+#         return
+#
+#     try:
+#         print(f"[{now}] Generating daily blurb...")
+#
+#         # Calculate latest regime data
+#         regime_s, z_spread_smoothed, _ = calculate_regime()
+#
+#         # Generate and store blurb
+#         from generate_blurb import generate_and_store_daily_blurb
+#         generate_and_store_daily_blurb(regime_s, z_spread_smoothed)
+#
+#         print(f"[{now}] Daily blurb complete!")
+#
+#     except Exception as e:
+#         print(f"[{now}] Error generating blurb: {e}")
+#         import traceback
+#         traceback.print_exc()
 
 
 def check_regime_change_alerts():
@@ -444,6 +446,108 @@ def update_track_record():
         traceback.print_exc()
 
 
+def generate_observational_note():
+    """Generate morning observational note (9:25am - 10:30am random)."""
+    now = datetime.now(ET)
+
+    # Skip non-trading days
+    if not is_trading_day():
+        print(f"[{now}] Not a trading day, skipping observational note")
+        return
+
+    try:
+        print(f"[{now}] Generating observational note...")
+
+        from notes_automation.main import generate_note_batch
+        generate_note_batch("observational")
+
+        print(f"[{now}] Observational note complete!")
+
+    except Exception as e:
+        print(f"[{now}] Error generating observational note: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def generate_philosophy_note():
+    """Generate midday philosophy note (11:30am - 1:00pm random)."""
+    now = datetime.now(ET)
+
+    # Skip non-trading days
+    if not is_trading_day():
+        print(f"[{now}] Not a trading day, skipping philosophy note")
+        return
+
+    try:
+        print(f"[{now}] Generating philosophy note...")
+
+        from notes_automation.main import generate_note_batch
+        generate_note_batch("philosophy")
+
+        print(f"[{now}] Philosophy note complete!")
+
+    except Exception as e:
+        print(f"[{now}] Error generating philosophy note: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def generate_reactive_note():
+    """Generate reactive market close note (4:00pm - 4:15pm random)."""
+    now = datetime.now(ET)
+
+    # Skip non-trading days
+    if not is_trading_day():
+        print(f"[{now}] Not a trading day, skipping reactive note")
+        return
+
+    try:
+        print(f"[{now}] Generating reactive note...")
+
+        from notes_automation.main import generate_note_batch
+        generate_note_batch("reactive")
+
+        print(f"[{now}] Reactive note complete!")
+
+    except Exception as e:
+        print(f"[{now}] Error generating reactive note: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def schedule_random_note(note_type: str, hour_start: int, minute_start: int, hour_end: int, minute_end: int):
+    """
+    Schedule a note generation at a random time within the given window.
+
+    Args:
+        note_type: 'observational', 'philosophy', or 'reactive'
+        hour_start, minute_start: Start of time window
+        hour_end, minute_end: End of time window
+    """
+    # Convert to total minutes since midnight
+    start_minutes = hour_start * 60 + minute_start
+    end_minutes = hour_end * 60 + minute_end
+
+    # Pick a random time
+    random_minutes = random.randint(start_minutes, end_minutes)
+    random_hour = random_minutes // 60
+    random_minute = random_minutes % 60
+
+    # Format as HH:MM
+    time_str = f"{random_hour:02d}:{random_minute:02d}"
+
+    # Schedule based on note type
+    if note_type == "observational":
+        schedule.every().day.at(time_str).do(generate_observational_note)
+        print(f"  📝 Observational note scheduled for {time_str}")
+    elif note_type == "philosophy":
+        schedule.every().day.at(time_str).do(generate_philosophy_note)
+        print(f"  💭 Philosophy note scheduled for {time_str}")
+    elif note_type == "reactive":
+        schedule.every().day.at(time_str).do(generate_reactive_note)
+        print(f"  📊 Reactive note scheduled for {time_str}")
+
+
 def main():
     """Main entry point."""
     print("=" * 50)
@@ -453,11 +557,11 @@ def main():
     print("Schedule: Every 10 minutes during market hours (intraday signal only)")
     print("Market hours: Mon-Fri, 9:30am-4:25pm ET")
     print("Regime alerts: 3:30pm ET (weekdays)")
-    print("Daily blurb: 4:15pm ET (weekdays)")
     print("Official regime flip: 4:16pm ET (weekdays)")
     print("Substack note: 4:17pm ET (weekdays)")
     print("Track record update: Weekdays 8:00am ET")
     print("Weekly digest: Sunday 8:00am ET")
+    print("\nSubstack Notes (randomized times):")
     print("=" * 50)
 
     # Run once on startup
@@ -469,10 +573,10 @@ def main():
     # Schedule regime change alert check at 3:30pm ET
     schedule.every().day.at("15:30").do(check_regime_change_alerts)
 
-    # Schedule daily blurb generation at 4:15pm ET
-    schedule.every().day.at("16:15").do(generate_daily_blurb)
+    # DISABLED: Daily blurb generation (replaced by Substack Notes automation)
+    # schedule.every().day.at("16:15").do(generate_daily_blurb)
 
-    # Schedule closing regime storage at 4:15pm ET (right after blurb)
+    # Schedule closing regime storage at 4:16pm ET
     schedule.every().day.at("16:16").do(store_closing_regime)
 
     # Schedule Substack note generation at 4:17pm ET
@@ -483,6 +587,18 @@ def main():
 
     # Schedule weekly digest every Sunday at 8am ET
     schedule.every().sunday.at("08:00").do(send_weekly_digest)
+
+    # Schedule Substack Notes automation (random times each day)
+    # Observational: 9:25am - 10:30am
+    schedule_random_note("observational", 9, 25, 10, 30)
+
+    # Philosophy: 11:30am - 1:00pm
+    schedule_random_note("philosophy", 11, 30, 13, 0)
+
+    # Reactive: 4:00pm - 4:15pm
+    schedule_random_note("reactive", 16, 0, 16, 15)
+
+    print("=" * 50)
 
     # Keep running
     while True:
@@ -523,6 +639,9 @@ if __name__ == "__main__":
 #   RESEND_API_KEY=re_your-resend-key
 #   IBKR_FTP_USER=your-ibkr-ftp-username
 #   IBKR_FTP_PASS=your-ibkr-ftp-password
+#   POLYGON_API_KEY=your-polygon-api-key
+#   NOTES_EMAIL=your-email@example.com
+#   FROM_EMAIL=alerts@marketregimes.com
 #
 # Then run:
 #   sudo systemctl daemon-reload

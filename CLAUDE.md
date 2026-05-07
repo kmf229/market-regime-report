@@ -814,6 +814,72 @@ Open http://localhost:3000
    ssh kmf229@192.168.1.163 "sudo systemctl restart regime-updater"
    ```
 
+### Session 9 (May 6, 2026)
+1. **Substack Notes Automation System** (NEW FEATURE):
+   - Built complete automated system for generating Substack Notes using Claude AI
+   - 3 note types: Observational (morning), Philosophy (midday), Reactive (market close)
+   - Notes sent via email for manual posting (not auto-posted)
+   - Created modular architecture with 7 Python modules:
+     - `database.py` - SQLite storage for all generated notes
+     - `market_data.py` - Polygon.io API for OHLCV data (SPY, TQQQ, GLD)
+     - `prompts.py` - Load/format prompt templates with placeholder replacement
+     - `ai_client.py` - Claude API wrapper (Claude Sonnet 4)
+     - `sms_client.py` - Email delivery via Resend
+     - `main.py` - CLI entry point with manual testing support
+     - `README.md`, `DEPLOY.md`, `SUMMARY.md` - Complete documentation
+
+2. **Features**:
+   - Avoids repetition: Analyzes last 10 notes of same type + last 5 overall
+   - Market-aware: Real-time OHLCV data for observational/reactive notes
+   - Randomized scheduling: Different time each day within windows
+   - Trading days only: Skips weekends and market holidays
+   - 3 options per batch: Gives variety for manual selection
+   - Database tracking: All notes stored with metadata
+
+3. **Scheduler Integration**:
+   - Updated `pi_scheduler.py` to add notes scheduling
+   - Random time windows:
+     - Observational: 9:25am - 10:30am ET
+     - Philosophy: 11:30am - 1:00pm ET
+     - Reactive: 4:00pm - 4:15pm ET
+   - **Disabled daily blurb generation** (saves Claude credits)
+   - Integrated with existing systemd service
+
+4. **Environment Variables Added**:
+   ```bash
+   POLYGON_API_KEY=your-polygon-api-key
+   NOTES_EMAIL=your-email@example.com
+   FROM_EMAIL=alerts@marketregimes.com
+   ```
+
+5. **Database Schema** (SQLite):
+   ```sql
+   CREATE TABLE notes (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       note_type TEXT NOT NULL,
+       prompt_used TEXT,
+       market_data_used TEXT,
+       generated_note_options TEXT NOT NULL,
+       selected_or_posted_note TEXT,
+       status TEXT DEFAULT 'generated'
+   )
+   ```
+
+6. **Deployment Instructions**:
+   - Copy `notes_automation/` to Pi: `/home/kmf229/market-regime/`
+   - Install new dependencies: `anthropic`, `resend`, `requests`
+   - Update `.env` with new variables
+   - Initialize database: `python -m notes_automation.main --type observational --init-db`
+   - Test components independently
+   - Restart systemd service
+   - See `DEPLOY.md` for full step-by-step guide
+
+7. **Cost Impact**:
+   - Removed daily blurb (saves ~365K tokens/year)
+   - Added 3 notes/day (uses ~750K tokens/year on trading days)
+   - Net: Slightly higher usage, but manual control and higher quality
+
 ---
 
 ## TODO for Next Session
@@ -859,6 +925,7 @@ No critical items remaining. See Future Enhancements for potential improvements.
 - [x] P&L milestone tracking in daily blurbs (Session 7)
 - [x] Intraday vs close regime confirmation logic (Session 8)
 - [x] Potential regime change alert card (Session 8)
+- [x] Substack Notes automation system (Session 9)
 
 ---
 
