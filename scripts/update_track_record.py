@@ -46,6 +46,13 @@ except ImportError:
     print("Please install supabase: pip install supabase")
     raise
 
+try:
+    import yfinance as yf
+    HAS_YFINANCE = True
+except ImportError:
+    HAS_YFINANCE = False
+    print("Warning: yfinance not available, current futures prices will be skipped")
+
 # Load environment variables
 try:
     from dotenv import load_dotenv
@@ -95,6 +102,12 @@ TRADES_MULTIPLIER = 10  # Mask account size
 BULLISH_SYMBOLS = ["TQQQ", "MNQ"]
 BEARISH_SYMBOLS = ["GLD", "MGC", "GC", "1OZ"]
 
+# Futures contract multipliers (per point move)
+FUTURES_MULTIPLIERS = {
+    "MNQ": 2.0,  # Micro E-mini NASDAQ-100: $2 per point
+    "1OZ": 1.0,  # 1-Ounce Gold: $1 per point
+}
+
 
 def get_supabase_client() -> Client:
     """Get Supabase client using environment variables."""
@@ -120,6 +133,40 @@ def get_ibkr_credentials() -> Tuple[str, str]:
         )
 
     return user, passwd
+
+
+def get_current_futures_price(symbol: str) -> Optional[float]:
+    """
+    Get current price for futures contract using Yahoo Finance.
+
+    Args:
+        symbol: Base symbol (e.g., 'MNQ', '1OZ')
+
+    Returns:
+        Current price or None if unavailable
+    """
+    if not HAS_YFINANCE:
+        return None
+
+    try:
+        # Yahoo Finance futures ticker format: SYMBOL=F
+        ticker = f"{symbol}=F"
+        data = yf.Ticker(ticker)
+
+        # Get the most recent price
+        hist = data.history(period="1d")
+        if hist.empty:
+            print(f"Warning: No price data available for {ticker}")
+            return None
+
+        # Use the last close price
+        current_price = float(hist['Close'].iloc[-1])
+        print(f"  {symbol} current price: ${current_price:,.2f}")
+        return current_price
+
+    except Exception as e:
+        print(f"Warning: Could not fetch price for {symbol}: {e}")
+        return None
 
 
 def get_latest_ibkr_file(files: list) -> str:
@@ -856,20 +903,67 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     trades_history = parse_trades()
     print(f"  Found {len(trades_history)} regime trades")
 
-    # Calculate Profit Factor from closed trades
+    # Calculate unrealized P&L for pending trades
+    pending_trade = None
+    unrealized_pnl = None
+    if trades_history:
+        # Find pending trade
+        for trade in trades_history:
+            if trade["status"] == "Pending":
+                pending_trade = trade
+                break
+
+        if pending_trade:
+            print(f"  Found pending {pending_trade['regime']} trade: {pending_trade['symbol']}")
+
+            # Determine which futures contract to fetch
+            symbol = pending_trade["symbol"]
+            current_price = get_current_futures_price(symbol)
+
+            if current_price and pending_trade["entry_price"]:
+                # Calculate unrealized P&L
+                entry_price = pending_trade["entry_price"]
+                contracts = pending_trade["contracts"]
+                multiplier = FUTURES_MULTIPLIERS.get(symbol, 1.0)
+
+                # P&L = (current - entry) * contracts * multiplier
+                point_change = current_price - entry_price
+                unrealized_pnl = point_change * contracts * multiplier
+
+                # Update pending trade with current data
+                pending_trade["current_price"] = float(current_price)
+                pending_trade["unrealized_pnl"] = float(unrealized_pnl)
+
+                print(f"  Unrealized P&L: ${unrealized_pnl:,.2f} (Entry: ${entry_price:,.2f}, Current: ${current_price:,.2f})")
+
+    # Calculate Profit Factor (include unrealized P&L)
     profit_factor = None
     if trades_history:
         closed_trades = [t for t in trades_history if t["status"] == "Closed" and t["pnl"] is not None]
+
+        gross_profit = 0.0
+        gross_loss = 0.0
+
         if closed_trades:
             winning_pnl = [t["pnl"] for t in closed_trades if t["pnl"] > 0]
             losing_pnl = [t["pnl"] for t in closed_trades if t["pnl"] < 0]
 
-            if winning_pnl and losing_pnl:
+            if winning_pnl:
                 gross_profit = sum(winning_pnl)
+            if losing_pnl:
                 gross_loss = abs(sum(losing_pnl))
-                if gross_loss > 0:
-                    profit_factor = gross_profit / gross_loss
-                    print(f"  Profit Factor: {profit_factor:.2f} (Gross Profit: ${gross_profit:,.0f}, Gross Loss: ${gross_loss:,.0f})")
+
+        # Include unrealized P&L in Profit Factor
+        if unrealized_pnl is not None:
+            if unrealized_pnl > 0:
+                gross_profit += unrealized_pnl
+            else:
+                gross_loss += abs(unrealized_pnl)
+
+        if gross_profit > 0 and gross_loss > 0:
+            profit_factor = gross_profit / gross_loss
+            pf_label = " (includes unrealized P&L)" if unrealized_pnl is not None else ""
+            print(f"  Profit Factor: {profit_factor:.2f} (Gross Profit: ${gross_profit:,.0f}, Gross Loss: ${gross_loss:,.0f}){pf_label}")
 
     # Build update data
     data = {

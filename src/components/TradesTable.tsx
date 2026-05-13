@@ -12,6 +12,8 @@ interface Trade {
   pnl: number | null;
   equity: number | null;
   status: string;
+  current_price?: number;
+  unrealized_pnl?: number;
 }
 
 interface TradesTableProps {
@@ -118,17 +120,34 @@ export default function TradesTable({ trades }: TradesTableProps) {
                 <td className="py-2 px-2 text-xs font-mono">{trade.symbol}</td>
                 <td className="py-2 px-2 text-xs text-right font-mono">{trade.contracts}</td>
                 <td className="py-2 px-2 text-xs text-right font-mono">{formatCurrency(trade.entry_price, true)}</td>
-                <td className="py-2 px-2 text-xs text-right font-mono">{formatCurrency(trade.exit_price, true)}</td>
+                <td className="py-2 px-2 text-xs text-right font-mono">
+                  {trade.status === "Pending" && trade.current_price
+                    ? formatCurrency(trade.current_price, true)
+                    : formatCurrency(trade.exit_price, true)}
+                </td>
                 <td
                   className={`py-2 px-2 text-xs text-right font-mono font-semibold ${
-                    trade.pnl === null
+                    trade.pnl === null && trade.unrealized_pnl === undefined
                       ? "text-gray-400"
-                      : trade.pnl >= 0
-                      ? "text-emerald-600"
-                      : "text-red-600"
+                      : trade.pnl !== null
+                      ? trade.pnl >= 0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                      : trade.unrealized_pnl !== undefined
+                      ? trade.unrealized_pnl >= 0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                      : "text-gray-400"
                   }`}
                 >
-                  {trade.pnl === null ? "Pending" : formatCurrency(trade.pnl)}
+                  {trade.pnl !== null
+                    ? formatCurrency(trade.pnl)
+                    : trade.unrealized_pnl !== undefined
+                    ? <span className="inline-flex items-center gap-1">
+                        {formatCurrency(trade.unrealized_pnl)}
+                        <span className="text-[9px] text-gray-500 font-normal">(Unrealized)</span>
+                      </span>
+                    : "Pending"}
                 </td>
                 <td className="py-2 px-2 text-xs text-right font-mono font-semibold">
                   {formatCurrency(trade.equity)}
@@ -214,22 +233,41 @@ export default function TradesTable({ trades }: TradesTableProps) {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-600">Exit Price:</span>
-                <span className="font-mono">{formatCurrency(trade.exit_price)}</span>
+                <span className="text-gray-600">
+                  {trade.status === "Pending" && trade.current_price ? "Current Price:" : "Exit Price:"}
+                </span>
+                <span className="font-mono">
+                  {trade.status === "Pending" && trade.current_price
+                    ? formatCurrency(trade.current_price)
+                    : formatCurrency(trade.exit_price)}
+                </span>
               </div>
 
               <div className="flex justify-between pt-2 border-t border-gray-200">
                 <span className="text-gray-600 font-semibold">P&L:</span>
                 <span
                   className={`font-mono font-semibold ${
-                    trade.pnl === null
+                    trade.pnl === null && trade.unrealized_pnl === undefined
                       ? "text-gray-400"
-                      : trade.pnl >= 0
-                      ? "text-emerald-600"
-                      : "text-red-600"
+                      : trade.pnl !== null
+                      ? trade.pnl >= 0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                      : trade.unrealized_pnl !== undefined
+                      ? trade.unrealized_pnl >= 0
+                        ? "text-emerald-600"
+                        : "text-red-600"
+                      : "text-gray-400"
                   }`}
                 >
-                  {trade.pnl === null ? "Pending" : formatCurrency(trade.pnl)}
+                  {trade.pnl !== null
+                    ? formatCurrency(trade.pnl)
+                    : trade.unrealized_pnl !== undefined
+                    ? <span className="inline-flex items-center gap-1">
+                        {formatCurrency(trade.unrealized_pnl)}
+                        <span className="text-xs text-gray-500 font-normal">(Unrealized)</span>
+                      </span>
+                    : "Pending"}
                 </span>
               </div>
 

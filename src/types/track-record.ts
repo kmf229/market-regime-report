@@ -56,4 +56,6 @@ export interface Trade {
   pnl: number | null;
   equity: number | null;
   status: string;
+  current_price?: number;
+  unrealized_pnl?: number;
 }
