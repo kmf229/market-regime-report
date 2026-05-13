@@ -60,6 +60,7 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
       worst_month_return: data.worst_month_return,
       worst_month_label: data.worst_month_label,
       up_months_pct: data.up_months_pct,
+      gain_to_pain_ratio: data.gain_to_pain_ratio ?? null,
       // S&P 500 benchmark metrics
       sp500_cumulative_return: data.sp500_cumulative_return ?? null,
       sp500_cagr: data.sp500_cagr ?? null,
