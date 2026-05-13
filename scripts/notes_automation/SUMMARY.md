@@ -15,9 +15,9 @@ A complete automated system for generating Substack Notes using Claude AI, integ
 │  │  (systemd service, runs 24/7)                    │  │
 │  │                                                   │  │
 │  │  Every trading day at random times:              │  │
-│  │  • 9:25-10:30am → Observational note            │  │
+│  │  • 9:25-10:30am → Discipline note               │  │
 │  │  • 11:30am-1pm  → Philosophy note               │  │
-│  │  • 4:00-4:15pm  → Reactive note                 │  │
+│  │  • 4:00-4:15pm  → Reflection note               │  │
 │  └─────────────┬────────────────────────────────────┘  │
 │                │                                        │
 │                ▼                                        │
@@ -59,15 +59,14 @@ A complete automated system for generating Substack Notes using Claude AI, integ
 - Schema supports future expansion (posting tracking, etc.)
 
 ### 2. Market Data Module (`market_data.py`)
-- Polygon.io API integration (Massive API)
-- Fetches OHLCV data for SPY, TQQQ, GLD
-- Formats market summary for prompt inclusion
-- Handles API failures gracefully
+- **DEPRECATED**: No longer used for notes (kept for backward compatibility)
+- Previously: Polygon.io API integration for OHLCV data
 
 ### 3. Prompts Module (`prompts.py`)
 - Loads templates from `/prompts/notes/`
-- Replaces placeholders: `{recent_notes}`, `{market_data}`, `{session_context}`
+- Replaces placeholders: `{recent_notes}`
 - Formats recent notes for context
+- All notes are now market-blind
 
 ### 4. AI Client (`ai_client.py`)
 - Claude API wrapper (Anthropic)
@@ -95,17 +94,16 @@ A complete automated system for generating Substack Notes using Claude AI, integ
 
 1. **Scheduler triggers** at random time within window
 2. **Fetch context**: Recent notes from database
-3. **Fetch market data** (if observational/reactive)
-4. **Build prompt** with all context
-5. **Call Claude API** to generate 3 options
-6. **Store in database** with metadata
-7. **Send via SMS** to your phone
-8. **Manual posting**: You choose and post
+3. **Build prompt** with context (no market data)
+4. **Call Claude API** to generate 3 options
+5. **Store in database** with metadata
+6. **Send via email** to your inbox
+7. **Manual posting**: You choose and post
 
 ## Key Features
 
 ✅ **Avoids repetition**: Analyzes last 10 notes of same type + last 5 overall
-✅ **Market-aware**: Real-time OHLCV data for observational/reactive notes
+✅ **Market-blind**: No real-time data to ensure accuracy and timelessness
 ✅ **Randomized timing**: Different time each day (feels organic)
 ✅ **Modular design**: Easy to maintain and extend
 ✅ **Error handling**: Graceful failures, detailed logging
@@ -117,10 +115,9 @@ A complete automated system for generating Substack Notes using Claude AI, integ
 New variables added to `.env`:
 
 ```bash
-POLYGON_API_KEY=your-polygon-key
-SMS_PHONE=2154601131
-SMS_GATEWAY=@txt.att.net
-FROM_EMAIL=notes@marketregimes.com
+# POLYGON_API_KEY not needed for notes anymore (kept for other scripts)
+NOTES_EMAIL=your-email@example.com
+FROM_EMAIL=alerts@marketregimes.com
 ```
 
 ## File Locations
@@ -143,9 +140,9 @@ FROM_EMAIL=notes@marketregimes.com
 │   └── pi_scheduler.py             # Updated with notes scheduling
 └── prompts/
     └── notes/
-        ├── observational.txt
+        ├── discipline.txt
         ├── philosophy.txt
-        └── reactive.txt
+        └── reflection.txt
 ```
 
 **Pi (after deployment):**
@@ -178,9 +175,9 @@ python -m notes_automation.main --type philosophy
 ## Scheduling
 
 **Randomized Times:**
-- **Observational**: Random between 9:25am - 10:30am ET
-- **Philosophy**: Random between 11:30am - 1:00pm ET
-- **Reactive**: Random between 4:00pm - 4:15pm ET
+- **Discipline**: Random between 9:25am - 10:30am ET (morning - start grounded in process)
+- **Philosophy**: Random between 11:30am - 1:00pm ET (midday - timeless wisdom)
+- **Reflection**: Random between 4:00pm - 4:15pm ET (evening - end-of-day perspective)
 
 **Time picked fresh each day** via `schedule_random_note()` function.
 
@@ -229,14 +226,15 @@ All existing functionality (regime updates, track record, etc.) remains unchange
 ## Success Criteria
 
 ✅ Notes generate automatically 3x/day on trading days
-✅ SMS arrives with 3 options
+✅ Email arrives with 3 options
 ✅ Notes avoid repeating recent themes
-✅ Market data reflects current conditions
+✅ Notes are timeless and accurate (no market data confusion)
 ✅ Database tracks all generated notes
 ✅ No interference with existing regime updates
 
 ---
 
 **Built:** May 6, 2026
-**Status:** Ready for deployment
-**Next:** Deploy to Pi and test for 1 week
+**Updated:** May 8, 2026 (removed market data, switched to discipline/reflection)
+**Status:** Ready for Pi deployment
+**Next:** Deploy updated version to Pi

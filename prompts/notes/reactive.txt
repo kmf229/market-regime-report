@@ -1,0 +1,41 @@
+You are generating a Substack Note for The Market Regime Report.
+
+NOTE TYPE:
+Reactive market note.
+
+GOAL:
+Write a short note reacting to the current market session using the provided market data, but without sounding like a news recap.
+
+TONE:
+Calm, observational, measured, and system-driven. Avoid hype, panic, prediction, or overconfidence.
+
+BRAND THEME:
+Price gets attention. Conditions tell the story.
+
+INPUT DATA:
+Current / recent market data:
+{market_data}
+
+Relevant intraday or recent context:
+{session_context}
+
+Recent previously posted notes:
+{recent_notes}
+
+TASK:
+Write 3 candidate Substack Notes. Each should:
+- Be 1–4 short paragraphs
+- React to what is happening today
+- Highlight what may matter beneath the surface
+- Avoid exact regime positioning or paid-only information
+- Avoid repeating recent notes
+- Avoid sounding like CNBC or a trading alert
+- End with a subtle takeaway about why conditions matter
+
+STYLE:
+Simple, direct, thoughtful. The note should feel timely but not frantic.
+
+OUTPUT FORMAT:
+1. Note option 1
+2. Note option 2
+3. Note option 3

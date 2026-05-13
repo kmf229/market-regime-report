@@ -2,9 +2,9 @@
 Main entry point for Substack Notes automation.
 
 Usage:
-    python -m notes_automation.main --type observational
+    python -m notes_automation.main --type discipline
     python -m notes_automation.main --type philosophy
-    python -m notes_automation.main --type reactive
+    python -m notes_automation.main --type reflection
     python -m notes_automation.main --type all
 """
 
@@ -20,7 +20,7 @@ def generate_note_batch(note_type: str) -> bool:
     Generate a batch of notes for the specified type.
 
     Args:
-        note_type: 'observational', 'philosophy', or 'reactive'
+        note_type: 'discipline', 'philosophy', or 'reflection'
 
     Returns:
         True if successful, False otherwise
@@ -37,18 +37,9 @@ def generate_note_batch(note_type: str) -> bool:
         recent_notes = list(set(recent_same_type + recent_all_types))  # Deduplicate
         print(f"  ✓ Found {len(recent_notes)} recent notes to avoid repeating\n")
 
-        # 2. Get market data if needed
+        # 2. Build the prompt (no market data for any note types)
         market_data_dict = None
         session_context = None
-
-        if note_type in ['observational', 'reactive']:
-            print("📊 Fetching market data...")
-            market_data_dict = market_data.get_market_summary(['SPY', 'TQQQ', 'GLD'])
-            print(f"  ✓ Market data for {market_data_dict['date']}\n")
-
-        if note_type == 'reactive':
-            session_context = market_data.get_session_context()
-            print(f"  ✓ Session context: {session_context}\n")
 
         # 3. Build the prompt
         print("🔨 Building prompt...")
@@ -108,7 +99,7 @@ def main():
     )
     parser.add_argument(
         "--type",
-        choices=["observational", "philosophy", "reactive", "all"],
+        choices=["discipline", "philosophy", "reflection", "all"],
         required=True,
         help="Type of note to generate"
     )
@@ -133,15 +124,15 @@ def main():
     if args.type == "all":
         print("Generating ALL note types...\n")
         results = []
-        for note_type in ["observational", "philosophy", "reactive"]:
+        for note_type in ["discipline", "philosophy", "reflection"]:
             results.append(generate_note_batch(note_type))
 
         print(f"\n{'='*60}")
         print("📊 SUMMARY")
         print(f"{'='*60}")
-        print(f"Observational: {'✅' if results[0] else '❌'}")
-        print(f"Philosophy:    {'✅' if results[1] else '❌'}")
-        print(f"Reactive:      {'✅' if results[2] else '❌'}")
+        print(f"Discipline:   {'✅' if results[0] else '❌'}")
+        print(f"Philosophy:   {'✅' if results[1] else '❌'}")
+        print(f"Reflection:   {'✅' if results[2] else '❌'}")
         print()
 
     else:

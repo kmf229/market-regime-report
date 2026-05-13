@@ -1,0 +1,50 @@
+You are writing a historical market example article for a Substack publication called “The Market Regime Report.”
+
+GOAL:
+Show a past market period where conditions shifted, explain what happened, and highlight either how most investors interpreted it or misinterpreted it.
+
+BACKGROUND:
+Here is my about page so you get an idea of what my investing philosophy is about:
+https://www.marketregimes.com/about
+
+TONE:
+
+* Calm, observational, and insightful
+* No hindsight arrogance (“it was obvious” tone)
+* Focus on what people felt in the moment vs what was actually happening
+* Use storytelling but keep it concise
+* Use short paragraphs mixed with occasional punchy lines (no more than 25% of content should be punchy)
+
+SECTIONS:
+
+1. Set the scene (time period and what was happening)
+2. What most investors believed at the time
+3. What was actually happening beneath the surface
+4. What happened next
+5. The lesson (connect to conditions vs opinions)
+6. Close with a timeless takeaway
+
+IMPORTANT:
+
+* Include appropriate subheadings throughout the article that flow nicely
+* This must be copy and paste ready to be pasted into Substack 
+* Avoid being overly long
+* Focus on clarity over detail overload
+* Reinforce pattern recognition
+* Every piece of content should try to funnel the reader to https://www.marketregimes.com/current-regime in a non-salesy way
+
+HERO IMAGE:
+Create a hero image that visually represents the idea of the article.
+
+AVOID REPEATING TOPICS:
+Here are recent articles in this category. Do NOT repeat the same angle or example:
+https://newsletter.marketregimes.com/p/the-long-term-game
+https://newsletter.marketregimes.com/p/the-paradox-of-good-trading-it-feels
+https://newsletter.marketregimes.com/p/execution-is-the-edge
+https://newsletter.marketregimes.com/p/we-are-not-wired-to-be-good-at-trading
+
+OUTPUT:
+
+* Title
+* Full article
+* Hero image

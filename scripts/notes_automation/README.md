@@ -6,21 +6,23 @@ Automated system for generating Substack Notes using Claude AI, running on Raspb
 
 This system generates 3 types of daily Substack Notes:
 
-1. **Observational** (9:25am - 10:30am): Morning market observations
-2. **Philosophy** (11:30am - 1:00pm): Investor psychology and discipline
-3. **Reactive** (4:00pm - 4:15pm): Market close reactions
+1. **Discipline** (9:25am - 10:30am): Morning notes about following your process and staying grounded
+2. **Philosophy** (11:30am - 1:00pm): Investor psychology, discipline, and timeless investing wisdom
+3. **Reflection** (4:00pm - 4:15pm): End-of-day perspective, patience, and processing the day
 
-Notes are generated using Claude AI and sent to your phone via email-to-SMS for manual posting.
+All notes are **market-blind** (no real-time market data) to ensure accuracy and timelessness.
+
+Notes are generated using Claude AI and sent via email for manual posting.
 
 ## Features
 
 - 📝 AI-generated note options (3 per batch)
-- 📊 Real-time market data integration (SPY, TQQQ, GLD)
 - 🗄️ SQLite database for tracking generated notes
 - 🔁 Avoids repeating recent topics, phrases, and analogies
 - 📧 Email delivery via Resend (reliable and fast)
 - ⏰ Random scheduling within time windows
 - 🤖 Fully automated on Raspberry Pi
+- 🧘 Market-blind: No real-time data to ensure accuracy
 
 ## Project Structure
 
@@ -59,20 +61,20 @@ CREATE TABLE notes (
 # From the scripts directory
 cd /home/kmf229/market-regime
 
-# Generate observational note
-python -m notes_automation.main --type observational
+# Generate discipline note
+python -m notes_automation.main --type discipline
 
 # Generate philosophy note
 python -m notes_automation.main --type philosophy
 
-# Generate reactive note
-python -m notes_automation.main --type reactive
+# Generate reflection note
+python -m notes_automation.main --type reflection
 
 # Generate all 3 types
 python -m notes_automation.main --type all
 
 # Initialize database (first time only)
-python -m notes_automation.main --type observational --init-db
+python -m notes_automation.main --type discipline --init-db
 ```
 
 ## Automated Scheduling

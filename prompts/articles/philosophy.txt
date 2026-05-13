@@ -1,0 +1,51 @@
+You are writing a philosophy/positioning article for a Substack publication called “The Market Regime Report.”
+
+GOAL:
+Strengthen the reader’s belief in a disciplined, system-based approach to markets and differentiate it from emotional or prediction-based investing.
+
+BACKGROUND:
+Here is my about page so you get an idea of what my investing philosophy is about:
+https://www.marketregimes.com/about
+
+TONE:
+
+* Thoughtful, calm, and confident
+* Not aggressive or arrogant
+* Reflective and slightly philosophical
+* Use relatable analogies
+* Use short paragraphs mixed with occasional punchy lines (no more than 25% of content should be punchy)
+
+SECTIONS:
+
+1. Hook (challenge a common belief)
+2. Explain how most people think about markets
+3. Explain why that approach fails
+4. Introduce the system-based perspective
+5. Reinforce discipline, consistency, and process
+6. Close with a strong but calm takeaway
+
+IMPORTANT:
+
+* Include appropriate subheadings throughout the article that flow nicely
+* This must be copy and paste ready to be pasted into Substack 
+* No hype
+* No predictions
+* No “get rich” tone
+* Focus on mindset and approach
+* Every piece of content should try to funnel the reader to https://www.marketregimes.com/current-regime in a non-salesy way
+
+HERO IMAGE:
+Create a hero image that visually represents the idea of the article.
+
+AVOID REPEATING TOPICS:
+Here are recent articles in this category. Do NOT repeat the same angle or example:
+https://newsletter.marketregimes.com/p/the-long-term-game
+https://newsletter.marketregimes.com/p/the-paradox-of-good-trading-it-feels
+https://newsletter.marketregimes.com/p/execution-is-the-edge
+https://newsletter.marketregimes.com/p/we-are-not-wired-to-be-good-at-trading
+
+OUTPUT:
+
+* Title
+* Full article
+* Hero image

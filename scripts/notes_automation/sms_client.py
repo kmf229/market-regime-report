@@ -35,11 +35,14 @@ def send_text_message(message: str, subject: str = "New Substack Notes") -> bool
     print(f"📧 Sending email to {TO_EMAIL}...")
 
     try:
-        # Format message as HTML for better readability
-        html_message = f"""
+        # Convert message to HTML with proper paragraph breaks for copy/paste
+        # Replace double newlines with paragraph breaks
+        html_message = message.replace('\n\n', '<br><br>').replace('\n', '<br>')
+
+        html_full = f"""
         <html>
-        <body style="font-family: monospace; white-space: pre-wrap;">
-{message}
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333;">
+{html_message}
         </body>
         </html>
         """
@@ -48,7 +51,8 @@ def send_text_message(message: str, subject: str = "New Substack Notes") -> bool
             "from": f"Market Regime Report <{FROM_EMAIL}>",
             "to": [TO_EMAIL],
             "subject": subject,
-            "html": html_message,
+            "html": html_full,
+            "text": message,  # Include plain text version for better compatibility
         }
 
         response = resend.Emails.send(params)

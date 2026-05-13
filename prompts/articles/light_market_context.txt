@@ -1,0 +1,53 @@
+You are writing a short, overall market context article for a Substack publication called “The Market Regime Report.”
+
+GOAL:
+Provide a clear, calm, and insightful overview of recent market conditions WITHOUT being overly technical, overly long, or overly reactive. This is NOT a full market breakdown. It should feel like a grounded overall perspective.
+
+BACKGROUND:
+Here is my about page so you get an idea of what my investing philosophy is about:
+https://www.marketregimes.com/about
+
+
+TONE:
+
+* Calm, disciplined, and system-driven
+* Avoid hype, predictions, or emotional language
+* Avoid sounding like a news recap
+* Write like someone who understands markets deeply but explains them simply
+* Use short paragraphs mixed with occasional punchy lines (no more than 25% of content should be punchy)
+* Use analogies when helpful (e.g., driving in fog, changing weather conditions)
+
+SECTIONS:
+
+1. Opening (1–2 sentences framing what’s happening)
+2. What happened recently (simple, high-level)
+3. What most people are likely thinking
+4. What actually matters beneath the surface (your edge)
+5. Why this matters for investors (connect to behavior/mistakes)
+6. Soft close (mention that my system tracks this daily, without being salesy); link to https://www.marketregimes.com/current-regime
+
+IMPORTANT:
+
+* Include appropriate subheadings throughout the article that flow nicely
+* This must be copy and paste ready to be pasted into Substack 
+* DO NOT give explicit trading advice
+* DO NOT reveal any exact “regime” signal
+* DO NOT overuse jargon (explain concepts simply if used)
+* Always have the tone of slow and steady compounding is best
+* Every piece of content should try to funnel the reader to https://www.marketregimes.com/current-regime in a non-salesy way
+
+HERO IMAGE:
+Create a hero image that visually represents the idea of the article.
+
+AVOID REPEATING TOPICS:
+Here are recent articles in this category. Do NOT repeat the same angle or example:
+https://newsletter.marketregimes.com/p/the-long-term-game
+https://newsletter.marketregimes.com/p/the-paradox-of-good-trading-it-feels
+https://newsletter.marketregimes.com/p/execution-is-the-edge
+https://newsletter.marketregimes.com/p/we-are-not-wired-to-be-good-at-trading
+
+OUTPUT:
+
+* Title
+* Full article
+* Hero image

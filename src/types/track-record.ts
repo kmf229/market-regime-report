@@ -13,6 +13,7 @@ export interface Summary {
   worst_month_return: number;
   worst_month_label: string;
   up_months_pct: number;
+  gain_to_pain_ratio: number | null;
   // S&P 500 benchmark metrics
   sp500_cumulative_return: number | null;
   sp500_cagr: number | null;

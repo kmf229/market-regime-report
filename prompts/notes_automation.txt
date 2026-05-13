@@ -1,0 +1,83 @@
+I want you to help me build a Python automation that runs on a Raspberry Pi and generates Substack Notes using the OpenAI API or Claude API.
+
+The goal:
+Every weekday, the script should generate 3 different types of Market Regimes Substack Notes and text them to my phone so I can copy/paste and post manually.
+
+The 3 note types are:
+1. Morning observational market note
+2. Midday psychology/philosophy note
+3. Market close-ish reactive market note
+
+The automation should:
+- Run on a Raspberry Pi
+- Use Python
+- Use a local SQLite database
+- Store all generated notes in the database
+- Store notes with fields like:
+  - id
+  - created_at
+  - note_type
+  - prompt_used
+  - market_data_used
+  - generated_note_options
+  - selected_or_posted_note, optional
+  - status
+- Pull recent previously generated notes from the database and insert them into the prompt so the AI avoids repeating topics, metaphors, wording, and angles
+- Pull OHLCV market data from my Massive API, formerly Polygon, and insert relevant data into the prompt for observational and reactive notes
+- Send the generated note options to my phone via my existing SMS/text API
+- Use environment variables for API keys and secrets
+- Be modular and easy to maintain
+
+Important:
+Do not post automatically to Substack. The system should only generate and text me note options. I will manually choose, copy, paste, and post.
+
+Functionality needed:
+
+1. Database
+Create SQLite tables if they do not exist.
+Store every generated note batch.
+Allow querying the most recent notes by note_type and overall.
+
+2. Market data module
+Create a Massive/Polygon API client.
+Pull recent OHLCV data for tickers like SPY, QQQ, TQQQ, GLD, VIX if available.
+Summarize the data into prompt-friendly text.
+Handle API failures gracefully.
+
+3. Prompt module
+There are three reusable prompt templates under prompts/notes:
+- observational.txt
+- philosophy.txt
+- reactive.txt
+
+Each prompt should accept:
+- recent_notes
+- market_data, when applicable
+- session_context, when applicable
+
+4. AI client
+Support either OpenAI or Claude based on an environment variable like AI_PROVIDER.
+Use clean functions such as generate_note(note_type, prompt).
+Return 3 candidate notes.
+
+5. SMS client
+Use Resend as the SMS sender, the api key is already in .env.local
+It should expose a function:
+send_text_message(message: str)
+
+6. Scheduler
+Run:
+- Observational note around market open / morning (random time between 9:25am - 10:30am)
+- Psychology/philosophy note around midday (random time between 11:30am - 1:00pm)
+- Reactive market note near market close (random time between 4:00pm - 4:15pm)
+
+Use a simple scheduling approach appropriate for Raspberry Pi.
+
+7. Main script
+Allow manual command-line runs, such as:
+python -m app.main --type observational
+python -m app.main --type psychology
+python -m app.main --type reactive
+python -m app.main --type all
+
+Please write clean, production-quality starter code with comments where I need to customize API keys, tickers, SMS provider details, or schedule times.

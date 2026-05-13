@@ -100,6 +100,13 @@ export default function MetricsPanel({ summary }: MetricsPanelProps) {
       label: "% Up Months",
       value: formatPercent(summary.up_months_pct, false),
     },
+    {
+      label: "Gain to Pain Ratio",
+      value:
+        summary.gain_to_pain_ratio !== null
+          ? summary.gain_to_pain_ratio.toFixed(1)
+          : "N/A",
+    },
   ];
 
   return (

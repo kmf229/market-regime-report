@@ -14,7 +14,7 @@ _module_dir = os.path.dirname(__file__)
 _pi_prompts = os.path.join(_module_dir, "..", "prompts", "notes")
 
 # Try development location: /Users/.../website/prompts/notes/
-_dev_prompts = os.path.join(_module_dir, "..", "..", "..", "prompts", "notes")
+_dev_prompts = os.path.join(_module_dir, "..", "..", "prompts", "notes")
 
 if os.path.exists(_pi_prompts):
     PROMPTS_DIR = _pi_prompts
@@ -30,7 +30,7 @@ def load_prompt_template(note_type: str) -> str:
     Load the prompt template for a given note type.
 
     Args:
-        note_type: 'observational', 'philosophy', or 'reactive'
+        note_type: 'discipline', 'philosophy', or 'reflection'
 
     Returns:
         The prompt template as a string
@@ -75,10 +75,10 @@ def build_prompt(
     Build the complete prompt by replacing placeholders in the template.
 
     Args:
-        note_type: 'observational', 'philosophy', or 'reactive'
+        note_type: 'discipline', 'philosophy', or 'reflection'
         recent_notes: List of recent note texts to avoid repetition
-        market_data: Optional market data dict (for observational/reactive)
-        session_context: Optional session context string (for reactive)
+        market_data: Optional market data dict (deprecated - not used)
+        session_context: Optional session context string (deprecated - not used)
 
     Returns:
         Complete prompt ready to send to AI
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # Test prompt loading
     print("Testing prompt loading...\n")
 
-    for note_type in ['observational', 'philosophy', 'reactive']:
+    for note_type in ['discipline', 'philosophy', 'reflection']:
         print(f"=== {note_type.upper()} ===")
         template = load_prompt_template(note_type)
         print(f"Template loaded: {len(template)} characters")

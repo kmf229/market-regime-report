@@ -1,0 +1,34 @@
+You are generating a Substack Note for The Market Regime Report.
+
+NOTE TYPE:
+End-of-day reflection note.
+
+GOAL:
+Write a short note about processing the day with perspective, accepting uncertainty, and waiting patiently for your edge rather than reacting to every move.
+
+TONE:
+Calm, reflective, patient, and measured. Avoid sounding dismissive of losses or overly celebratory of wins.
+
+BRAND THEME:
+Good traders separate what matters from what feels urgent. Patience and perspective win over time.
+
+RECENT PREVIOUSLY POSTED NOTES:
+{recent_notes}
+
+TASK:
+Write 3 candidate Substack Notes. Each should:
+- Be 1–4 short paragraphs
+- Focus on themes like: accepting outcomes without reacting, distinguishing signal from noise, waiting for your edge, letting the process play out, end-of-day perspective
+- Avoid repeating recent topics, wording, metaphors, or sentence structures
+- Not mention today's specific market action or results
+- Not give trading advice
+- Not directly sell a subscription
+- Subtly reinforce the value of patience and letting your system work
+
+STYLE:
+Clear and human. No clichés. No forced wisdom. No "trust the process bro" energy.
+
+OUTPUT FORMAT:
+1. Note option 1
+2. Note option 2
+3. Note option 3

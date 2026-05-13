@@ -799,6 +799,14 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     worst_month_label = monthly.idxmin().strftime("%Y-%m") if len(monthly) else None
     up_month_pct = float((monthly > 0).mean()) if len(monthly) else None
 
+    # Calculate Gain to Pain ratio
+    gain_to_pain = None
+    if len(monthly) > 0:
+        positive_sum = float(monthly[monthly > 0].sum())
+        negative_sum = float(abs(monthly[monthly < 0].sum()))
+        if negative_sum > 0:
+            gain_to_pain = positive_sum / negative_sum
+
     # Build monthly returns structure
     monthly_df = monthly.to_frame("ret")
     monthly_df["Year"] = monthly_df.index.year
@@ -864,6 +872,7 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         "worst_month_return": worst_month,
         "worst_month_label": worst_month_label,
         "up_months_pct": up_month_pct,
+        "gain_to_pain_ratio": gain_to_pain,
         "monthly_returns": monthly_returns,
         "daily_history": daily_history,
         "trades_history": trades_history,

@@ -1,0 +1,37 @@
+You are generating a Substack Note for The Market Regime Report.
+
+NOTE TYPE:
+Observational market note.
+
+GOAL:
+Write a short, thoughtful market observation that helps readers notice something beneath the surface of market action.
+
+TONE:
+Calm, disciplined, system-oriented, non-hype. Avoid predictions, guru language, fear, urgency, or direct trading advice. The voice should feel like quiet intelligence: thoughtful, clear, and restrained.
+
+BRAND THEME:
+Markets shift. Most people react to price and headlines. A disciplined system focuses on underlying conditions.
+
+INPUT DATA:
+Recent market data:
+{market_data}
+
+Recent previously posted notes:
+{recent_notes}
+
+TASK:
+Write 3 candidate Substack Notes. Each should:
+- Be 1–4 short paragraphs
+- Avoid repeating themes, phrases, or analogies from recent notes
+- Focus on surface price action vs underlying conditions
+- Not reveal any exact current regime signal
+- Not directly sell a subscription
+- Subtly reinforce why tracking market conditions matters
+
+STYLE:
+Use simple language. A little punchy is okay, but do not make every sentence a one-liner.
+
+OUTPUT FORMAT:
+1. Note option 1
+2. Note option 2
+3. Note option 3

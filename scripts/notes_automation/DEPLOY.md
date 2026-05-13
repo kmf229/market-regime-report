@@ -4,7 +4,7 @@
 
 - Raspberry Pi with Python 3.8+ installed
 - Existing `/home/kmf229/market-regime/` setup
-- Valid API keys for Claude, Polygon, and Resend
+- Valid API keys for Claude and Resend (Polygon not needed for notes)
 
 ## Step 1: Copy Files to Pi
 
@@ -39,13 +39,9 @@ nano .env
 Add these new variables (keep existing ones):
 
 ```bash
-# Polygon API (for market data)
-POLYGON_API_KEY=your-polygon-api-key-here
-
-# SMS Configuration (email-to-SMS via Resend)
-SMS_PHONE=2154601131
-SMS_GATEWAY=@txt.att.net
-FROM_EMAIL=notes@marketregimes.com
+# Email Configuration (via Resend)
+NOTES_EMAIL=your-email@example.com
+FROM_EMAIL=alerts@marketregimes.com
 
 # Existing variables (already present):
 # SUPABASE_URL=https://your-project.supabase.co
@@ -54,6 +50,7 @@ FROM_EMAIL=notes@marketregimes.com
 # RESEND_API_KEY=re_your-resend-key
 # IBKR_FTP_USER=your-ibkr-ftp-username
 # IBKR_FTP_PASS=your-ibkr-ftp-password
+# POLYGON_API_KEY=your-polygon-key (used for other scripts, not notes)
 ```
 
 Save and exit (Ctrl+X, Y, Enter).
@@ -79,7 +76,7 @@ Run the initialization:
 
 ```bash
 # Still in virtual environment
-python -m notes_automation.main --type observational --init-db
+python -m notes_automation.main --type discipline --init-db
 ```
 
 You should see:

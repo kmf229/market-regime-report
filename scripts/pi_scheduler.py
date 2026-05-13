@@ -446,25 +446,25 @@ def update_track_record():
         traceback.print_exc()
 
 
-def generate_observational_note():
-    """Generate morning observational note (9:25am - 10:30am random)."""
+def generate_discipline_note():
+    """Generate morning discipline note (9:25am - 10:30am random)."""
     now = datetime.now(ET)
 
     # Skip non-trading days
     if not is_trading_day():
-        print(f"[{now}] Not a trading day, skipping observational note")
+        print(f"[{now}] Not a trading day, skipping discipline note")
         return
 
     try:
-        print(f"[{now}] Generating observational note...")
+        print(f"[{now}] Generating discipline note...")
 
         from notes_automation.main import generate_note_batch
-        generate_note_batch("observational")
+        generate_note_batch("discipline")
 
-        print(f"[{now}] Observational note complete!")
+        print(f"[{now}] Discipline note complete!")
 
     except Exception as e:
-        print(f"[{now}] Error generating observational note: {e}")
+        print(f"[{now}] Error generating discipline note: {e}")
         import traceback
         traceback.print_exc()
 
@@ -492,25 +492,25 @@ def generate_philosophy_note():
         traceback.print_exc()
 
 
-def generate_reactive_note():
-    """Generate reactive market close note (4:00pm - 4:15pm random)."""
+def generate_reflection_note():
+    """Generate evening reflection note (4:00pm - 4:15pm random)."""
     now = datetime.now(ET)
 
     # Skip non-trading days
     if not is_trading_day():
-        print(f"[{now}] Not a trading day, skipping reactive note")
+        print(f"[{now}] Not a trading day, skipping reflection note")
         return
 
     try:
-        print(f"[{now}] Generating reactive note...")
+        print(f"[{now}] Generating reflection note...")
 
         from notes_automation.main import generate_note_batch
-        generate_note_batch("reactive")
+        generate_note_batch("reflection")
 
-        print(f"[{now}] Reactive note complete!")
+        print(f"[{now}] Reflection note complete!")
 
     except Exception as e:
-        print(f"[{now}] Error generating reactive note: {e}")
+        print(f"[{now}] Error generating reflection note: {e}")
         import traceback
         traceback.print_exc()
 
@@ -520,7 +520,7 @@ def schedule_random_note(note_type: str, hour_start: int, minute_start: int, hou
     Schedule a note generation at a random time within the given window.
 
     Args:
-        note_type: 'observational', 'philosophy', or 'reactive'
+        note_type: 'discipline', 'philosophy', or 'reflection'
         hour_start, minute_start: Start of time window
         hour_end, minute_end: End of time window
     """
@@ -537,15 +537,15 @@ def schedule_random_note(note_type: str, hour_start: int, minute_start: int, hou
     time_str = f"{random_hour:02d}:{random_minute:02d}"
 
     # Schedule based on note type
-    if note_type == "observational":
-        schedule.every().day.at(time_str).do(generate_observational_note)
-        print(f"  📝 Observational note scheduled for {time_str}")
+    if note_type == "discipline":
+        schedule.every().day.at(time_str).do(generate_discipline_note)
+        print(f"  📝 Discipline note scheduled for {time_str}")
     elif note_type == "philosophy":
         schedule.every().day.at(time_str).do(generate_philosophy_note)
         print(f"  💭 Philosophy note scheduled for {time_str}")
-    elif note_type == "reactive":
-        schedule.every().day.at(time_str).do(generate_reactive_note)
-        print(f"  📊 Reactive note scheduled for {time_str}")
+    elif note_type == "reflection":
+        schedule.every().day.at(time_str).do(generate_reflection_note)
+        print(f"  🌙 Reflection note scheduled for {time_str}")
 
 
 def main():
@@ -589,14 +589,14 @@ def main():
     schedule.every().sunday.at("08:00").do(send_weekly_digest)
 
     # Schedule Substack Notes automation (random times each day)
-    # Observational: 9:25am - 10:30am
-    schedule_random_note("observational", 9, 25, 10, 30)
+    # Discipline: 9:25am - 10:30am
+    schedule_random_note("discipline", 9, 25, 10, 30)
 
     # Philosophy: 11:30am - 1:00pm
     schedule_random_note("philosophy", 11, 30, 13, 0)
 
-    # Reactive: 4:00pm - 4:15pm
-    schedule_random_note("reactive", 16, 0, 16, 15)
+    # Reflection: 4:00pm - 4:15pm
+    schedule_random_note("reflection", 16, 0, 16, 15)
 
     print("=" * 50)
 
