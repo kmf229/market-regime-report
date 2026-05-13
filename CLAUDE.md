@@ -62,7 +62,7 @@ Or use VS Code: Source Control panel → Stage → Commit → Push
 - **Fonts**:
   - Inter (sans-serif) - navigation and body text
   - Spectral (serif) - site title
-- **Data**: Track record stored in Supabase (updated weekly by Pi)
+- **Data**: Track record stored in Supabase (updated daily by Pi on weekdays)
 - **Articles**: Markdown files in `/content/articles/` with gray-matter frontmatter
 - **Markdown Processing**: gray-matter, remark, remark-html
 - **Authentication**: Supabase Auth (magic link) + Supabase Postgres
@@ -460,7 +460,7 @@ journalctl -u regime-updater -f        # View logs
 | Daily blurb | 4:15pm ET | Generate AI market commentary |
 | Store closing regime | 4:16pm ET | Save for next day comparison |
 | Substack note | 4:17pm ET | Generate and email note |
-| Track record | Monday 8:00am ET | Update from IBKR FTP |
+| Track record | Weekdays 8:00am ET | Update from IBKR FTP |
 | Weekly digest | Sunday 8:00am ET | Send weekly summary email |
 
 **GPG Setup for IBKR Decryption:**
@@ -704,7 +704,7 @@ Open http://localhost:3000
    - Stores: summary metrics, monthly returns (JSONB), daily P&L history (JSONB), equity curve URL
    - Created `update_track_record.py` script for Pi automation
    - Downloads from IBKR FTP, decrypts with GPG, calculates metrics, uploads to Supabase
-   - Updated `pi_scheduler.py` to run track record update every Monday at 8am ET
+   - Updated `pi_scheduler.py` to run track record update every weekday at 8am ET
 
 2. **Website Changes**:
    - Created `/src/lib/track-record-data.ts` to fetch from Supabase
@@ -741,7 +741,7 @@ Open http://localhost:3000
      - Configured `gpg-agent` for loopback pinentry mode
      - Removed passphrase from key for fully automated operation
    - Updated `pi_scheduler.py` systemd config for `kmf229` user
-   - Track record now auto-updates every Monday at 8am ET
+   - Track record now auto-updates every weekday at 8am ET
 
 3. **Fixed Daily Blurb Accuracy Issues** (CRITICAL FIX):
    - **Problem**: Claude was calculating daily percentages incorrectly (had TQQQ/GLD swapped)

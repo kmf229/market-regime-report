@@ -44,8 +44,8 @@ export default async function TrackRecordPage() {
               Track Record
             </h1>
             <p className="mt-2 text-gray-600">
-              Track record is updated every Monday morning using time-weighted
-              returns and reflects performance through the end of the prior week.
+              Track record is updated daily (weekdays) at 8am ET using time-weighted
+              returns and reflects performance through the most recent trading day.
             </p>
             <p className="mt-4 text-sm text-gray-500">
               Performance period: {formatDate(summary.start_date)} —{" "}
