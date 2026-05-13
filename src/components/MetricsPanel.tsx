@@ -107,6 +107,13 @@ export default function MetricsPanel({ summary }: MetricsPanelProps) {
           ? summary.gain_to_pain_ratio.toFixed(1)
           : "N/A",
     },
+    {
+      label: "Profit Factor",
+      value:
+        summary.profit_factor !== null
+          ? summary.profit_factor.toFixed(2)
+          : "N/A",
+    },
   ];
 
   return (

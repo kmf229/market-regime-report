@@ -856,6 +856,21 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     trades_history = parse_trades()
     print(f"  Found {len(trades_history)} regime trades")
 
+    # Calculate Profit Factor from closed trades
+    profit_factor = None
+    if trades_history:
+        closed_trades = [t for t in trades_history if t["status"] == "Closed" and t["pnl"] is not None]
+        if closed_trades:
+            winning_pnl = [t["pnl"] for t in closed_trades if t["pnl"] > 0]
+            losing_pnl = [t["pnl"] for t in closed_trades if t["pnl"] < 0]
+
+            if winning_pnl and losing_pnl:
+                gross_profit = sum(winning_pnl)
+                gross_loss = abs(sum(losing_pnl))
+                if gross_loss > 0:
+                    profit_factor = gross_profit / gross_loss
+                    print(f"  Profit Factor: {profit_factor:.2f} (Gross Profit: ${gross_profit:,.0f}, Gross Loss: ${gross_loss:,.0f})")
+
     # Build update data
     data = {
         "start_date": str(start_ts.date()),
@@ -873,6 +888,7 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         "worst_month_label": worst_month_label,
         "up_months_pct": up_month_pct,
         "gain_to_pain_ratio": gain_to_pain,
+        "profit_factor": profit_factor,
         "monthly_returns": monthly_returns,
         "daily_history": daily_history,
         "trades_history": trades_history,
