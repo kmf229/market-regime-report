@@ -5,7 +5,7 @@ description: "The problem isn't the drawdown. It's what your brain does during o
 slug: "why-people-quit-during-drawdowns"
 tags: ["trading", "psychology", "drawdowns"]
 image: "images/Reflecting on the fallen trend.png"
-published: true
+published: false
 ---
 
 Every trading strategy that genuinely works eventually goes through a period where it feels broken. Not in an obvious, catastrophic way, but in a slow and grinding one. Returns stall, confidence erodes, and the strategy underperforms long enough that doubt begins to creep in.

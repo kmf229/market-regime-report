@@ -5,7 +5,7 @@ description: "Why market conditions matter more than predictions."
 slug: "the-role-of-regimes"
 tags: ["regimes", "strategy", "systematic"]
 image: "/images/Navigating through storm and calm seas.png"
-published: true
+published: false
 ---
 
 Most frustration in trading comes from asking the wrong question.

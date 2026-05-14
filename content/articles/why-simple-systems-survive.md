@@ -5,7 +5,7 @@ description: "And why robustness matters more than optimization."
 slug: "why-simple-systems-survive"
 tags: ["systematic", "strategy", "robustness"]
 image: "/images/Resilient oak against the storm.png"
-published: true
+published: false
 ---
 
 When traders experience a drawdown, the instinctive response is rarely to simplify. It's to add.

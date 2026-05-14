@@ -210,7 +210,7 @@ export default function HomePage() {
                 Latest Articles
               </h2>
               <Link
-                href="/articles"
+                href="/the-strategy"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 View all →

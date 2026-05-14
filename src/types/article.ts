@@ -6,6 +6,7 @@ export interface ArticleFrontmatter {
   tags: string[];
   image?: string;
   published: boolean;
+  category?: "updates" | "strategy" | "research";
 }
 
 export interface Article extends ArticleFrontmatter {

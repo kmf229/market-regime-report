@@ -6,6 +6,7 @@ slug: "stress-testing-the-market-regime-model"
 tags: ["strategy", "backtesting", "statistics", "risk-management"]
 image: "/images/stress-testing-image1.jpeg"
 published: true
+category: "strategy"
 ---
 
 Most trading strategies look great when you summarize them with one number.

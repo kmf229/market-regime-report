@@ -5,7 +5,7 @@ description: "Why chasing lucky trades leads to erratic results, while a systema
 slug: "luck-vs-process"
 tags: ["Trading Psychology", "Process", "Risk Management"]
 image: "/images/Luck%20vs%20process%20in%20trading.png"
-published: true
+published: false
 ---
 
 Every March, we celebrate luck.

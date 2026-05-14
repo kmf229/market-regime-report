@@ -139,4 +139,13 @@ export function getRelatedArticles(
   return scoredArticles.slice(0, limit).map((item) => item.article);
 }
 
+export function getArticlesByCategory(category: "updates" | "strategy" | "research"): ArticlePreview[] {
+  const allArticles = getAllPublishedArticles();
+  return allArticles.filter((article) => article.category === category);
+}
+
+export function getAllCategories(): Array<"updates" | "strategy" | "research"> {
+  return ["updates", "strategy", "research"];
+}
+
 export { formatDate };

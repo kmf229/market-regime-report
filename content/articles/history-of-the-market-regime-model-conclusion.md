@@ -6,6 +6,7 @@ slug: "history-of-the-market-regime-model-conclusion"
 tags: ["history", "performance", "backtesting", "conclusion"]
 image: "/images/history-conclusion-image1.png"
 published: true
+category: "strategy"
 ---
 
 *History of the Market Regime Model: [Part 1](/articles/history-of-the-market-regime-model-part-1), [Part 2](/articles/history-of-the-market-regime-model-part-2), [Part 3](/articles/history-of-the-market-regime-model-part-3), [Part 4](/articles/history-of-the-market-regime-model-part-4), [Part 5](/articles/history-of-the-market-regime-model-part-5), [Part 6](/articles/history-of-the-market-regime-model-part-6)*

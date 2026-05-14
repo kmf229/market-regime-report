@@ -6,6 +6,7 @@ slug: "history-of-the-market-regime-model-part-3"
 tags: ["history", "performance", "backtesting", "2015-2018"]
 image: "/images/history-part3-image1.png"
 published: true
+category: "strategy"
 ---
 
 *This article is part of a multi-part series where I walk through how the Market Regime model would have navigated different historical market environments. To keep things simple and transparent, I'm using **TQQQ** during Bullish regimes and **GLD** during Bearish regimes as proxies for how the system behaved in real time. Of course, past performance never guarantees future results—but understanding how a model responds across different conditions is exactly why I trade it live today. Seeing how it handled both calm and chaotic markets helps illustrate the consistency and robustness that make this approach so powerful.*

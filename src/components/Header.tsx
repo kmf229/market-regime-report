@@ -17,7 +17,9 @@ export default function Header({ user }: HeaderProps) {
     { href: "/", label: "Home" },
     { href: "/current-regime", label: "Current Regime", highlight: true },
     { href: "/track-record", label: "Track Record" },
-    { href: "/articles", label: "Articles" },
+    { href: "/updates", label: "Updates" },
+    { href: "/the-strategy", label: "The Strategy" },
+    { href: "/research", label: "Research" },
     { href: "/about", label: "About" },
     { href: "https://newsletter.marketregimes.com", label: "Newsletter", external: true },
   ];

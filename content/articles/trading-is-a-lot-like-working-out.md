@@ -5,7 +5,7 @@ description: "Most people struggle with trading because they expect progress to 
 slug: "trading-is-a-lot-like-working-out"
 tags: ["trading", "discipline", "systematic"]
 image: "/images/weight_lifting.jpg"
-published: true
+published: false
 ---
 
 Most people struggle with trading because they expect progress to be visible far too quickly. A trade is placed, a setup is followed, and if the outcome isn't immediately positive, doubt sets in. The system is questioned, the rules are tweaked, or the approach is abandoned entirely.

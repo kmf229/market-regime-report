@@ -6,6 +6,7 @@ slug: "how-this-strategy-works"
 tags: ["strategy", "rules-based", "regimes"]
 image: "/images/simplicity.jpg"
 published: true
+category: "strategy"
 ---
 
 This strategy measures the market's current environment — specifically whether risk-on assets or risk-off assets are showing leadership — and aligns positioning accordingly. Everything is rules-based, systematic, and objective.
