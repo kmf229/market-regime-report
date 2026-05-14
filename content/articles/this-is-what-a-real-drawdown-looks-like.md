@@ -2,11 +2,12 @@
 title: "This Is What a Real Drawdown Looks Like"
 date: "2026-03-20"
 description: "Gold is in a 14% drawdown from its peak—the second worst in the model's history. Here's what that means, why it feels worse than it looks, and what history tells us about trades like this."
+summary: "Gold is down 14% from its peak—the second worst drawdown in the model's history. Here's what the numbers say and why it feels worse than it is."
 slug: "this-is-what-a-real-drawdown-looks-like"
 tags: ["Drawdowns", "Psychology", "GLD"]
 image: "/images/Financial plunge under stormy skies.png"
 published: true
-category: "updates"
+section: "updates"
 ---
 
 Gold is in a drawdown.

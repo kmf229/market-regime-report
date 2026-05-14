@@ -25,7 +25,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
   const allTags = getAllTags();
 
   const articles = tag
-    ? allArticles.filter((article) => article.tags.includes(tag))
+    ? allArticles.filter((article) => article.tags?.includes(tag))
     : allArticles;
 
   return (

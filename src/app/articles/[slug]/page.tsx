@@ -68,11 +68,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  const relatedArticles = getRelatedArticles(slug, article.tags, 3);
+  const relatedArticles = getRelatedArticles(slug, article.tags || [], 3);
 
-  // Determine back link based on category
+  // Determine back link based on section (or category for backward compatibility)
   const getBackLink = () => {
-    switch (article.category) {
+    const section = article.section || article.category;
+    switch (section) {
       case "updates":
         return { url: "/updates", label: "Back to Updates" };
       case "strategy":
@@ -105,7 +106,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <span className="text-gray-300">·</span>
             <span>{article.readingTime} min read</span>
           </div>
-          {article.tags.length > 0 && (
+          {article.tags && article.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {article.tags.map((tag) => (
                 <span

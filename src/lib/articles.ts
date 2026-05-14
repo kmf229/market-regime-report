@@ -52,8 +52,22 @@ export function getArticleBySlug(slug: string): Article | null {
 
   const frontmatter = data as ArticleFrontmatter;
 
+  // Normalize section/category field (prefer section, fallback to category)
+  const section = frontmatter.section || frontmatter.category;
+
+  // Use summary if available, fallback to description
+  const description = frontmatter.summary || frontmatter.description || "";
+
+  // Default tags to empty array if not provided
+  const tags = frontmatter.tags || [];
+
   return {
     ...frontmatter,
+    section,
+    category: section, // Keep category for backward compatibility
+    description,
+    summary: frontmatter.summary,
+    tags,
     content,
     readingTime: calculateReadingTime(content),
   };
@@ -112,7 +126,9 @@ export function getAllTags(): string[] {
   const articles = getAllPublishedArticles();
   const tagSet = new Set<string>();
   articles.forEach((article) => {
-    article.tags.forEach((tag) => tagSet.add(tag));
+    if (article.tags) {
+      article.tags.forEach((tag) => tagSet.add(tag));
+    }
   });
   return Array.from(tagSet).sort();
 }
@@ -128,9 +144,9 @@ export function getRelatedArticles(
   const scoredArticles = allArticles
     .filter((article) => article.slug !== currentSlug)
     .map((article) => {
-      const sharedTags = article.tags.filter((tag) =>
+      const sharedTags = article.tags?.filter((tag) =>
         currentTags.includes(tag)
-      );
+      ) || [];
       return { article, score: sharedTags.length };
     })
     .filter((item) => item.score > 0)
@@ -141,7 +157,10 @@ export function getRelatedArticles(
 
 export function getArticlesByCategory(category: "updates" | "strategy" | "research"): ArticlePreview[] {
   const allArticles = getAllPublishedArticles();
-  return allArticles.filter((article) => article.category === category);
+  return allArticles.filter((article) => {
+    const articleSection = article.section || article.category;
+    return articleSection === category;
+  });
 }
 
 export function getAllCategories(): Array<"updates" | "strategy" | "research"> {

@@ -14,7 +14,7 @@ export async function GET() {
       <guid isPermaLink="true">${siteUrl}/articles/${article.slug}</guid>
       <description><![CDATA[${article.description}]]></description>
       <pubDate>${pubDate}</pubDate>
-      ${article.tags.map((tag) => `<category>${tag}</category>`).join("\n      ")}
+      ${article.tags?.map((tag) => `<category>${tag}</category>`).join("\n      ") || ""}
     </item>`
     })
     .join("");
