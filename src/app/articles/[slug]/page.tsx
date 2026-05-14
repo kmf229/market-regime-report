@@ -70,16 +70,32 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const relatedArticles = getRelatedArticles(slug, article.tags, 3);
 
+  // Determine back link based on category
+  const getBackLink = () => {
+    switch (article.category) {
+      case "updates":
+        return { url: "/updates", label: "Back to Updates" };
+      case "strategy":
+        return { url: "/the-strategy", label: "Back to Strategy" };
+      case "research":
+        return { url: "/research", label: "Back to Research" };
+      default:
+        return { url: "/the-strategy", label: "Back to Strategy" };
+    }
+  };
+
+  const backLink = getBackLink();
+
   return (
     <div>
       {/* Article Header */}
       <header className="border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-12 md:py-16">
           <Link
-            href="/articles"
+            href={backLink.url}
             className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 transition-colors mb-8"
           >
-            &larr; Back to Articles
+            &larr; {backLink.label}
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
             {article.title}
@@ -180,10 +196,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <footer className="border-t border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-12">
           <Link
-            href="/articles"
+            href={backLink.url}
             className="inline-flex items-center text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors"
           >
-            &larr; Back to Articles
+            &larr; {backLink.label}
           </Link>
         </div>
       </footer>
