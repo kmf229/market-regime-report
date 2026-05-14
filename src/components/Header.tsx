@@ -15,13 +15,12 @@ export default function Header({ user }: HeaderProps) {
 
   const navItems = [
     { href: "/", label: "Home" },
-    { href: "/current-regime", label: "Current Regime", highlight: true },
+    { href: "/current-regime", label: "Regime", highlight: true },
     { href: "/track-record", label: "Track Record" },
     { href: "/updates", label: "Updates" },
-    { href: "/the-strategy", label: "The Strategy" },
+    { href: "/the-strategy", label: "Strategy" },
     { href: "/research", label: "Research" },
     { href: "/about", label: "About" },
-    { href: "https://newsletter.marketregimes.com", label: "Newsletter", external: true },
   ];
 
   return (
@@ -46,10 +45,10 @@ export default function Header({ user }: HeaderProps) {
           </Link>
 
           {/* Desktop navigation */}
-          <ul className="hidden md:flex items-center gap-8">
+          <ul className="hidden md:flex items-center gap-5">
             {navItems.map((item) => (
               <li key={item.href}>
-                <NavLink href={item.href} external={item.external} highlight={item.highlight}>
+                <NavLink href={item.href} highlight={item.highlight}>
                   {item.label}
                 </NavLink>
               </li>
@@ -60,9 +59,12 @@ export default function Header({ user }: HeaderProps) {
               ) : (
                 <Link
                   href="/login"
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  title="Sign In"
                 >
-                  Sign In
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                 </Link>
               )}
             </li>
@@ -95,7 +97,6 @@ export default function Header({ user }: HeaderProps) {
                 <li key={item.href}>
                   <NavLink
                     href={item.href}
-                    external={item.external}
                     highlight={item.highlight}
                     onClick={() => setIsMenuOpen(false)}
                   >
