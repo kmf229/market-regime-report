@@ -3,13 +3,18 @@ title: ""
 date: "YYYY-MM-DD"
 section: "updates"
 summary: ""
-slug: ""
+slug: "" # how-it-will-display-in-url
+image: "/images/your-image.jpg" # optional - shown on full article page
 published: true
+# git add content/articles/my-slug-here.md
+# git commit -m "Add new update: [title]"
+# git push
 ---
 
 Your update content goes here.
 
 Updates are short, informal posts for:
+
 - Regime change announcements
 - Drawdown commentary
 - Quick strategy observations
