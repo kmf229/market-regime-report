@@ -35,17 +35,7 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refresh session if expired - this extends the session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Protect /current-regime route
-  if (request.nextUrl.pathname.startsWith("/current-regime") && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("next", "/current-regime");
-    return NextResponse.redirect(url);
-  }
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }
