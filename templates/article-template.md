@@ -1,17 +1,21 @@
 ---
 title: ""
 date: "YYYY-MM-DD"
-section: "strategy"
+section: "strategy" # or "research"
 summary: ""
-slug: ""
+slug: "" # how-it-will-display-in-url
 tags: []
 image: "/images/your-image.jpg"
 published: true
+# git add content/articles/my-slug-here.md
+# git commit -m "Add new update: [title]"
+# git push
 ---
 
 Your article content goes here.
 
 Articles are longer-form pieces for:
+
 - Strategy explanations and deep dives (section: "strategy")
 - Statistical analysis and data science projects (section: "research")
 - Historical performance walkthroughs
