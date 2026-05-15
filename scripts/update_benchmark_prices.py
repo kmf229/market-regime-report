@@ -62,11 +62,12 @@ def get_supabase_client() -> Client:
     return create_client(url, key)
 
 
-def update_benchmark_prices(days_back: int = 5):
+def update_benchmark_prices(start_date: str = None, days_back: int = 5):
     """
     Fetch and update benchmark prices for TQQQ, SPY, QQQ, GLD.
 
     Args:
+        start_date: Optional start date (YYYY-MM-DD). If not provided, uses days_back.
         days_back: Number of days to fetch (default 5 to catch up on weekends/holidays)
     """
     print("=" * 60)
@@ -81,7 +82,8 @@ def update_benchmark_prices(days_back: int = 5):
 
     # Calculate date range
     end_date = datetime.now().strftime("%Y-%m-%d")
-    start_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    if start_date is None:
+        start_date = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%d")
 
     print(f"\nFetching prices from {start_date} to {end_date}...")
 
@@ -142,4 +144,24 @@ def update_benchmark_prices(days_back: int = 5):
 
 
 if __name__ == "__main__":
-    update_benchmark_prices()
+    import sys
+
+    # Check for command line arguments
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--backfill":
+            # Backfill from strategy start date (Nov 14, 2025)
+            print("Backfilling from strategy start date (2025-11-14)...")
+            update_benchmark_prices(start_date="2025-11-14")
+        elif sys.argv[1] == "--from":
+            # Custom start date
+            start_date = sys.argv[2]
+            print(f"Fetching from {start_date}...")
+            update_benchmark_prices(start_date=start_date)
+        else:
+            print("Usage:")
+            print("  python update_benchmark_prices.py                    # Fetch last 5 days")
+            print("  python update_benchmark_prices.py --backfill         # Fetch from Nov 14, 2025")
+            print("  python update_benchmark_prices.py --from 2026-04-02  # Custom start date")
+    else:
+        # Default: fetch last 5 days
+        update_benchmark_prices()
