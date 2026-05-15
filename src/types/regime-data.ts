@@ -30,3 +30,19 @@ export interface RegimePeriod {
   durationDays: number;
   returnPct?: number; // optional: return during this period
 }
+
+export interface RegimeStrengthDataPoint {
+  date: string; // YYYY-MM-DD
+  regimeStrength: number; // Raw z-spread value
+  regime: "bullish" | "bearish";
+}
+
+export interface BenchmarkPrice {
+  ticker: string;
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume?: number;
+}

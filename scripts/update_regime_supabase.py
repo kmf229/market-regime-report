@@ -419,6 +419,54 @@ def upload_speedometer(
     return public_url
 
 
+def save_daily_strength_history(
+    regime_s: pd.Series,
+    z_spread_smoothed: pd.Series,
+    supabase: Client = None
+) -> None:
+    """
+    Save today's regime strength to the regime_strength_history table.
+
+    This should be called once per day at market close to build the historical
+    dataset for the Regime Strength History Chart.
+
+    Args:
+        regime_s: Series with 'Bullish'/'Bearish' values indexed by date
+        z_spread_smoothed: Series with smoothed z-spread values
+        supabase: Optional Supabase client
+    """
+    if supabase is None:
+        supabase = get_supabase_client()
+
+    # Get today's date and values
+    today = regime_s.index.max()
+    z_today = float(z_spread_smoothed.loc[today])
+    regime_today = regime_s.loc[today]
+    regime_str = "bullish" if str(regime_today).lower().startswith("bull") else "bearish"
+
+    # Insert or update today's strength value
+    data = {
+        "date": today.strftime("%Y-%m-%d"),
+        "regime_strength": round(z_today, 4),
+        "regime": regime_str,
+    }
+
+    try:
+        # Try to insert (will fail if date already exists due to UNIQUE constraint)
+        supabase.table("regime_strength_history").insert(data).execute()
+        print(f"Saved regime strength history for {today.strftime('%Y-%m-%d')}: {z_today:.3f}")
+    except Exception as e:
+        # If date exists, update it
+        if "duplicate" in str(e).lower() or "unique" in str(e).lower():
+            supabase.table("regime_strength_history").update({
+                "regime_strength": data["regime_strength"],
+                "regime": data["regime"]
+            }).eq("date", data["date"]).execute()
+            print(f"Updated regime strength history for {today.strftime('%Y-%m-%d')}: {z_today:.3f}")
+        else:
+            print(f"Warning: Could not save regime strength history: {e}")
+
+
 # Convenience function for notebooks / close updates
 def update_all(regime_s, z_spread_smoothed, speedometer_path=None):
     """
@@ -436,6 +484,9 @@ def update_all(regime_s, z_spread_smoothed, speedometer_path=None):
 
     # Update regime data (full update including current_regime)
     update_regime_status(regime_s, z_spread_smoothed, supabase)
+
+    # Save daily regime strength to history table
+    save_daily_strength_history(regime_s, z_spread_smoothed, supabase)
 
     # Upload speedometer if provided
     if speedometer_path:

@@ -5,7 +5,6 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { RegimeData } from "@/types/regime-data";
 import RegimeStats from "@/components/RegimeStats";
-import RegimeCalendar from "@/components/RegimeCalendar";
 import RegimeContext from "@/components/RegimeContext";
 
 interface LiveRegimeStatusProps {
@@ -98,11 +97,6 @@ export default function LiveRegimeStatus({
 
       {/* Stats Panel */}
       <RegimeStats data={data} />
-
-      {/* Regime Calendar */}
-      <div className="mt-6">
-        <RegimeCalendar history={data.regimeHistory} />
-      </div>
     </section>
   );
 }

@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
-// Daily updates disabled - kept for future use
-// import { getDailyUpdates } from "@/lib/daily-updates";
-// import DailyUpdates from "@/components/DailyUpdates";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import RegimeSidebar from "@/components/RegimeSidebar";
 import { getRegimeData } from "@/lib/regime-data";
+import { getRegimeStrengthHistory } from "@/lib/regime-strength-history";
+import { getBenchmarkPrices } from "@/lib/benchmark-prices";
 import LiveRegimeStatus from "@/components/LiveRegimeStatus";
+import RegimeStrengthChart from "@/components/RegimeStrengthChart";
+import CurrentTradeBenchmark from "@/components/CurrentTradeBenchmark";
+import RegimeTimeline from "@/components/RegimeTimeline";
 
 export const metadata = {
   title: "Current Regime | The Market Regime Report",
@@ -40,10 +42,14 @@ async function getUserData() {
 
 export default async function CurrentRegimePage() {
   const userData = await getUserData();
-
-  // Daily updates disabled - kept for future use
-  // const updates = await getDailyUpdates();
   const regimeData = await getRegimeData();
+
+  // Fetch historical data for new components
+  const strengthHistory = await getRegimeStrengthHistory();
+
+  // Fetch benchmark prices for current trade comparison
+  const tradeStartDate = regimeData.currentTradeStart || regimeData.lastUpdated;
+  const benchmarkPrices = await getBenchmarkPrices(tradeStartDate);
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
@@ -63,18 +69,33 @@ export default async function CurrentRegimePage() {
 
         {/* Main Content */}
         <main className="flex-1 min-w-0">
-          {/* Overview Section - Live updating */}
+          {/* Overview Section - Live updating (speedometer + stats) */}
           <LiveRegimeStatus initialData={regimeData} />
 
-          {/* Daily Updates Section - DISABLED (kept for potential future use)
-          <section id="updates" className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 border-b border-gray-200 pb-3 mb-6">
-              Daily Updates
-            </h2>
-
-            <DailyUpdates updates={updates} initialCount={5} />
+          {/* Regime Strength History Chart */}
+          <section className="mb-8">
+            <RegimeStrengthChart
+              data={strengthHistory}
+              currentStrength={regimeData.regimeStrength}
+            />
           </section>
-          */}
+
+          {/* Benchmark Comparison (current trade vs SPY/QQQ/GLD) */}
+          {regimeData.currentTradeReturn !== null && regimeData.currentTradeStart && (
+            <section className="mb-8">
+              <CurrentTradeBenchmark
+                currentRegime={regimeData.currentRegime}
+                tradeStartDate={regimeData.currentTradeStart}
+                strategyReturn={regimeData.currentTradeReturn}
+                benchmarkPrices={benchmarkPrices}
+              />
+            </section>
+          )}
+
+          {/* Regime Timeline Strip */}
+          <section className="mb-12">
+            <RegimeTimeline history={regimeData.regimeHistory} />
+          </section>
 
           {/* Disclaimer */}
           <div className="pt-8 border-t border-gray-200">
