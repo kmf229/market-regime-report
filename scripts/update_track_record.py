@@ -135,34 +135,59 @@ def get_ibkr_credentials() -> Tuple[str, str]:
     return user, passwd
 
 
-def get_current_futures_price(symbol: str) -> Optional[float]:
+def get_current_price(symbol: str) -> Optional[float]:
     """
-    Get current price for futures contract using Yahoo Finance.
+    Get latest closing price for ETF or futures contract.
+
+    Uses Polygon.io for ETFs and yfinance for futures contracts.
+    Since this runs at 8am ET (before market open), we fetch the previous day's close.
 
     Args:
-        symbol: Base symbol (e.g., 'MNQ', '1OZ')
+        symbol: Base symbol (e.g., 'MNQ', '1OZ', 'TQQQ', 'GLD')
 
     Returns:
-        Current price or None if unavailable
+        Latest closing price or None if unavailable
     """
-    if not HAS_YFINANCE:
-        return None
-
     try:
-        # Yahoo Finance futures ticker format: SYMBOL=F
-        ticker = f"{symbol}=F"
-        data = yf.Ticker(ticker)
+        # For ETFs (TQQQ, GLD), use Polygon.io
+        if symbol in ['TQQQ', 'GLD']:
+            if not HAS_STOCKS:
+                print(f"Warning: Stocks module not available, cannot fetch price for {symbol}")
+                return None
 
-        # Get the most recent price
-        hist = data.history(period="1d")
-        if hist.empty:
-            print(f"Warning: No price data available for {ticker}")
-            return None
+            stocks = Stocks()
+            # Get last 2 days to ensure we have data
+            data = stocks.ohlc(symbol, limit=2)
+            if data.empty:
+                print(f"Warning: No price data available for {symbol}")
+                return None
 
-        # Use the last close price
-        current_price = float(hist['Close'].iloc[-1])
-        print(f"  {symbol} current price: ${current_price:,.2f}")
-        return current_price
+            current_price = float(data['close'].iloc[-1])
+            price_date = data['date'].iloc[-1]
+            print(f"  {symbol} latest close: ${current_price:,.2f} (as of {price_date})")
+            return current_price
+
+        # For futures (MNQ, MGC, GC, 1OZ), try yfinance
+        else:
+            if not HAS_YFINANCE:
+                print(f"Warning: yfinance not available, cannot fetch futures price for {symbol}")
+                return None
+
+            # Yahoo Finance futures ticker format: SYMBOL=F
+            ticker = f"{symbol}=F"
+            data = yf.Ticker(ticker)
+
+            # Get recent price history
+            hist = data.history(period="5d")
+            if hist.empty:
+                print(f"Warning: No price data available for {ticker}")
+                return None
+
+            # Use the most recent close price
+            current_price = float(hist['Close'].iloc[-1])
+            price_date = hist.index[-1].strftime("%Y-%m-%d")
+            print(f"  {symbol} latest close: ${current_price:,.2f} (as of {price_date})")
+            return current_price
 
     except Exception as e:
         print(f"Warning: Could not fetch price for {symbol}: {e}")
@@ -838,7 +863,25 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     if daily_std > 0:
         sharpe = float(np.sqrt(252) * (float(daily.mean()) / daily_std))
 
-    monthly = (1 + df["twr_dec"]).resample("ME").prod() - 1
+    # Calculate monthly returns including current partial month
+    monthly_complete = (1 + df["twr_dec"]).resample("ME").prod() - 1
+
+    # Add current partial month if we have data beyond the last complete month
+    last_complete_month_end = monthly_complete.index.max() if len(monthly_complete) > 0 else df.index.min()
+    current_month_data = df[df.index > last_complete_month_end]
+
+    if len(current_month_data) > 0:
+        # Calculate current month's return so far
+        current_month_return = (1 + current_month_data["twr_dec"]).prod() - 1
+        # Add to monthly series
+        current_month_end = df.index.max()
+        monthly = pd.concat([
+            monthly_complete,
+            pd.Series([current_month_return], index=[current_month_end])
+        ])
+    else:
+        monthly = monthly_complete
+
     avg_month = float(monthly.mean()) if len(monthly) else None
     best_month = float(monthly.max()) if len(monthly) else None
     worst_month = float(monthly.min()) if len(monthly) else None
@@ -846,7 +889,7 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     worst_month_label = monthly.idxmin().strftime("%Y-%m") if len(monthly) else None
     up_month_pct = float((monthly > 0).mean()) if len(monthly) else None
 
-    # Calculate Gain to Pain ratio
+    # Calculate Gain to Pain ratio (includes current partial month)
     gain_to_pain = None
     if len(monthly) > 0:
         positive_sum = float(monthly[monthly > 0].sum())
@@ -916,9 +959,9 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         if pending_trade:
             print(f"  Found pending {pending_trade['regime']} trade: {pending_trade['symbol']}")
 
-            # Determine which futures contract to fetch
+            # Determine which symbol to fetch price for
             symbol = pending_trade["symbol"]
-            current_price = get_current_futures_price(symbol)
+            current_price = get_current_price(symbol)
 
             if current_price and pending_trade["entry_price"]:
                 # Calculate unrealized P&L
