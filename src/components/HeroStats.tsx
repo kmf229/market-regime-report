@@ -18,22 +18,18 @@ export default function HeroStats({ summary }: HeroStatsProps) {
     {
       label: "Cumulative Return",
       value: formatPercent(summary.cumulative_return),
+      subtitle: `${summary.strategy_length_days} days`,
       positive: summary.cumulative_return >= 0,
-    },
-    {
-      label: "Alpha vs S&P 500",
-      value: summary.alpha_vs_sp500 !== null ? formatPercent(summary.alpha_vs_sp500) : "N/A",
-      positive: (summary.alpha_vs_sp500 ?? 0) >= 0,
-    },
-    {
-      label: "CAGR",
-      value: formatPercent(summary.cagr),
-      positive: summary.cagr >= 0,
     },
     {
       label: "YTD Return",
       value: summary.ytd_return !== null ? formatPercent(summary.ytd_return) : "N/A",
       positive: (summary.ytd_return ?? 0) >= 0,
+    },
+    {
+      label: "CAGR",
+      value: formatPercent(summary.cagr),
+      positive: summary.cagr >= 0,
     },
     {
       label: "Max Drawdown",
@@ -43,7 +39,7 @@ export default function HeroStats({ summary }: HeroStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
       {stats.map((stat) => (
         <div
           key={stat.label}
@@ -63,6 +59,11 @@ export default function HeroStats({ summary }: HeroStatsProps) {
           >
             {stat.value}
           </p>
+          {"subtitle" in stat && stat.subtitle && (
+            <p className="mt-1 text-xs text-gray-500">
+              {stat.subtitle}
+            </p>
+          )}
         </div>
       ))}
     </div>
