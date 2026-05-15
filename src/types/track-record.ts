@@ -7,6 +7,7 @@ export interface Summary {
   cagr: number;
   max_drawdown: number;
   sharpe_ratio: number | null;
+  ytd_return: number | null;
   avg_monthly_return: number;
   best_month_return: number;
   best_month_label: string;

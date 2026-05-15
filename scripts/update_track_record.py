@@ -906,6 +906,10 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
     ytd = (1 + df["twr_dec"]).groupby(df.index.year).prod() - 1
     pivot["YTD"] = ytd
 
+    # Calculate current year's YTD return for hero stats
+    current_year = end_ts.year
+    ytd_return = float(ytd.get(current_year, 0.0)) if current_year in ytd.index else None
+
     cols = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "YTD"]
 
     rows = []
@@ -1018,6 +1022,7 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         "cagr": float(cagr),
         "max_drawdown": float(max_dd),
         "sharpe_ratio": sharpe,
+        "ytd_return": ytd_return,
         "avg_monthly_return": avg_month,
         "best_month_return": best_month,
         "best_month_label": best_month_label,

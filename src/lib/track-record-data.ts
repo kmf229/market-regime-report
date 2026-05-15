@@ -54,6 +54,7 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
       cagr: data.cagr,
       max_drawdown: data.max_drawdown,
       sharpe_ratio: data.sharpe_ratio,
+      ytd_return: data.ytd_return ?? null,
       avg_monthly_return: data.avg_monthly_return,
       best_month_return: data.best_month_return,
       best_month_label: data.best_month_label,

@@ -31,9 +31,9 @@ export default function HeroStats({ summary }: HeroStatsProps) {
       positive: summary.cagr >= 0,
     },
     {
-      label: "Sharpe Ratio",
-      value: summary.sharpe_ratio !== null ? summary.sharpe_ratio.toFixed(2) : "N/A",
-      positive: (summary.sharpe_ratio ?? 0) >= 1,
+      label: "YTD Return",
+      value: summary.ytd_return !== null ? formatPercent(summary.ytd_return) : "N/A",
+      positive: (summary.ytd_return ?? 0) >= 0,
     },
     {
       label: "Max Drawdown",
