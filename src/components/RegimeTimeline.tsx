@@ -132,11 +132,11 @@ export default function RegimeTimeline({ history, currentRegime, tradeEntryPrice
                 } ${isCurrent ? "ring-2 ring-inset ring-white/50" : ""} ${
                   idx === 0 ? "rounded-l-md" : ""
                 } ${idx === periods.length - 1 ? "rounded-r-md" : ""}`}
-                style={{ width: `${widthPct}%`, minWidth: "24px" }}
+                style={{ width: `${widthPct}%` }}
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
               >
-                {widthPct > 10 && (
+                {widthPct > 8 && (
                   <span className="text-white font-semibold text-[11px]">
                     {period.durationDays}d
                   </span>
