@@ -9,6 +9,7 @@ export interface ArticleFrontmatter {
   published: boolean;
   category?: "updates" | "strategy" | "research"; // Deprecated, use section
   section?: "updates" | "strategy" | "research"; // Preferred field
+  video_url?: string; // Optional YouTube video embed URL
 }
 
 export interface Article extends ArticleFrontmatter {

@@ -5,6 +5,7 @@ section: "updates"
 summary: ""
 slug: "" # how-it-will-display-in-url
 image: "/images/your-image.jpg" # optional - shown on full article page
+video_url: "" #"https://www.youtube.com/watch?v=YWTiFIePIdA"
 published: true
 # git add content/articles/my-slug-here.md
 # git commit -m "Add new update: [title]"

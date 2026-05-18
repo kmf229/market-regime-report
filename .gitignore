@@ -40,4 +40,8 @@ next-env.d.ts
 .DS_Store
 Thumbs.db
 
+# Large media files (working files for YouTube videos)
+audio/
+videos/
+
 research/

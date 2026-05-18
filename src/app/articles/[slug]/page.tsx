@@ -9,6 +9,7 @@ import {
   getRelatedArticles,
   formatDate,
 } from "@/lib/articles";
+import VideoEmbed from "@/components/VideoEmbed";
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -120,6 +121,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           )}
         </div>
       </header>
+
+      {/* Video Embed (if video_url is provided) */}
+      {article.video_url && (
+        <VideoEmbed url={article.video_url} title={article.title} />
+      )}
 
       {/* Featured Image */}
       {article.image && (
