@@ -3,6 +3,7 @@ import { Inter, Spectral } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import { createClient } from "@/lib/supabase/server";
+import { Analytics } from "@vercel/analytics/react";
 
 // Prevent Vercel from caching auth state
 export const dynamic = "force-dynamic";
@@ -82,6 +83,7 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
+        <Analytics />
       </body>
     </html>
   );
