@@ -127,11 +127,11 @@ export default function RegimeStrengthChart({
             </div>
             <div
               className={`text-2xl font-bold font-mono ${
-                currentStrength >= 0 ? "text-emerald-600" : "text-red-600"
+                scaleStrength(currentStrength) >= 0 ? "text-emerald-600" : "text-red-600"
               }`}
             >
-              {currentStrength >= 0 ? "+" : ""}
-              {currentStrength.toFixed(1)}
+              {scaleStrength(currentStrength) >= 0 ? "+" : ""}
+              {scaleStrength(currentStrength).toFixed(1)}
             </div>
           </div>
         )}
