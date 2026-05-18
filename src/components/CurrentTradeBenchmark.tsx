@@ -1,11 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { BenchmarkPrice } from "@/types/regime-data";
 
 interface CurrentTradeBenchmarkProps {
   currentRegime: "bullish" | "bearish";
   tradeStartDate: string;
   strategyReturn: number;
+  tradeEntryPrice: number | null;
   benchmarkPrices: Record<string, BenchmarkPrice[]>;
 }
 
@@ -29,16 +31,48 @@ export default function CurrentTradeBenchmark({
   currentRegime,
   tradeStartDate,
   strategyReturn,
+  tradeEntryPrice,
   benchmarkPrices,
 }: CurrentTradeBenchmarkProps) {
   const currentTicker = currentRegime === "bullish" ? "TQQQ" : "GLD";
+  const [liveStrategyReturn, setLiveStrategyReturn] = useState<number | null>(null);
+
+  // Fetch live price for strategy position
+  useEffect(() => {
+    if (!tradeEntryPrice) {
+      setLiveStrategyReturn(null);
+      return;
+    }
+
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`/api/stock-price?ticker=${currentTicker}`);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.price) {
+            const returnPct = ((result.price - tradeEntryPrice) / tradeEntryPrice) * 100;
+            setLiveStrategyReturn(returnPct);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching live price:", error);
+      }
+    };
+
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 60000); // Refresh every 60 seconds
+    return () => clearInterval(interval);
+  }, [currentTicker, tradeEntryPrice]);
+
+  // Use live return if available, otherwise fall back to stored return
+  const displayStrategyReturn = liveStrategyReturn ?? strategyReturn;
 
   // Calculate returns for each benchmark
   const benchmarks = [
     {
       name: "Strategy",
       ticker: currentTicker,
-      return: strategyReturn,
+      return: displayStrategyReturn,
       isStrategy: true,
     },
     {

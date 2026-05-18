@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RegimePeriod } from "@/types/regime-data";
 
 interface RegimeTimelineProps {
   history: RegimePeriod[];
+  currentRegime?: "bullish" | "bearish";
+  tradeEntryPrice?: number | null;
 }
 
 function formatShortDate(dateStr: string): string {
@@ -17,14 +19,51 @@ function formatMonthYear(dateStr: string): string {
   return date.toLocaleDateString("en-US", { month: "short", year: "2-digit" });
 }
 
-export default function RegimeTimeline({ history }: RegimeTimelineProps) {
+export default function RegimeTimeline({ history, currentRegime, tradeEntryPrice }: RegimeTimelineProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [liveReturn, setLiveReturn] = useState<number | null>(null);
+
+  // Fetch live price for current trade
+  useEffect(() => {
+    if (!currentRegime || !tradeEntryPrice) {
+      setLiveReturn(null);
+      return;
+    }
+
+    const ticker = currentRegime === "bullish" ? "TQQQ" : "GLD";
+
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`/api/stock-price?ticker=${ticker}`);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.price) {
+            const returnPct = ((result.price - tradeEntryPrice) / tradeEntryPrice) * 100;
+            setLiveReturn(returnPct);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching live price:", error);
+      }
+    };
+
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 60000); // Refresh every 60 seconds
+    return () => clearInterval(interval);
+  }, [currentRegime, tradeEntryPrice]);
 
   // Calculate total days for proportional widths
   const totalDays = history.reduce((sum, p) => sum + p.durationDays, 0);
 
   // Reverse to show oldest first (left to right)
-  const periods = [...history].reverse();
+  // Update current period with live return if available
+  const periods = [...history].reverse().map((period, idx) => {
+    // If this is the last period (current, no endDate) and we have live data, use it
+    if (idx === history.length - 1 && period.endDate === null && liveReturn !== null) {
+      return { ...period, returnPct: liveReturn };
+    }
+    return period;
+  });
 
   // Generate month markers
   const getTimeMarkers = () => {

@@ -177,12 +177,20 @@ export default function RegimeStrengthChart({
             {/* Zero line */}
             <ReferenceLine y={0} stroke="#6b7280" strokeWidth={2} strokeDasharray="3 3" />
 
-            {/* Area fills */}
+            {/* Area fills - separate for bullish and bearish */}
             <Area
               type="monotone"
-              dataKey="strength"
+              dataKey={(d) => (d.strength >= 0 ? d.strength : 0)}
               stroke="none"
               fill="url(#colorBullish)"
+              fillOpacity={1}
+              isAnimationActive={false}
+            />
+            <Area
+              type="monotone"
+              dataKey={(d) => (d.strength < 0 ? d.strength : 0)}
+              stroke="none"
+              fill="url(#colorBearish)"
               fillOpacity={1}
               isAnimationActive={false}
             />

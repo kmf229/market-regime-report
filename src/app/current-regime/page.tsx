@@ -87,6 +87,7 @@ export default async function CurrentRegimePage() {
                 currentRegime={regimeData.currentRegime}
                 tradeStartDate={regimeData.currentTradeStart}
                 strategyReturn={regimeData.currentTradeReturn}
+                tradeEntryPrice={regimeData.currentTradeEntryPrice}
                 benchmarkPrices={benchmarkPrices}
               />
             </section>
@@ -94,7 +95,11 @@ export default async function CurrentRegimePage() {
 
           {/* Regime Timeline Strip */}
           <section className="mb-12">
-            <RegimeTimeline history={regimeData.regimeHistory} />
+            <RegimeTimeline
+              history={regimeData.regimeHistory}
+              currentRegime={regimeData.currentRegime}
+              tradeEntryPrice={regimeData.currentTradeEntryPrice}
+            />
           </section>
 
           {/* Disclaimer */}
