@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { RegimeData } from "@/types/regime-data";
+import { RegimeData, RegimeStrengthDataPoint } from "@/types/regime-data";
 import RegimeStats from "@/components/RegimeStats";
 import RegimeContext from "@/components/RegimeContext";
+import RegimeStrengthChart from "@/components/RegimeStrengthChart";
 
 interface LiveRegimeStatusProps {
   initialData: RegimeData;
+  strengthHistory: RegimeStrengthDataPoint[];
 }
 
 export default function LiveRegimeStatus({
   initialData,
+  strengthHistory,
 }: LiveRegimeStatusProps) {
   const [data, setData] = useState<RegimeData>(initialData);
 
@@ -97,6 +100,14 @@ export default function LiveRegimeStatus({
 
       {/* Stats Panel */}
       <RegimeStats data={data} />
+
+      {/* Regime Strength History Chart */}
+      <div className="mt-8">
+        <RegimeStrengthChart
+          data={strengthHistory}
+          currentStrength={data.regimeStrength}
+        />
+      </div>
     </section>
   );
 }

@@ -5,7 +5,6 @@ import { getRegimeData } from "@/lib/regime-data";
 import { getRegimeStrengthHistory } from "@/lib/regime-strength-history";
 import { getBenchmarkPrices } from "@/lib/benchmark-prices";
 import LiveRegimeStatus from "@/components/LiveRegimeStatus";
-import RegimeStrengthChart from "@/components/RegimeStrengthChart";
 import CurrentTradeBenchmark from "@/components/CurrentTradeBenchmark";
 import RegimeTimeline from "@/components/RegimeTimeline";
 
@@ -69,16 +68,11 @@ export default async function CurrentRegimePage() {
 
         {/* Main Content */}
         <main className="flex-1 min-w-0">
-          {/* Overview Section - Live updating (speedometer + stats) */}
-          <LiveRegimeStatus initialData={regimeData} />
-
-          {/* Regime Strength History Chart */}
-          <section className="mb-8">
-            <RegimeStrengthChart
-              data={strengthHistory}
-              currentStrength={regimeData.regimeStrength}
-            />
-          </section>
+          {/* Overview Section - Live updating (speedometer + stats + chart) */}
+          <LiveRegimeStatus
+            initialData={regimeData}
+            strengthHistory={strengthHistory}
+          />
 
           {/* Benchmark Comparison (current trade vs SPY/QQQ/GLD) */}
           {regimeData.currentTradeReturn !== null && regimeData.currentTradeStart && (
