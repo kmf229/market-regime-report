@@ -21,6 +21,7 @@ export default function Header({ user }: HeaderProps) {
     { href: "/the-strategy", label: "Strategy" },
     { href: "/research", label: "Research" },
     { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
   ];
 
   return (
