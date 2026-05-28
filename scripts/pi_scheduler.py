@@ -446,6 +446,29 @@ def update_track_record():
         traceback.print_exc()
 
 
+def update_benchmarks():
+    """Update benchmark prices (SPY, QQQ, GLD) every weekday at 8:05am ET."""
+    now = datetime.now(ET)
+
+    # Skip weekends
+    if now.weekday() > 4:  # 5=Saturday, 6=Sunday
+        print(f"[{now}] Weekend, skipping benchmark update")
+        return
+
+    try:
+        print(f"[{now}] Updating benchmark prices...")
+
+        from update_benchmark_prices import update_benchmark_prices
+        update_benchmark_prices()
+
+        print(f"[{now}] Benchmark prices update complete!")
+
+    except Exception as e:
+        print(f"[{now}] Error updating benchmark prices: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def generate_discipline_note():
     """Generate morning discipline note (9:25am - 10:30am random)."""
     now = datetime.now(ET)
@@ -560,6 +583,7 @@ def main():
     print("Official regime flip: 4:16pm ET (weekdays)")
     print("Substack note: 4:17pm ET (weekdays)")
     print("Track record update: Weekdays 8:00am ET")
+    print("Benchmark prices update: Weekdays 8:05am ET")
     print("Weekly digest: Sunday 8:00am ET")
     print("\nSubstack Notes (randomized times):")
     print("=" * 50)
@@ -584,6 +608,9 @@ def main():
 
     # Schedule track record update every weekday at 8am ET
     schedule.every().day.at("08:00").do(update_track_record)
+
+    # Schedule benchmark prices update every weekday at 8:05am ET
+    schedule.every().day.at("08:05").do(update_benchmarks)
 
     # Schedule weekly digest every Sunday at 8am ET
     schedule.every().sunday.at("08:00").do(send_weekly_digest)
@@ -639,7 +666,7 @@ if __name__ == "__main__":
 #   RESEND_API_KEY=re_your-resend-key
 #   IBKR_FTP_USER=your-ibkr-ftp-username
 #   IBKR_FTP_PASS=your-ibkr-ftp-password
-#   POLYGON_API_KEY=your-polygon-api-key
+#   POLYGON_API_KEY=your-polygon-api-key (for benchmark prices)
 #   NOTES_EMAIL=your-email@example.com
 #   FROM_EMAIL=alerts@marketregimes.com
 #

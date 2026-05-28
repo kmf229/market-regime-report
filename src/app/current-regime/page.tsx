@@ -13,6 +13,9 @@ export const metadata = {
   description: "Daily market regime updates and current positioning.",
 };
 
+// Revalidate every 60 seconds to fetch fresh benchmark data
+export const revalidate = 60;
+
 async function getUserData() {
   const supabase = await createClient();
 
