@@ -64,13 +64,13 @@ def get_supabase_client() -> Client:
     return create_client(url, key)
 
 
-def calculate_regime_periods(regime_s: pd.Series, tqqq_prices: pd.Series = None, gld_prices: pd.Series = None) -> list[dict]:
+def calculate_regime_periods(regime_s: pd.Series, nq_prices: pd.Series = None, gc_prices: pd.Series = None) -> list[dict]:
     """Convert a regime Series into a list of regime periods with returns.
 
     Args:
         regime_s: Series with 'Bullish'/'Bearish' values indexed by date
-        tqqq_prices: Series of TQQQ close prices indexed by date (optional)
-        gld_prices: Series of GLD close prices indexed by date (optional)
+        nq_prices: Series of NQ futures close prices indexed by date (optional)
+        gc_prices: Series of GC futures close prices indexed by date (optional)
 
     Logic for regime transitions:
     - On the day the regime flips, we sell the old position at close AND buy the new position at close
@@ -98,9 +98,9 @@ def calculate_regime_periods(regime_s: pd.Series, tqqq_prices: pd.Series = None,
                     "durationDays": duration,
                 }
                 # Calculate return if price data available
-                if tqqq_prices is not None and gld_prices is not None:
+                if nq_prices is not None and gc_prices is not None:
                     period["returnPct"] = _calculate_period_return(
-                        current_regime, period_start, end_date, tqqq_prices, gld_prices
+                        current_regime, period_start, end_date, nq_prices, gc_prices
                     )
                 periods.append(period)
             current_regime = regime_str
@@ -116,26 +116,26 @@ def calculate_regime_periods(regime_s: pd.Series, tqqq_prices: pd.Series = None,
             "durationDays": (today - period_start).days,  # 0 on entry day
         }
         # Calculate return for current period (start to today)
-        if tqqq_prices is not None and gld_prices is not None:
+        if nq_prices is not None and gc_prices is not None:
             period["returnPct"] = _calculate_period_return(
-                current_regime, period_start, today, tqqq_prices, gld_prices
+                current_regime, period_start, today, nq_prices, gc_prices
             )
         periods.append(period)
 
     return periods[-30:][::-1]  # Last 30, most recent first (enough to cover 12+ months)
 
 
-def _calculate_period_return(regime: str, start_date, end_date, tqqq_prices: pd.Series, gld_prices: pd.Series) -> float:
+def _calculate_period_return(regime: str, start_date, end_date, nq_prices: pd.Series, gc_prices: pd.Series) -> float:
     """Calculate the return for a regime period.
 
     Logic:
-    - Bullish: holding TQQQ, return = (end_price - start_price) / start_price
-    - Bearish: holding GLD, return = (end_price - start_price) / start_price
+    - Bullish: holding NQ futures, return = (end_price - start_price) / start_price
+    - Bearish: holding GC futures, return = (end_price - start_price) / start_price
 
     The start_date is the day we entered the position (buy at close).
     The end_date is the day we exited the position (sell at close).
     """
-    prices = tqqq_prices if regime == "bullish" else gld_prices
+    prices = nq_prices if regime == "bullish" else gc_prices
 
     # Get entry price (close on start_date)
     try:
@@ -248,8 +248,8 @@ def update_regime_status(
     regime_s: pd.Series,
     z_spread_smoothed: pd.Series,
     supabase: Client = None,
-    tqqq_prices: pd.Series = None,
-    gld_prices: pd.Series = None
+    nq_prices: pd.Series = None,
+    gc_prices: pd.Series = None
 ) -> dict:
     """
     Update full regime status in Supabase (for market close updates).
@@ -261,8 +261,8 @@ def update_regime_status(
         regime_s: Series with 'Bullish'/'Bearish' values indexed by date
         z_spread_smoothed: Series with smoothed z-spread values
         supabase: Optional Supabase client (will create one if not provided)
-        tqqq_prices: Optional Series of TQQQ close prices (will fetch if not provided)
-        gld_prices: Optional Series of GLD close prices (will fetch if not provided)
+        nq_prices: Optional Series of NQ futures close prices (will fetch if not provided)
+        gc_prices: Optional Series of GC futures close prices (will fetch if not provided)
 
     Returns:
         The updated record
@@ -292,21 +292,21 @@ def update_regime_status(
     current_regime_str = "bullish" if str(current_regime).lower().startswith("bull") else "bearish"
 
     # Fetch price data for return calculations if not provided
-    if tqqq_prices is None or gld_prices is None:
+    if nq_prices is None or gc_prices is None:
         try:
             from stocks_simple import Stocks
             stocks = Stocks()
-            tqqq_df = stocks.ohlc("TQQQ")
-            gld_df = stocks.ohlc("GLD")
-            tqqq_prices = tqqq_df.set_index('date')['close']
-            gld_prices = gld_df.set_index('date')['close']
+            nq_df = stocks.ohlc("NQ=F")
+            gc_df = stocks.ohlc("GC=F")
+            nq_prices = nq_df.set_index('date')['close']
+            gc_prices = gc_df.set_index('date')['close']
         except Exception as e:
             print(f"Warning: Could not fetch price data for returns: {e}")
-            tqqq_prices = None
-            gld_prices = None
+            nq_prices = None
+            gc_prices = None
 
     # Calculate regime periods and stats
-    regime_history = calculate_regime_periods(regime_s, tqqq_prices, gld_prices)
+    regime_history = calculate_regime_periods(regime_s, nq_prices, gc_prices)
     stats = calculate_regime_stats(regime_history)
 
     # Get current trade info (first period is current/most recent)
@@ -318,8 +318,8 @@ def update_regime_status(
         current_trade_start = regime_history[0]["startDate"]
 
         # Get entry price for live calculations
-        if tqqq_prices is not None and gld_prices is not None:
-            prices = tqqq_prices if current_regime_str == "bullish" else gld_prices
+        if nq_prices is not None and gc_prices is not None:
+            prices = nq_prices if current_regime_str == "bullish" else gc_prices
             start_date = pd.to_datetime(current_trade_start)
             try:
                 current_trade_entry_price = float(prices.loc[start_date])

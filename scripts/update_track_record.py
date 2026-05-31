@@ -99,8 +99,8 @@ DTYPE_MAP = {
 # Trades config
 STARTING_EQUITY = 250000.0  # 10x real account
 TRADES_MULTIPLIER = 10  # Mask account size
-BULLISH_SYMBOLS = ["TQQQ", "MNQ"]
-BEARISH_SYMBOLS = ["GLD", "MGC", "GC", "1OZ"]
+BULLISH_SYMBOLS = ["NQ", "MNQ"]
+BEARISH_SYMBOLS = ["GC", "MGC", "GC", "1OZ"]
 
 # Futures contract multipliers (per point move)
 FUTURES_MULTIPLIERS = {
@@ -143,14 +143,14 @@ def get_current_price(symbol: str) -> Optional[float]:
     Since this runs at 8am ET (before market open), we fetch the previous day's close.
 
     Args:
-        symbol: Base symbol (e.g., 'MNQ', '1OZ', 'TQQQ', 'GLD')
+        symbol: Base symbol (e.g., 'MNQ', '1OZ', 'NQ', 'GC')
 
     Returns:
         Latest closing price or None if unavailable
     """
     try:
-        # For ETFs (TQQQ, GLD), use Polygon.io
-        if symbol in ['TQQQ', 'GLD']:
+        # For ETFs (NQ, GC), use Polygon.io
+        if symbol in ['NQ', 'GC']:
             if not HAS_STOCKS:
                 print(f"Warning: Stocks module not available, cannot fetch price for {symbol}")
                 return None
@@ -365,7 +365,7 @@ def extract_base_symbol(symbol: str) -> str:
     # Futures: MNQ, MGC, 1OZ have contract codes like MNQH6, MGCG6, 1OZM6
     if symbol.startswith("M") or symbol.startswith("1"):
         return symbol[:3]
-    # ETFs: TQQQ, GLD, etc. - return as-is
+    # ETFs: NQ, GC, etc. - return as-is
     return symbol
 
 

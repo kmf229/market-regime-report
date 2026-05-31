@@ -80,7 +80,7 @@ def calculate_regime_history(start_date: str = "2026-01-01"):
     stocks = Stocks()
 
     RISK_ON_TICKERS = ["XLK", "XLY", "XLI", "SMH", "IWM"]
-    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GLD", "TLT"]
+    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GC", "TLT"]
     BENCHMARK = ["SPY"]
     WINDOW_LENGTH = 45
     EMA_SMOOTHING = 20

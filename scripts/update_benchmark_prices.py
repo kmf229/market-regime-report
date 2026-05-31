@@ -1,6 +1,6 @@
 """
 Update benchmark prices in Supabase.
-Fetches daily OHLC data for TQQQ, SPY, QQQ, GLD from Polygon.io.
+Fetches daily OHLC data for NQ, SPY, QQQ, GC from Polygon.io.
 
 Requirements:
     pip install supabase python-dotenv
@@ -64,7 +64,7 @@ def get_supabase_client() -> Client:
 
 def update_benchmark_prices(start_date: str = None, days_back: int = 5):
     """
-    Fetch and update benchmark prices for TQQQ, SPY, QQQ, GLD.
+    Fetch and update benchmark prices for NQ, SPY, QQQ, GC.
 
     Args:
         start_date: Optional start date (YYYY-MM-DD). If not provided, uses days_back.
@@ -78,7 +78,7 @@ def update_benchmark_prices(start_date: str = None, days_back: int = 5):
     supabase = get_supabase_client()
     stocks = Stocks()
 
-    tickers = ["TQQQ", "SPY", "QQQ", "GLD"]
+    tickers = ["NQ", "SPY", "QQQ", "GC"]
 
     # Calculate date range
     end_date = datetime.now().strftime("%Y-%m-%d")

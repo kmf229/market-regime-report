@@ -25,10 +25,10 @@ STARTING_EQUITY = 250000.0
 MULTIPLIER = 10
 
 # Bullish symbols
-BULLISH_SYMBOLS = ["TQQQ", "MNQ"]
+BULLISH_SYMBOLS = ["NQ", "MNQ"]
 
 # Bearish symbols
-BEARISH_SYMBOLS = ["GLD", "MGC", "GC", "1OZ"]
+BEARISH_SYMBOLS = ["GC", "MGC", "GC", "1OZ"]
 
 
 def is_bullish(symbol: str) -> bool:
@@ -102,7 +102,7 @@ def extract_base_symbol(symbol: str) -> str:
     # Futures: MNQ, MGC, 1OZ have contract codes like MNQH6, MGCG6, 1OZM6
     if symbol.startswith("M") or symbol.startswith("1"):
         return symbol[:3]
-    # ETFs: TQQQ, GLD, etc. - return as-is
+    # ETFs: NQ, GC, etc. - return as-is
     return symbol
 
 

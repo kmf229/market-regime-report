@@ -99,7 +99,7 @@ def calculate_regime():
     stocks = Stocks()
 
     RISK_ON_TICKERS = ["XLK", "XLY", "XLI", "SMH", "IWM"]
-    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GLD", "TLT"]
+    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GC", "TLT"]
     BENCHMARK = ["SPY"]
     WINDOW_LENGTH = 45
     EMA_SMOOTHING = 20
@@ -447,7 +447,7 @@ def update_track_record():
 
 
 def update_benchmarks():
-    """Update benchmark prices (SPY, QQQ, GLD) every weekday at 8:05am ET."""
+    """Update benchmark prices (SPY, QQQ, GC) every weekday at 8:05am ET."""
     now = datetime.now(ET)
 
     # Skip weekends

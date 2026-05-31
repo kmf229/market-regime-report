@@ -84,15 +84,15 @@ def get_daily_updates_this_week(supabase: Client) -> list[dict]:
 
 
 def get_price_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Fetch TQQQ, GLD, and SPY price data."""
+    """Fetch NQ, GC, and SPY price data."""
     from stocks_simple import Stocks
     stocks = Stocks()
 
-    tqqq_df = stocks.ohlc("TQQQ")
-    gld_df = stocks.ohlc("GLD")
+    nq_df = stocks.ohlc("NQ")
+    gc_df = stocks.ohlc("GC")
     spy_df = stocks.ohlc("SPY")
 
-    return tqqq_df, gld_df, spy_df
+    return nq_df, gc_df, spy_df
 
 
 def get_live_price(ticker: str) -> float | None:
@@ -131,8 +131,8 @@ def get_live_price(ticker: str) -> float | None:
 
 def calculate_current_trade_return(
     regime_status: dict,
-    tqqq_df: pd.DataFrame,
-    gld_df: pd.DataFrame
+    nq_df: pd.DataFrame,
+    gc_df: pd.DataFrame
 ) -> float:
     """Calculate current trade return using live prices (same as website)."""
     current_regime = regime_status['current_regime']
@@ -141,14 +141,14 @@ def calculate_current_trade_return(
     if not entry_price:
         return regime_status.get('current_trade_return', 0)
 
-    ticker = "TQQQ" if current_regime == 'bullish' else "GLD"
+    ticker = "NQ" if current_regime == 'bullish' else "GC"
 
     # Try to get live price first (matches website behavior)
     latest_price = get_live_price(ticker)
 
     # Fall back to historical data if live price unavailable
     if latest_price is None:
-        df = tqqq_df.copy() if current_regime == 'bullish' else gld_df.copy()
+        df = nq_df.copy() if current_regime == 'bullish' else gc_df.copy()
         df['date'] = pd.to_datetime(df['date']).dt.date
         df = df.sort_values('date')
         latest_price = df.iloc[-1]['close']
@@ -158,8 +158,8 @@ def calculate_current_trade_return(
     return return_pct
 
 
-def calculate_weekly_returns(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame, spy_df: pd.DataFrame) -> dict:
-    """Calculate this week's returns for TQQQ, GLD, and SPY."""
+def calculate_weekly_returns(nq_df: pd.DataFrame, gc_df: pd.DataFrame, spy_df: pd.DataFrame) -> dict:
+    """Calculate this week's returns for NQ, GC, and SPY."""
     today = datetime.now().date()
     week_ago = today - timedelta(days=7)
 
@@ -179,13 +179,13 @@ def calculate_weekly_returns(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame, spy_df
         return ((end_row['close'] - start_row['close']) / start_row['close']) * 100
 
     return {
-        'tqqq_weekly': get_return(tqqq_df, week_ago, today),
-        'gld_weekly': get_return(gld_df, week_ago, today),
+        'nq_weekly': get_return(nq_df, week_ago, today),
+        'gc_weekly': get_return(gc_df, week_ago, today),
         'spy_weekly': get_return(spy_df, week_ago, today),
     }
 
 
-def get_weekly_price_action(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame) -> dict:
+def get_weekly_price_action(nq_df: pd.DataFrame, gc_df: pd.DataFrame) -> dict:
     """Get price action details for the week."""
     today = datetime.now().date()
     week_ago = today - timedelta(days=7)
@@ -196,16 +196,16 @@ def get_weekly_price_action(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame) -> dict
         week_data = df[(df['date'] > week_ago) & (df['date'] <= today)].sort_values('date')
         return week_data
 
-    tqqq_week = get_week_data(tqqq_df)
-    gld_week = get_week_data(gld_df)
+    nq_week = get_week_data(nq_df)
+    gc_week = get_week_data(gc_df)
 
     return {
-        'tqqq_high': tqqq_week['high'].max() if len(tqqq_week) > 0 else 0,
-        'tqqq_low': tqqq_week['low'].min() if len(tqqq_week) > 0 else 0,
-        'gld_high': gld_week['high'].max() if len(gld_week) > 0 else 0,
-        'gld_low': gld_week['low'].min() if len(gld_week) > 0 else 0,
-        'tqqq_ohlc': tqqq_week[['date', 'open', 'high', 'low', 'close']].to_dict('records') if len(tqqq_week) > 0 else [],
-        'gld_ohlc': gld_week[['date', 'open', 'high', 'low', 'close']].to_dict('records') if len(gld_week) > 0 else [],
+        'nq_high': nq_week['high'].max() if len(nq_week) > 0 else 0,
+        'nq_low': nq_week['low'].min() if len(nq_week) > 0 else 0,
+        'gc_high': gc_week['high'].max() if len(gc_week) > 0 else 0,
+        'gc_low': gc_week['low'].min() if len(gc_week) > 0 else 0,
+        'nq_ohlc': nq_week[['date', 'open', 'high', 'low', 'close']].to_dict('records') if len(nq_week) > 0 else [],
+        'gc_ohlc': gc_week[['date', 'open', 'high', 'low', 'close']].to_dict('records') if len(gc_week) > 0 else [],
     }
 
 
@@ -252,12 +252,12 @@ def generate_current_trade_blurb(
 
     current_regime = regime_status['current_regime']
     is_bullish = current_regime == 'bullish'
-    ticker = "TQQQ" if is_bullish else "GLD"
+    ticker = "NQ" if is_bullish else "GC"
     days_in_regime = regime_status.get('days_in_current_regime', 0)
     trade_start = regime_status.get('current_trade_start', 'unknown')
 
     # Get OHLC data for the held asset
-    ohlc_data = price_action.get('tqqq_ohlc' if is_bullish else 'gld_ohlc', [])
+    ohlc_data = price_action.get('nq_ohlc' if is_bullish else 'gc_ohlc', [])
     ohlc_str = "\n".join([
         f"{d['date']}: O={d['open']:.2f} H={d['high']:.2f} L={d['low']:.2f} C={d['close']:.2f}"
         for d in ohlc_data
@@ -271,7 +271,7 @@ def generate_current_trade_blurb(
     else:
         week_range_pct = 0
 
-    weekly_return = weekly_returns['tqqq_weekly'] if is_bullish else weekly_returns['gld_weekly']
+    weekly_return = weekly_returns['nq_weekly'] if is_bullish else weekly_returns['gc_weekly']
 
     # Get summaries from daily updates for context
     daily_summaries = ""
@@ -400,11 +400,11 @@ def build_weekly_digest_email(
 
     current_regime = regime_status['current_regime']
     is_bullish = current_regime == 'bullish'
-    ticker = "TQQQ" if is_bullish else "GLD"
+    ticker = "NQ" if is_bullish else "GC"
     regime_display = "Bullish" if is_bullish else "Bearish"
 
     # Calculate strategy weekly return (based on what we held)
-    strategy_weekly = weekly_returns['tqqq_weekly'] if is_bullish else weekly_returns['gld_weekly']
+    strategy_weekly = weekly_returns['nq_weekly'] if is_bullish else weekly_returns['gc_weekly']
 
     # Scaled strength
     scaled_strength = scale_strength(regime_status['regime_strength'])
@@ -466,12 +466,12 @@ def build_weekly_digest_email(
             <h2 style="margin: 0 0 16px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">This Week</h2>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <td style="padding: 8px 0; font-size: 14px; color: #374151;">TQQQ</td>
-                    <td style="padding: 8px 0; font-size: 14px; font-weight: 600; text-align: right; color: {'#059669' if weekly_returns['tqqq_weekly'] >= 0 else '#dc2626'};">{fmt_return(weekly_returns['tqqq_weekly'])}</td>
+                    <td style="padding: 8px 0; font-size: 14px; color: #374151;">NQ</td>
+                    <td style="padding: 8px 0; font-size: 14px; font-weight: 600; text-align: right; color: {'#059669' if weekly_returns['nq_weekly'] >= 0 else '#dc2626'};">{fmt_return(weekly_returns['nq_weekly'])}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 8px 0; font-size: 14px; color: #374151;">GLD</td>
-                    <td style="padding: 8px 0; font-size: 14px; font-weight: 600; text-align: right; color: {'#059669' if weekly_returns['gld_weekly'] >= 0 else '#dc2626'};">{fmt_return(weekly_returns['gld_weekly'])}</td>
+                    <td style="padding: 8px 0; font-size: 14px; color: #374151;">GC</td>
+                    <td style="padding: 8px 0; font-size: 14px; font-weight: 600; text-align: right; color: {'#059669' if weekly_returns['gc_weekly'] >= 0 else '#dc2626'};">{fmt_return(weekly_returns['gc_weekly'])}</td>
                 </tr>
                 <tr style="border-top: 1px solid #e5e7eb;">
                     <td style="padding: 12px 0 0 0; font-size: 14px; font-weight: 600; color: #111;">Strategy Return</td>
@@ -515,9 +515,9 @@ def build_weekly_digest_email(
         <div style="padding: 24px; background-color: #f9fafb;">
             <h2 style="margin: 0 0 12px 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">How This Works</h2>
             <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.7;">
-                The Market Regime strategy switches between TQQQ (bullish) and GLD (bearish) based on relative strength signals.
-                No predictions, no emotions - just systematic execution. When the model detects risk-on conditions, we hold TQQQ.
-                When it detects risk-off conditions, we rotate to GLD. The goal is to participate in upside while avoiding major drawdowns.
+                The Market Regime strategy switches between NQ (bullish) and GC (bearish) based on relative strength signals.
+                No predictions, no emotions - just systematic execution. When the model detects risk-on conditions, we hold NQ.
+                When it detects risk-off conditions, we rotate to GC. The goal is to participate in upside while avoiding major drawdowns.
             </p>
         </div>
 
@@ -556,14 +556,14 @@ def send_weekly_digest(test: bool = False, test_email: str = None) -> None:
 
     # Get all required data
     regime_status = get_regime_status(supabase)
-    tqqq_df, gld_df, spy_df = get_price_data()
+    nq_df, gc_df, spy_df = get_price_data()
     daily_updates = get_daily_updates_this_week(supabase)
 
-    weekly_returns = calculate_weekly_returns(tqqq_df, gld_df, spy_df)
-    price_action = get_weekly_price_action(tqqq_df, gld_df)
+    weekly_returns = calculate_weekly_returns(nq_df, gc_df, spy_df)
+    price_action = get_weekly_price_action(nq_df, gc_df)
 
     # Calculate current trade return fresh (not from cached Supabase value)
-    current_trade_return = calculate_current_trade_return(regime_status, tqqq_df, gld_df)
+    current_trade_return = calculate_current_trade_return(regime_status, nq_df, gc_df)
     print(f"Current trade return (fresh calc): {current_trade_return:.2f}%")
 
     print("Generating current trade blurb...")
@@ -593,7 +593,7 @@ def send_weekly_digest(test: bool = False, test_email: str = None) -> None:
     if test and not test_email:
         print("\n--- TEST MODE ---")
         print(f"Subject: {subject}")
-        print(f"\nWeekly returns: TQQQ {weekly_returns['tqqq_weekly']:.1f}%, GLD {weekly_returns['gld_weekly']:.1f}%")
+        print(f"\nWeekly returns: NQ {weekly_returns['nq_weekly']:.1f}%, GC {weekly_returns['gc_weekly']:.1f}%")
         print(f"Current trade return: {current_trade_return:.1f}%")
         print(f"\nCurrent trade blurb:\n{current_trade_blurb}")
         print(f"\nStrength change blurb:\n{strength_change_blurb}")

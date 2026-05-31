@@ -57,7 +57,7 @@ You are the AI market commentator for a quantitative trading platform built arou
 
 ## Background & Context
 
-The Market Regime model is a **rules-based, quantitative timing system** designed to allocate capital between **risk-on (tech / TQQQ proxy via MNQ)** and **risk-off (gold / GLD proxy via MGC)** environments.
+The Market Regime model is a **rules-based, quantitative timing system** designed to allocate capital between **risk-on (Nasdaq / NQ futures)** and **risk-off (Gold / GC futures)** environments.
 
 The model:
 
@@ -147,8 +147,8 @@ Your output MUST have:
 
 - The daily percentage changes are provided to you pre-calculated in the "Today's Daily Performance" section
 - You MUST use these exact values - do not compute your own
-- If TQQQ moved more than 2% in either direction, you MUST mention it with the percentage provided
-- If GLD moved more than 1.5% in either direction, you MUST mention it with the percentage provided
+- If NQ futures moved more than 2% in either direction, you MUST mention it with the percentage provided
+- If GC futures moved more than 1.5% in either direction, you MUST mention it with the percentage provided
 - Do NOT gloss over big moves with vague language like "mixed action" or "choppy session"
 
 **Guidelines:**
@@ -328,34 +328,34 @@ def get_cumulative_pnl() -> dict:
     return result
 
 
-def format_daily_performance(tqqq_df: pd.DataFrame, gld_df: pd.DataFrame, current_regime: str) -> str:
+def format_daily_performance(nq_df: pd.DataFrame, gc_df: pd.DataFrame, current_regime: str) -> str:
     """
     Format pre-calculated daily performance for the prompt.
 
     Returns a clear summary of today's moves with explicit percentages.
     """
-    tqqq_change, tqqq_today, tqqq_yesterday = calculate_daily_change(tqqq_df)
-    gld_change, gld_today, gld_yesterday = calculate_daily_change(gld_df)
+    nq_change, nq_today, nq_yesterday = calculate_daily_change(nq_df)
+    gc_change, gc_today, gc_yesterday = calculate_daily_change(gc_df)
 
     # Format the direction words
-    tqqq_direction = "up" if tqqq_change >= 0 else "down"
-    gld_direction = "up" if gld_change >= 0 else "down"
+    nq_direction = "up" if nq_change >= 0 else "down"
+    gc_direction = "up" if gc_change >= 0 else "down"
 
     lines = [
-        f"Date: {tqqq_today}",
+        f"Date: {nq_today}",
         f"Current Regime: {current_regime}",
         f"",
-        f"TQQQ (tech/risk-on proxy): {tqqq_direction} {abs(tqqq_change):.1f}% today",
-        f"GLD (gold/risk-off proxy): {gld_direction} {abs(gld_change):.1f}% today",
+        f"NQ futures (Nasdaq/risk-on): {nq_direction} {abs(nq_change):.1f}% today",
+        f"GC futures (Gold/risk-off): {gc_direction} {abs(gc_change):.1f}% today",
         f"",
-        f"In {current_regime} regime, we hold {'TQQQ (tech)' if current_regime.lower() == 'bullish' else 'GLD (gold)'}.",
+        f"In {current_regime} regime, we hold {'NQ futures' if current_regime.lower() == 'bullish' else 'GC futures'}.",
     ]
 
     # Add significance notes
-    if abs(tqqq_change) > 2:
-        lines.append(f"NOTE: TQQQ move of {abs(tqqq_change):.1f}% is significant and MUST be mentioned.")
-    if abs(gld_change) > 1.5:
-        lines.append(f"NOTE: GLD move of {abs(gld_change):.1f}% is significant and MUST be mentioned.")
+    if abs(nq_change) > 2:
+        lines.append(f"NOTE: NQ move of {abs(nq_change):.1f}% is significant and MUST be mentioned.")
+    if abs(gc_change) > 1.5:
+        lines.append(f"NOTE: GC move of {abs(gc_change):.1f}% is significant and MUST be mentioned.")
 
     return "\n".join(lines)
 
@@ -506,15 +506,15 @@ def generate_and_store_daily_blurb(regime_s: pd.Series, z_spread_smoothed: pd.Se
     regime_display = "Bullish" if regime_str == "bullish" else "Bearish"
 
     # Fetch OHLCV data
-    print("  Fetching TQQQ data...")
-    tqqq_df = get_ohlcv_data("TQQQ", days=10)
+    print("  Fetching NQ data...")
+    nq_df = get_ohlcv_data("NQ", days=10)
 
-    print("  Fetching GLD data...")
-    gld_df = get_ohlcv_data("GLD", days=10)
+    print("  Fetching GC data...")
+    gc_df = get_ohlcv_data("GC", days=10)
 
     # Pre-calculate daily performance (this is the key fix - don't let Claude compute it)
     print("  Calculating daily performance...")
-    daily_performance = format_daily_performance(tqqq_df, gld_df, regime_display)
+    daily_performance = format_daily_performance(nq_df, gc_df, regime_display)
 
     # Fetch cumulative P&L from Supabase
     print("  Fetching cumulative P&L...")
@@ -585,7 +585,7 @@ def run_manual():
     today = datetime.now().strftime('%Y-%m-%d')
 
     RISK_ON_TICKERS = ["XLK", "XLY", "XLI", "SMH", "IWM"]
-    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GLD", "TLT"]
+    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GC", "TLT"]
     BENCHMARK = ["SPY"]
     WINDOW_LENGTH = 45
     EMA_SMOOTHING = 20
@@ -646,29 +646,29 @@ def debug_data():
     print("DEBUG MODE - Showing data that would be sent to Claude")
     print("=" * 50)
 
-    # Fetch TQQQ data
-    print("\nFetching TQQQ data...")
-    tqqq_df = get_ohlcv_data("TQQQ", days=5)
-    print("\nTQQQ Recent Data:")
-    print(tqqq_df.to_string(index=False))
+    # Fetch NQ data
+    print("\nFetching NQ data...")
+    nq_df = get_ohlcv_data("NQ", days=5)
+    print("\nNQ Recent Data:")
+    print(nq_df.to_string(index=False))
 
-    tqqq_change, tqqq_today, tqqq_yesterday = calculate_daily_change(tqqq_df)
-    print(f"\nTQQQ Daily Change: {tqqq_change:+.2f}% ({tqqq_yesterday} -> {tqqq_today})")
+    nq_change, nq_today, nq_yesterday = calculate_daily_change(nq_df)
+    print(f"\nNQ Daily Change: {nq_change:+.2f}% ({nq_yesterday} -> {nq_today})")
 
-    # Fetch GLD data
-    print("\nFetching GLD data...")
-    gld_df = get_ohlcv_data("GLD", days=5)
-    print("\nGLD Recent Data:")
-    print(gld_df.to_string(index=False))
+    # Fetch GC data
+    print("\nFetching GC data...")
+    gc_df = get_ohlcv_data("GC", days=5)
+    print("\nGC Recent Data:")
+    print(gc_df.to_string(index=False))
 
-    gld_change, gld_today, gld_yesterday = calculate_daily_change(gld_df)
-    print(f"\nGLD Daily Change: {gld_change:+.2f}% ({gld_yesterday} -> {gld_today})")
+    gc_change, gc_today, gc_yesterday = calculate_daily_change(gc_df)
+    print(f"\nGC Daily Change: {gc_change:+.2f}% ({gc_yesterday} -> {gc_today})")
 
     # Show formatted daily performance
     print("\n" + "=" * 50)
     print("FORMATTED DAILY PERFORMANCE (sent to Claude):")
     print("=" * 50)
-    daily_perf = format_daily_performance(tqqq_df, gld_df, "Bearish")  # Assume bearish for test
+    daily_perf = format_daily_performance(nq_df, gc_df, "Bearish")  # Assume bearish for test
     print(daily_perf)
 
     # Fetch cumulative P&L

@@ -76,13 +76,13 @@ def get_market_summary(tickers: list = None) -> Dict:
     Get market data summary for the specified tickers.
 
     Args:
-        tickers: List of ticker symbols (default: ['SPY', 'TQQQ', 'GLD'])
+        tickers: List of ticker symbols (default: ['SPY', 'NQ', 'GC'])
 
     Returns:
         Dict with ticker data and summary text
     """
     if tickers is None:
-        tickers = ['SPY', 'TQQQ', 'GLD']
+        tickers = ['SPY', 'NQ', 'GC']
 
     date = get_previous_trading_day()
     data = {}

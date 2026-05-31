@@ -52,8 +52,8 @@ This is NOT a trading education brand, influencer account, or personal diary.
 BUSINESS OVERVIEW:
 Market Regime Report is a rules-based market regime signal service designed to reduce decision-making, emotional trading, and overreaction. The service publishes a daily market regime status (Bullish or Bearish) based on the relative strength of risk-on vs risk-off assets.
 
-When conditions are favorable, the model is Bullish (technology exposure via TQQQ).
-When conditions deteriorate, the model is Bearish (defensive exposure via GLD).
+When conditions are favorable, the model is Bullish (technology exposure via NQ).
+When conditions deteriorate, the model is Bearish (defensive exposure via GC).
 
 There are no predictions, targets, forecasts, or discretionary overrides.
 The value of the service is consistency, restraint, and clarity — not action or excitement.
@@ -103,11 +103,11 @@ The goal of all output is to quietly demonstrate judgment, restraint, and consis
 
 Using the context above, generate Substack Notes content for Market Regime Report.
 
-TQQQ OHLCV (last 2 months):
-{tqqq_ohlcv}
+NQ OHLCV (last 2 months):
+{nq_ohlcv}
 
-GLD OHLCV (last 2 months):
-{gld_ohlcv}
+GC OHLCV (last 2 months):
+{gc_ohlcv}
 
 Regime Strength Line (last 2 months, scale: -10 to +10, threshold at 0):
 {regime_strength}
@@ -201,7 +201,7 @@ def get_regime_data() -> tuple[str, int, pd.Series]:
     stocks = Stocks()
 
     RISK_ON_TICKERS = ["XLK", "XLY", "XLI", "SMH", "IWM"]
-    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GLD", "TLT"]
+    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GC", "TLT"]
     BENCHMARK = ["SPY"]
     WINDOW_LENGTH = 45
     EMA_SMOOTHING = 20
@@ -285,8 +285,8 @@ def format_regime_strength_for_prompt(strength_series: pd.Series) -> str:
 
 
 def generate_note(
-    tqqq_ohlcv: str,
-    gld_ohlcv: str,
+    nq_ohlcv: str,
+    gc_ohlcv: str,
     regime_strength: str,
     current_regime: str,
     days_in_regime: int,
@@ -298,8 +298,8 @@ def generate_note(
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     prompt = PROMPT_TEMPLATE.format(
-        tqqq_ohlcv=tqqq_ohlcv,
-        gld_ohlcv=gld_ohlcv,
+        nq_ohlcv=nq_ohlcv,
+        gc_ohlcv=gc_ohlcv,
         regime_strength=regime_strength,
         current_regime=current_regime,
         days_in_regime=days_in_regime,
@@ -368,11 +368,11 @@ def generate_and_send_note(test: bool = False) -> None:
     print(f"[{now}] Fetching market data...")
 
     # Get OHLCV data (2 months)
-    tqqq_df = get_ohlcv_data("TQQQ", days=60)
-    gld_df = get_ohlcv_data("GLD", days=60)
+    nq_df = get_ohlcv_data("NQ", days=60)
+    gc_df = get_ohlcv_data("GC", days=60)
 
-    tqqq_ohlcv = format_ohlcv_for_prompt(tqqq_df)
-    gld_ohlcv = format_ohlcv_for_prompt(gld_df)
+    nq_ohlcv = format_ohlcv_for_prompt(nq_df)
+    gc_ohlcv = format_ohlcv_for_prompt(gc_df)
 
     print(f"[{now}] Calculating regime data...")
 
@@ -385,8 +385,8 @@ def generate_and_send_note(test: bool = False) -> None:
 
     # Generate note
     note = generate_note(
-        tqqq_ohlcv=tqqq_ohlcv,
-        gld_ohlcv=gld_ohlcv,
+        nq_ohlcv=nq_ohlcv,
+        gc_ohlcv=gc_ohlcv,
         regime_strength=regime_strength,
         current_regime=current_regime,
         days_in_regime=days_in_regime,

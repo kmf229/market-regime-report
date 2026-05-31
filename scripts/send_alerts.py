@@ -108,7 +108,7 @@ def get_strength_label(scaled: float) -> str:
 def build_regime_change_email(regime: str, strength: float) -> tuple[str, str]:
     """Build email subject and HTML body for regime change alert."""
     is_bullish = regime == "bullish"
-    ticker = "TQQQ" if is_bullish else "GLD"
+    ticker = "NQ" if is_bullish else "GC"
     regime_display = "BULLISH" if is_bullish else "BEARISH"
     emoji = "🟢" if is_bullish else "🔴"
 
