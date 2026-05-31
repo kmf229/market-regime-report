@@ -5,7 +5,7 @@ description: "How the Market Regime model navigated the Flash Crash, Eurozone cr
 slug: "history-of-the-market-regime-model-part-1"
 tags: ["history", "performance", "backtesting", "2010-2012"]
 image: "/images/history-part1-overview.png"
-published: true
+published: false
 category: "strategy"
 ---
 

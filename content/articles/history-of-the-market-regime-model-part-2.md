@@ -5,7 +5,7 @@ description: "How the Market Regime model navigated the Taper Tantrum, oil colla
 slug: "history-of-the-market-regime-model-part-2"
 tags: ["history", "performance", "backtesting", "2012-2015"]
 image: "/images/history-part2-image1.png"
-published: true
+published: false
 category: "strategy"
 ---
 

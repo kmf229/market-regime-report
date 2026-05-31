@@ -7,10 +7,10 @@ export default function AboutPage() {
       <section className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            About The Market Regime Report
+            About Market Regime Capital
           </h1>
           <p className="mt-4 text-xl text-gray-600 max-w-3xl">
-            A systematic approach to investing that removes emotion from the
+            A systematic futures trading CTA that removes emotion from the
             equation and responds to what the market is actually doing—not what
             we think it should do.
           </p>
@@ -25,14 +25,13 @@ export default function AboutPage() {
               The Problem
             </p>
             <h2 className="text-2xl font-bold text-gray-900">
-              Most Investors Beat Themselves
+              Most Traders Beat Themselves
             </h2>
             <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
               <p>
-                The biggest threat to your portfolio isn't the market—it's your
-                own behavior. Studies consistently show that individual investors
-                underperform the very funds they invest in because of poor timing
-                decisions driven by emotion.
+                The biggest threat to your trading account isn't the market—it's your
+                own behavior. Studies consistently show that individual traders
+                underperform because of poor timing decisions driven by emotion.
               </p>
               <p>
                 We overtrade. We sell winners too early and hold losers too long.
@@ -63,7 +62,7 @@ export default function AboutPage() {
             </h2>
             <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
               <p>
-                The Market Regime Report is built on a simple premise: if the
+                Market Regime Capital is built on a simple premise: if the
                 problem is behavioral, the solution must be systematic. No
                 predictions. No gut feelings. No discretionary overrides. Just
                 rules.
@@ -103,8 +102,7 @@ export default function AboutPage() {
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
                 When market leadership favors growth, momentum, and risk-taking,
-                the model allocates to leveraged technology exposure through
-                instruments like TQQQ or Micro Nasdaq futures (MNQ).
+                the model allocates to NQ futures (Nasdaq 100).
               </p>
               <p className="text-gray-600 text-sm leading-relaxed">
                 The goal is to capture upside during favorable conditions while
@@ -119,8 +117,8 @@ export default function AboutPage() {
                 </h3>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                When conditions shift defensive, the model rotates to gold
-                through GLD or Micro Gold futures (MGC) as a store of value.
+                When conditions shift defensive, the model rotates to GC futures
+                (Gold) as a store of value.
               </p>
               <p className="text-gray-600 text-sm leading-relaxed">
                 Capital preservation becomes the priority until conditions
@@ -195,15 +193,15 @@ export default function AboutPage() {
                 costing me money.
               </p>
               <p>
-                The Market Regime Report is the result of that journey. I
+                Market Regime Capital is the result of that journey. I
                 developed a rules-based framework, tested it, refined it, and
-                now I trade it with my own money. Everything I share here is
-                what I'm actually doing—not hypothetical, not backtested-only,
-                but real positions with real capital.
+                now I trade it with my own money and plan to manage client capital.
+                Everything I share here is what I'm actually doing—not hypothetical,
+                not backtested-only, but real positions with real capital.
               </p>
               <p>
                 My mission is simple: bring clarity, structure, and calm to
-                people who want a better way to invest. No hype, no predictions,
+                people who want a better way to trade. No hype, no predictions,
                 no guru nonsense—just a systematic approach documented in full
                 transparency.
               </p>
@@ -219,7 +217,7 @@ export default function AboutPage() {
             What You Get
           </p>
           <h2 className="text-2xl font-bold text-gray-900 mb-10">
-            Inside the Newsletter
+            What You Get
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -283,8 +281,7 @@ export default function AboutPage() {
               Ready to See the System in Action?
             </h2>
             <p className="mt-4 text-gray-400">
-              Review the track record, then subscribe to follow along in real
-              time.
+              Review the track record and see the system in action.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -308,14 +305,14 @@ export default function AboutPage() {
       <section className="bg-gray-50">
         <div className="max-w-5xl mx-auto px-6 py-10">
           <p className="text-xs text-gray-500 leading-relaxed">
-            <strong>Disclaimer:</strong> The Market Regime Report is for
+            <strong>Disclaimer:</strong> Market Regime Capital is for
             informational and educational purposes only. The content provided
             does not constitute investment advice, financial advice, or a
-            recommendation to buy or sell any securities. Past performance is
-            not indicative of future results. I am not a registered investment
-            advisor, broker, or financial planner. Always conduct your own
-            research and consult with a qualified financial professional before
-            making investment decisions.
+            recommendation to buy or sell any securities or futures contracts.
+            Futures trading involves substantial risk of loss and is not suitable
+            for all investors. Past performance is not indicative of future results.
+            Always conduct your own research and consult with a qualified financial
+            professional before making investment decisions.
           </p>
         </div>
       </section>
@@ -324,7 +321,7 @@ export default function AboutPage() {
 }
 
 export const metadata = {
-  title: "About | The Market Regime Report",
+  title: "About | Market Regime Capital",
   description:
-    "Learn about the rules-based regime model, how it works, and the philosophy behind systematic investing without emotion.",
+    "Learn about the rules-based regime model, how it works, and the philosophy behind systematic futures trading without emotion.",
 };

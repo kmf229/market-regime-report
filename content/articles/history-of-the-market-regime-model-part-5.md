@@ -5,7 +5,7 @@ description: "How the Market Regime model navigated the post-COVID melt-up and i
 slug: "history-of-the-market-regime-model-part-5"
 tags: ["history", "performance", "backtesting", "2020-2022"]
 image: "/images/history-part5-image1.png"
-published: true
+published: false
 category: "strategy"
 ---
 

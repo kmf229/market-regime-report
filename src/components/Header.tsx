@@ -35,13 +35,13 @@ export default function Header({ user }: HeaderProps) {
           >
             <Image
               src="/images/logo.png"
-              alt="The Market Regime Report"
+              alt="Market Regime Capital"
               width={44}
               height={44}
               className="rounded"
             />
             <span className="text-xl md:text-2xl font-semibold text-gray-900 font-spectral">
-              The Market Regime Report
+              Market Regime Capital
             </span>
           </Link>
 

@@ -5,7 +5,7 @@ description: "How the Market Regime model navigated trade wars, the Q4 2018 cras
 slug: "history-of-the-market-regime-model-part-4"
 tags: ["history", "performance", "backtesting", "2018-2020"]
 image: "/images/history-part4-image1.png"
-published: true
+published: false
 category: "strategy"
 ---
 

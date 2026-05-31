@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "Insights on systematic investing, market regimes, and rules-based portfolio management.",
   openGraph: {
-    title: "Articles | The Market Regime Report",
+    title: "Articles | Market Regime Capital",
     description:
       "Insights on systematic investing, market regimes, and rules-based portfolio management.",
   },

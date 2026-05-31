@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     "How the regime model works, and a detailed walkthrough of its performance across 15+ years of market history.",
   openGraph: {
-    title: "The Strategy | The Market Regime Report",
+    title: "The Strategy | Market Regime Capital",
     description:
       "How the regime model works, and a detailed walkthrough of its performance across 15+ years of market history.",
   },

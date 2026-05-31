@@ -110,7 +110,7 @@ export default async function TrackRecordPage() {
 }
 
 export const metadata = {
-  title: "Track Record | The Market Regime Report",
+  title: "Track Record | Market Regime Capital",
   description:
     "Transparent, auditable track record with time-weighted returns and detailed performance metrics.",
 };

@@ -9,7 +9,7 @@ import CurrentTradeBenchmark from "@/components/CurrentTradeBenchmark";
 import RegimeTimeline from "@/components/RegimeTimeline";
 
 export const metadata = {
-  title: "Current Regime | The Market Regime Report",
+  title: "Current Regime | Market Regime Capital",
   description: "Daily market regime updates and current positioning.",
 };
 

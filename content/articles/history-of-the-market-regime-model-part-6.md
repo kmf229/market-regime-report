@@ -5,7 +5,7 @@ description: "How the Market Regime model navigated the inflation peak, AI rally
 slug: "history-of-the-market-regime-model-part-6"
 tags: ["history", "performance", "backtesting", "2022-2025"]
 image: "/images/history-part6-image1.png"
-published: true
+published: false
 category: "strategy"
 ---
 

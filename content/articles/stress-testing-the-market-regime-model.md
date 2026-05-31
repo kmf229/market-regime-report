@@ -5,7 +5,7 @@ description: "A deep dive into whether the Market Regime model's edge is durable
 slug: "stress-testing-the-market-regime-model"
 tags: ["strategy", "backtesting", "statistics", "risk-management"]
 image: "/images/stress-testing-image1.jpeg"
-published: true
+published: false
 category: "strategy"
 ---
 

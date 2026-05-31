@@ -5,7 +5,7 @@ description: "How the Market Regime model navigated the China crash, Brexit, the
 slug: "history-of-the-market-regime-model-part-3"
 tags: ["history", "performance", "backtesting", "2015-2018"]
 image: "/images/history-part3-image1.png"
-published: true
+published: false
 category: "strategy"
 ---
 

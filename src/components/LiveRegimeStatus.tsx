@@ -153,8 +153,8 @@ function PotentialRegimeChangeAlert({
   signalRegime: "bullish" | "bearish";
 }) {
   const flippingTo = signalRegime === "bullish" ? "bullish" : "bearish";
-  const newTicker = flippingTo === "bullish" ? "TQQQ" : "GLD";
-  const currentTicker = currentRegime === "bullish" ? "TQQQ" : "GLD";
+  const newTicker = flippingTo === "bullish" ? "NQ" : "GC";
+  const currentTicker = currentRegime === "bullish" ? "NQ" : "GC";
 
   return (
     <div className="rounded-lg border-2 border-amber-400 bg-amber-50 p-4">

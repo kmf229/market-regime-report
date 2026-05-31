@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     "Real-time commentary on regime changes, drawdowns, and how the strategy is performing.",
   openGraph: {
-    title: "Updates | The Market Regime Report",
+    title: "Updates | Market Regime Capital",
     description:
       "Real-time commentary on regime changes, drawdowns, and how the strategy is performing.",
   },

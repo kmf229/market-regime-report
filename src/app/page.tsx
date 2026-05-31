@@ -34,7 +34,7 @@ export default function HomePage() {
               Zero Emotion.
             </h1>
             <p className="mt-6 text-xl text-gray-700 leading-relaxed">
-              A regime model that rotates between risk-on and risk-off assets
+              A regime-based futures trading approach that rotates between NQ and GC
               based on market leadership—not predictions, not gut feelings,
               just systematic execution.
             </p>
@@ -62,16 +62,16 @@ export default function HomePage() {
           <div className="max-w-3xl">
             <h2 className="text-2xl font-bold text-gray-900">The Philosophy</h2>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              Most investors lose money not because of bad analysis, but because
+              Most traders lose money not because of bad analysis, but because
               of bad behavior—overtrading, selling winners early, holding losers
-              too long. The Market Regime Report eliminates these mistakes with
+              too long. Market Regime Capital eliminates these mistakes with
               a systematic framework that removes emotion from the equation.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
               The regime model identifies whether the market favors risk-on or
-              risk-off positioning, then allocates accordingly. Signals are
+              risk-off positioning, then allocates to futures accordingly. Signals are
               infrequent—just a handful of regime shifts per year—making this
-              approach suitable for investors with full-time careers who want
+              approach suitable for systematic traders who want
               institutional-quality process without constant screen time.
             </p>
           </div>
@@ -94,7 +94,7 @@ export default function HomePage() {
               </div>
               <p className="text-gray-600 text-sm leading-relaxed">
                 When market leadership favors growth and momentum, the model
-                positions in leveraged technology exposure (TQQQ/MNQ) to capture
+                positions in NQ futures (Nasdaq 100) to capture
                 upside during favorable conditions.
               </p>
             </div>
@@ -106,8 +106,8 @@ export default function HomePage() {
                 </h3>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed">
-                When conditions shift defensive, the model rotates to gold
-                (GLD/MGC) as a store of value, prioritizing capital preservation
+                When conditions shift defensive, the model rotates to GC futures
+                (Gold) as a store of value, prioritizing capital preservation
                 over aggressive growth.
               </p>
             </div>
@@ -253,14 +253,14 @@ export default function HomePage() {
       <section className="bg-gray-50">
         <div className="max-w-5xl mx-auto px-6 py-10">
           <p className="text-xs text-gray-500 leading-relaxed">
-            <strong>Disclaimer:</strong> The Market Regime Report is for
+            <strong>Disclaimer:</strong> Market Regime Capital is for
             informational and educational purposes only. The content provided
             does not constitute investment advice, financial advice, or a
-            recommendation to buy or sell any securities. Past performance is
-            not indicative of future results. The author is not a registered
-            investment advisor, broker, or financial planner. Always conduct
-            your own research and consult with a qualified financial professional
-            before making investment decisions.
+            recommendation to buy or sell any securities or futures contracts.
+            Futures trading involves substantial risk of loss and is not suitable
+            for all investors. Past performance is not indicative of future results.
+            Always conduct your own research and consult with a qualified financial
+            professional before making investment decisions.
           </p>
         </div>
       </section>

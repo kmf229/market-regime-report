@@ -50,7 +50,7 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
 
   // Fetch live price for current trade
   useEffect(() => {
-    const ticker = data.currentRegime === "bullish" ? "TQQQ" : "GLD";
+    const ticker = data.currentRegime === "bullish" ? "NQ=F" : "GC=F";
 
     const fetchPrice = async () => {
       try {
@@ -80,7 +80,7 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
     const pct = liveReturn ?? data.currentTradeReturn;
     if (pct === null) return "—";
     const sign = pct >= 0 ? "+" : "";
-    const ticker = data.currentRegime === "bullish" ? "TQQQ" : "GLD";
+    const ticker = data.currentRegime === "bullish" ? "NQ" : "GC";
     return `${sign}${pct.toFixed(1)}% ${ticker}`;
   };
 
@@ -183,8 +183,8 @@ export default function RegimeStats({ data }: RegimeStatsProps) {
               <p className="font-semibold mb-1">What is Regime Strength?</p>
               <p className="text-gray-300 leading-relaxed">
                 Scale from -10 (strong bearish) to +10 (strong bullish).
-                Zero is the threshold between regimes. Negative = hold GLD,
-                Positive = hold TQQQ. The further from zero, the stronger
+                Zero is the threshold between regimes. Negative = hold GC,
+                Positive = hold NQ. The further from zero, the stronger
                 the conviction.
               </p>
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-900"></div>

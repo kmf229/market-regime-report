@@ -30,7 +30,7 @@ export default function RegimeTimeline({ history, currentRegime, tradeEntryPrice
       return;
     }
 
-    const ticker = currentRegime === "bullish" ? "TQQQ" : "GLD";
+    const ticker = currentRegime === "bullish" ? "NQ=F" : "GC=F";
 
     const fetchPrice = async () => {
       try {

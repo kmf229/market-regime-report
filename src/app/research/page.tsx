@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Statistical analysis and data science projects exploring markets, regimes, and systematic investing.",
   openGraph: {
-    title: "Research | The Market Regime Report",
+    title: "Research | Market Regime Capital",
     description:
       "Statistical analysis and data science projects exploring markets, regimes, and systematic investing.",
   },

@@ -5,7 +5,7 @@ description: "This strategy measures the market's current environment — specif
 slug: "how-this-strategy-works"
 tags: ["strategy", "rules-based", "regimes"]
 image: "/images/simplicity.jpg"
-published: true
+published: false
 category: "strategy"
 ---
 

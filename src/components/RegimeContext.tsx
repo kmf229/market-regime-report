@@ -80,13 +80,13 @@ export default function RegimeContext({
             {isBullish ? (
               <>
                 The model favors <strong>growth and momentum</strong>. Currently
-                positioned in <strong>TQQQ</strong> (3x leveraged Nasdaq) to
+                positioned in <strong>NQ futures</strong> (Nasdaq 100) to
                 capture upside during favorable market conditions.
               </>
             ) : (
               <>
                 The model favors <strong>capital preservation</strong>. Currently
-                positioned in <strong>GLD</strong> (gold ETF) as a defensive
+                positioned in <strong>GC futures</strong> (Gold) as a defensive
                 store of value during unfavorable conditions.
               </>
             )}

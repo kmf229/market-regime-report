@@ -28,7 +28,7 @@ export async function generateMetadata({
 
   if (!article || !article.published) {
     return {
-      title: "Article Not Found | The Market Regime Report",
+      title: "Article Not Found | Market Regime Capital",
     };
   }
 

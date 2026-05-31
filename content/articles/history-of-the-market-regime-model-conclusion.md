@@ -5,7 +5,7 @@ description: "Summing up the Market Regime model performance over 15+ years: TQQ
 slug: "history-of-the-market-regime-model-conclusion"
 tags: ["history", "performance", "backtesting", "conclusion"]
 image: "/images/history-conclusion-image1.png"
-published: true
+published: false
 category: "strategy"
 ---
 

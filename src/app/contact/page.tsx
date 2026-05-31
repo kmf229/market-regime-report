@@ -38,7 +38,7 @@ export default function ContactPage() {
       <section className="bg-gray-50">
         <div className="max-w-5xl mx-auto px-6 py-10">
           <p className="text-xs text-gray-500 leading-relaxed">
-            <strong>Disclaimer:</strong> The Market Regime Report is for
+            <strong>Disclaimer:</strong> Market Regime Capital is for
             informational and educational purposes only. The content provided
             does not constitute investment advice, financial advice, or a
             recommendation to buy or sell any securities. Past performance is
@@ -54,7 +54,7 @@ export default function ContactPage() {
 }
 
 export const metadata = {
-  title: "Contact | The Market Regime Report",
+  title: "Contact | Market Regime Capital",
   description:
     "For inquiries about the strategy or managed accounts, reach out via email.",
 };

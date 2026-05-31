@@ -22,7 +22,7 @@ export async function GET() {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>The Market Regime Report</title>
+    <title>Market Regime Capital</title>
     <link>${siteUrl}</link>
     <description>A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.</description>
     <language>en-us</language>

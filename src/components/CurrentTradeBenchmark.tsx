@@ -34,7 +34,7 @@ export default function CurrentTradeBenchmark({
   tradeEntryPrice,
   benchmarkPrices,
 }: CurrentTradeBenchmarkProps) {
-  const currentTicker = currentRegime === "bullish" ? "TQQQ" : "GLD";
+  const currentTicker = currentRegime === "bullish" ? "NQ=F" : "GC=F";
   const [liveStrategyReturn, setLiveStrategyReturn] = useState<number | null>(null);
 
   // Fetch live price for strategy position
@@ -71,7 +71,7 @@ export default function CurrentTradeBenchmark({
   const benchmarks = [
     {
       name: "Strategy",
-      ticker: currentTicker,
+      ticker: currentRegime === "bullish" ? "NQ" : "GC",
       return: displayStrategyReturn,
       isStrategy: true,
     },
@@ -203,7 +203,7 @@ export default function CurrentTradeBenchmark({
       {/* Explanation */}
       <div className="mt-6 pt-4 border-t border-gray-100">
         <p className="text-xs text-gray-500 leading-relaxed">
-          The strategy is currently positioned in <strong>{currentTicker}</strong>.
+          The strategy is currently positioned in <strong>{currentRegime === "bullish" ? "NQ" : "GC"} futures</strong>.
           Returns are calculated from the trade entry date ({formatDate(tradeStartDate)})
           to the most recent market close. The strategy bar is highlighted to emphasize
           current performance vs. passive alternatives.

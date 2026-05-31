@@ -206,11 +206,11 @@ export default function RegimeCalendar({ history }: RegimeCalendarProps) {
       <div className="flex items-center gap-4 text-xs text-gray-500 border-t border-gray-100 pt-3 mt-4">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm bg-emerald-500"></div>
-          <span>Bullish (TQQQ)</span>
+          <span>Bullish (NQ)</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm bg-red-500"></div>
-          <span>Bearish (GLD)</span>
+          <span>Bearish (GC)</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm bg-gray-100 border border-gray-300"></div>

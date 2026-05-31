@@ -1,31 +1,34 @@
-# The Market Regime Report - Website Project
+# Market Regime Capital - Website Project
 
 ## Project Overview
 
-This is a Next.js 14+ website for **The Market Regime Report**, a systematic trading newsletter run by Kevin Fitzpatrick. The site is deployed on Vercel at **marketregimes.com**, with the Substack newsletter at **newsletter.marketregimes.com**.
+This is a Next.js 14+ website for **Market Regime Capital**, a systematic futures trading CTA run by Kevin Fitzpatrick. The site is deployed on Vercel at **marketregimes.com**.
 
 ### Site Architecture
-The site and newsletter are now **separate domains**:
-- **Custom site** (this codebase): `marketregimes.com` — `/`, `/about`, `/track-record`, `/articles`
-- **Substack newsletter**: `newsletter.marketregimes.com` — daily dashboards, paid content, subscriber management
+This is a CTA (Commodity Trading Advisor) website focused on futures trading:
+- **Custom site** (this codebase): `marketregimes.com` — `/`, `/about`, `/track-record`, `/current-regime`
+- **Trading instruments**: NQ futures (Nasdaq 100) and GC futures (Gold)
 
 ### Navigation Structure
 ```
-[Logo] The Market Regime Report     Home | Current Regime | Track Record | Articles | About | Newsletter | Sign In
+[Logo] Market Regime Capital     Home | Current Regime | Track Record | Updates | Strategy | Research | About | Contact | Sign In
 ```
 - **Home** → `/` (custom)
 - **Current Regime** → `/current-regime` (protected, requires login)
 - **Track Record** → `/track-record` (custom)
-- **Articles** → `/articles` (custom, Markdown-based)
+- **Updates** → `/updates` (daily market updates)
+- **Strategy** → `/the-strategy` (strategy articles)
+- **Research** → `/research` (research content)
 - **About** → `/about` (custom)
-- **Newsletter** → `newsletter.marketregimes.com` (Substack, opens in new tab)
+- **Contact** → `/contact` (contact page)
 
 ### Business Model
-- **Free**: Home, About, Track Record, Articles
-- **Paid ($7/mo or $70/yr)**: Daily dashboards, regime signals, current positioning (on Substack)
+- Currently a CTA website showcasing systematic futures trading approach
+- Future: Will manage client capital through a registered fund
+- Focus on institutional-quality process and full transparency
 
 ### Future Goal
-Kevin plans to eventually open an RIA (Registered Investment Advisor) to manage outside money, so the site should maintain an institutional, professional aesthetic.
+Kevin plans to launch a fund and manage outside capital. The site maintains an institutional, professional aesthetic suitable for a CTA.
 
 ---
 

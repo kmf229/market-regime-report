@@ -25,32 +25,32 @@ const spectral = Spectral({
 export const metadata: Metadata = {
   metadataBase: new URL("https://marketregimes.com"),
   title: {
-    default: "The Market Regime Report",
-    template: "%s | The Market Regime Report",
+    default: "Market Regime Capital",
+    template: "%s | Market Regime Capital",
   },
   description:
-    "A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.",
+    "A rules-based futures trading CTA. Systematic regime-based approach to futures markets with full transparency.",
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "The Market Regime Report",
-    title: "The Market Regime Report",
+    siteName: "Market Regime Capital",
+    title: "Market Regime Capital",
     description:
-      "A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.",
+      "A rules-based futures trading CTA. Systematic regime-based approach to futures markets with full transparency.",
     images: [
       {
         url: "/images/hero.jpg",
         width: 1200,
         height: 630,
-        alt: "The Market Regime Report",
+        alt: "Market Regime Capital",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Market Regime Report",
+    title: "Market Regime Capital",
     description:
-      "A rules-based approach to navigating markets — without prediction, stress, or noise. Systematic investing with full transparency.",
+      "A rules-based futures trading CTA. Systematic regime-based approach to futures markets with full transparency.",
     images: ["/images/hero.jpg"],
   },
   alternates: {
@@ -79,7 +79,7 @@ export default async function RootLayout({
         <footer className="border-t border-gray-200 mt-16">
           <div className="max-w-5xl mx-auto px-6 py-8">
             <p className="text-sm text-gray-500 text-center">
-              &copy; {new Date().getFullYear()} The Market Regime Report. All rights reserved.
+              &copy; {new Date().getFullYear()} Market Regime Capital. All rights reserved.
             </p>
           </div>
         </footer>

@@ -6,7 +6,7 @@ summary: "Gold is down 14% from its peak—the second worst drawdown in the mode
 slug: "this-is-what-a-real-drawdown-looks-like"
 tags: ["Drawdowns", "Psychology", "GLD"]
 image: "/images/Financial plunge under stormy skies.png"
-published: true
+published: false
 section: "updates"
 ---
 
