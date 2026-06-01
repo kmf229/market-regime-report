@@ -1,9 +1,16 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 import json
 import pandas as pd
 import numpy as np
 from trading_days import trading_days
+
+# Optional: yfinance for futures data
+try:
+    import yfinance as yf
+    YFINANCE_AVAILABLE = True
+except ImportError:
+    YFINANCE_AVAILABLE = False
 
 class Stocks:
 
@@ -39,79 +46,88 @@ class Stocks:
         return df
 
     def ohlc_futures(self, ticker, start='', end=''):
-        """Fetch OHLC data for futures using v1 futures endpoint.
+        """Fetch OHLC data for futures using yfinance.
 
         Args:
-            ticker: Futures contract symbol (e.g., 'NQH26' for NQ March 2026)
+            ticker: Base futures symbol ('NQ' or 'GC')
+                   Will be converted to continuous contract (NQ=F, GC=F)
             start: Start date (YYYY-MM-DD format)
             end: End date (YYYY-MM-DD format)
 
         Returns:
             DataFrame with columns: ticker, date, open, high, low, close, volume
         """
+        if not YFINANCE_AVAILABLE:
+            raise ImportError("yfinance is required for futures data. Install with: pip install yfinance")
+
         if start == '':
             start = '2018-01-01'
         if end == '':
             end = self.last_trading_day
 
-        # Use Polygon.io v1 futures aggregates endpoint
-        url = f"https://api.polygon.io/futures/v1/aggs/{ticker}?resolution=1session&window_start.gte={start}&window_start.lte={end}&limit=50000&apiKey={self.api_key}"
+        # Map base symbols to Yahoo Finance continuous contract tickers
+        ticker_map = {
+            'NQ': 'NQ=F',   # E-mini Nasdaq 100 futures
+            'GC': 'GC=F',   # Gold futures
+            'ES': 'ES=F',   # E-mini S&P 500 futures
+            'CL': 'CL=F',   # Crude oil futures
+        }
 
-        req = requests.get(url).text
-        data = json.loads(req)
+        # Get the Yahoo Finance ticker
+        yahoo_ticker = ticker_map.get(ticker.upper(), ticker)
 
-        if 'results' not in data or not data['results']:
-            raise ValueError(f"No data returned for futures {ticker}")
+        # If ticker already has =F suffix, use it as-is
+        if ticker.endswith('=F'):
+            yahoo_ticker = ticker
 
-        # Convert results to DataFrame
-        results = []
-        for bar in data['results']:
-            # window_start is the date in milliseconds
-            date_str = datetime.fromtimestamp(bar['window_start']/1000.0).strftime("%Y-%m-%d")
-            results.append({
-                'date': date_str,
-                'open': bar['o'],
-                'high': bar['h'],
-                'low': bar['l'],
-                'close': bar['c'],
-                'volume': bar.get('v', 0)  # Some futures may not have volume
+        # Fetch data from yfinance
+        try:
+            yf_ticker = yf.Ticker(yahoo_ticker)
+            df = yf_ticker.history(start=start, end=end, auto_adjust=False)
+
+            if df.empty:
+                raise ValueError(f"No data returned for {yahoo_ticker}")
+
+            # Reset index to get date as column
+            df = df.reset_index()
+
+            # Rename columns to match our format
+            df = df.rename(columns={
+                'Date': 'date',
+                'Open': 'open',
+                'High': 'high',
+                'Low': 'low',
+                'Close': 'close',
+                'Volume': 'volume'
             })
 
-        df = pd.DataFrame(results)
-        df.insert(0, 'ticker', ticker)
-        df['date'] = pd.to_datetime(df['date'])
-        return df
+            # Select only the columns we need
+            df = df[['date', 'open', 'high', 'low', 'close', 'volume']].copy()
+
+            # Add ticker column
+            df.insert(0, 'ticker', ticker)
+
+            # Ensure date is datetime and remove timezone if present
+            df['date'] = pd.to_datetime(df['date']).dt.tz_localize(None)
+
+            return df
+
+        except Exception as e:
+            raise ValueError(f"Error fetching futures data for {ticker} ({yahoo_ticker}): {e}")
 
     def get_front_month_contract(self, base_symbol):
-        """Get the front month futures contract symbol for NQ or GC.
+        """Get the continuous futures contract symbol for NQ or GC.
 
         Args:
             base_symbol: 'NQ' or 'GC'
 
         Returns:
-            String with contract symbol like 'NQH26'
+            String with continuous contract symbol like 'NQ' (for yfinance this becomes NQ=F)
+
+        Note: When using yfinance, we use continuous contracts (NQ=F, GC=F)
+              instead of specific month contracts. The ohlc_futures() method
+              handles the conversion.
         """
-        # Futures month codes: H=Mar, M=Jun, U=Sep, Z=Dec
-        # For simplicity, use quarterly contracts (H, M, U, Z)
-        month_codes = {3: 'H', 6: 'M', 9: 'U', 12: 'Z'}
-
-        today = datetime.today()
-        year = today.year
-        month = today.month
-
-        # Find next quarterly month
-        for contract_month in [3, 6, 9, 12]:
-            if contract_month >= month:
-                next_month = contract_month
-                next_year = year
-                break
-        else:
-            # If past December, roll to next March
-            next_month = 3
-            next_year = year + 1
-
-        # Get month code and year suffix (e.g., '26' for 2026)
-        code = month_codes[next_month]
-        year_suffix = str(next_year)[-2:]
-
-        return f"{base_symbol}{code}{year_suffix}"
+        # For yfinance, we just return the base symbol
+        # The ohlc_futures method will convert to NQ=F, GC=F
+        return base_symbol.upper()
