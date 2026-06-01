@@ -19,7 +19,7 @@ export default function Header({ user }: HeaderProps) {
     { href: "/track-record", label: "Track Record" },
     { href: "/updates", label: "Updates" },
     { href: "/the-strategy", label: "Strategy" },
-    { href: "/research", label: "Research" },
+    // { href: "/research", label: "Research" }, // Temporarily hidden
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];

@@ -99,7 +99,7 @@ def calculate_regime():
     stocks = Stocks()
 
     RISK_ON_TICKERS = ["XLK", "XLY", "XLI", "SMH", "IWM"]
-    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GC", "TLT"]
+    RISK_OFF_TICKERS = ["XLU", "XLP", "XLV", "GLD", "TLT"]
     BENCHMARK = ["SPY"]
     WINDOW_LENGTH = 45
     EMA_SMOOTHING = 20

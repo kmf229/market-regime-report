@@ -9,7 +9,7 @@ export default function ContactPage() {
               Contact
             </h1>
             <p className="text-lg text-gray-600 mb-8">
-              For inquiries about the strategy or managed accounts, reach out below.
+              For inquiries about the strategy, reach out below.
             </p>
             <a
               href="mailto:marketregimereport@gmail.com"

@@ -210,69 +210,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* What Subscribers Get */}
-      <section className="border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-            What You Get
-          </p>
-          <h2 className="text-2xl font-bold text-gray-900 mb-10">
-            What You Get
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <Link
-              href="/current-regime"
-              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
-            >
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Current Regime
-              </h3>
-              <p className="text-sm text-gray-600">
-                Quick market observations and regime status updates so you
-                always know where we stand.
-              </p>
-            </Link>
-            <Link
-              href="/current-regime"
-              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
-            >
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Regime Signals
-              </h3>
-              <p className="text-sm text-gray-600">
-                Clear notifications when the model shifts between risk-on and
-                risk-off positioning.
-              </p>
-            </Link>
-            <Link
-              href="/articles"
-              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
-            >
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Educational Content
-              </h3>
-              <p className="text-sm text-gray-600">
-                Articles on systematic investing, behavioral psychology, and
-                building robust trading processes.
-              </p>
-            </Link>
-            <Link
-              href="/track-record"
-              className="p-6 border border-gray-200 rounded-lg hover:border-gray-400 hover:shadow-sm transition-all"
-            >
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Full Track Record
-              </h3>
-              <p className="text-sm text-gray-600">
-                Complete transparency with every trade documented and
-                performance updated weekly.
-              </p>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="bg-gray-900">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">

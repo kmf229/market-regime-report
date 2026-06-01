@@ -179,21 +179,120 @@ def calculate_regime_stats(regime_history: list[dict]) -> dict:
     }
 
 
+def calculate_live_trade_return(supabase: Client, nq_prices: pd.Series = None, gc_prices: pd.Series = None) -> tuple[float, str, float] | tuple[None, None, None]:
+    """
+    Calculate current trade return using live futures prices.
+
+    This is for intraday updates where we need real-time P&L.
+    Uses the same logic as get_current_trade_return_from_track_record() but with live prices.
+
+    Args:
+        supabase: Supabase client
+        nq_prices: Optional Series of NQ futures close prices (will fetch if not provided)
+        gc_prices: Optional Series of GC futures close prices (will fetch if not provided)
+
+    Returns:
+        Tuple of (return_pct, date_in, entry_price) or (None, None, None) if not available
+    """
+    try:
+        # Get current regime and trade info
+        regime_result = supabase.table("regime_status").select("current_regime, current_trade_start, current_trade_entry_price").limit(1).single().execute()
+
+        if not regime_result.data:
+            print("Warning: No regime_status data")
+            return (None, None, None)
+
+        current_regime = regime_result.data.get("current_regime")
+        date_in = regime_result.data.get("current_trade_start")
+        entry_price = regime_result.data.get("current_trade_entry_price")
+
+        if not all([current_regime, date_in, entry_price]):
+            print("Warning: Missing trade info in regime_status")
+            return (None, None, None)
+
+        # Get starting equity from track record daily_history
+        track_result = supabase.table("track_record").select("daily_history").limit(1).single().execute()
+
+        if not track_result.data or not track_result.data.get("daily_history"):
+            print("Warning: No daily_history in track_record")
+            return (None, None, None)
+
+        daily_history = track_result.data["daily_history"]
+
+        # Find starting equity (day before entry or start_equity on entry day)
+        equity_by_date = {row["date"]: row for row in daily_history}
+        entry_date = pd.to_datetime(date_in)
+        prev_date = (entry_date - pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+
+        if prev_date in equity_by_date:
+            starting_equity = equity_by_date[prev_date]["end_equity"]
+        elif date_in in equity_by_date:
+            starting_equity = equity_by_date[date_in]["start_equity"]
+        else:
+            print(f"Warning: Could not find starting equity for {date_in}")
+            return (None, None, None)
+
+        # Fetch current futures prices if not provided
+        if nq_prices is None or gc_prices is None:
+            try:
+                from stocks_simple import Stocks
+                stocks = Stocks()
+                nq_contract = stocks.get_front_month_contract("NQ")
+                gc_contract = stocks.get_front_month_contract("GC")
+                nq_df = stocks.ohlc_futures(nq_contract)
+                gc_df = stocks.ohlc_futures(gc_contract)
+                nq_prices = nq_df.set_index('date')['close']
+                gc_prices = gc_df.set_index('date')['close']
+            except Exception as e:
+                print(f"Warning: Could not fetch futures prices: {e}")
+                return (None, None, None)
+
+        # Get current price
+        prices = nq_prices if current_regime == "bullish" else gc_prices
+        today = prices.index.max()
+        current_price = float(prices.loc[today])
+
+        # Calculate unrealized P&L
+        # For micro futures: MNQ multiplier = 2, MGC multiplier = 10
+        # Assuming 1 contract (real account size, not 10x scaled)
+        multiplier = 2.0 if current_regime == "bullish" else 1.0  # MNQ=2, 1OZ=1
+
+        point_change = current_price - entry_price
+        unrealized_pnl = point_change * multiplier  # 1 contract
+
+        # Calculate return
+        return_pct = (unrealized_pnl / starting_equity) * 100
+
+        print(f"Live trade return: {return_pct:.2f}% (current: ${current_price:,.2f}, entry: ${entry_price:,.2f}, unrealized P&L: ${unrealized_pnl:,.2f}, equity: ${starting_equity:,.2f})")
+
+        return (round(return_pct, 2), date_in, entry_price)
+
+    except Exception as e:
+        print(f"Warning: Could not calculate live trade return: {e}")
+        import traceback
+        traceback.print_exc()
+        return (None, None, None)
+
+
 def update_intraday(
     regime_s: pd.Series,
     z_spread_smoothed: pd.Series,
-    supabase: Client = None
+    supabase: Client = None,
+    nq_prices: pd.Series = None,
+    gc_prices: pd.Series = None
 ) -> dict:
     """
     Update intraday regime signal data in Supabase.
 
-    Only updates signal_regime, regime_strength, strength_change, and last_updated.
+    Updates signal_regime, regime_strength, strength_change, current_trade_return, and last_updated.
     Does NOT update current_regime, trade stats, or regime_history (those only change at close).
 
     Args:
         regime_s: Series with 'Bullish'/'Bearish' values indexed by date
         z_spread_smoothed: Series with smoothed z-spread values
         supabase: Optional Supabase client
+        nq_prices: Optional Series of NQ futures close prices (will fetch if not provided)
+        gc_prices: Optional Series of GC futures close prices (will fetch if not provided)
 
     Returns:
         The updated record
@@ -222,6 +321,9 @@ def update_intraday(
     signal_regime = regime_s.loc[today]
     signal_regime_str = "bullish" if str(signal_regime).lower().startswith("bull") else "bearish"
 
+    # Calculate live trade return (intraday)
+    live_return, _, _ = calculate_live_trade_return(supabase, nq_prices, gc_prices)
+
     # Build intraday update data (signal only, not official regime)
     data = {
         "signal_regime": signal_regime_str,
@@ -229,6 +331,10 @@ def update_intraday(
         "strength_change": round(z_change, 4),
         "last_updated": datetime.now(timezone.utc).isoformat(),
     }
+
+    # Add current trade return if available
+    if live_return is not None:
+        data["current_trade_return"] = live_return
 
     # Update existing row
     existing = supabase.table("regime_status").select("id").limit(1).execute()
@@ -242,6 +348,109 @@ def update_intraday(
 
     print(f"Updated intraday signal: {signal_regime_str}, strength: {z_today:.3f}")
     return result.data[0] if result.data else data
+
+
+def get_current_trade_return_from_track_record(supabase: Client = None) -> tuple[float, str, float] | tuple[None, None, None]:
+    """
+    Get the current trade return from the track record database.
+
+    Uses actual account equity and unrealized P&L to calculate the return.
+    This accounts for deposits/withdrawals and interest, not just trading P&L.
+
+    Args:
+        supabase: Optional Supabase client
+
+    Returns:
+        Tuple of (return_pct, date_in, entry_price) or (None, None, None) if not available
+    """
+    if supabase is None:
+        supabase = get_supabase_client()
+
+    try:
+        # Fetch trades_history and daily_history from track_record table
+        result = supabase.table("track_record").select("trades_history, daily_history").limit(1).single().execute()
+
+        if not result.data:
+            print("Warning: No data found in track_record")
+            return (None, None, None)
+
+        trades = result.data.get("trades_history", [])
+        daily_history = result.data.get("daily_history", [])
+
+        if not trades:
+            print("Warning: trades_history is empty")
+            return (None, None, None)
+
+        # Last trade should be the current open trade
+        pending = trades[-1]
+
+        # Get unrealized P&L
+        unrealized_pnl = pending.get("unrealized_pnl")
+
+        if unrealized_pnl is None:
+            print("Warning: No unrealized_pnl in current trade")
+            return (None, None, None)
+
+        # Get the date when current trade started
+        date_in = pending.get("date_in")
+
+        if not date_in:
+            print("Warning: No date_in for current trade")
+            return (None, None, None)
+
+        # Find the equity from the day before the trade started
+        # (or the start_equity on the trade entry day)
+        if daily_history:
+            # Convert daily_history to a dict keyed by date for easy lookup
+            equity_by_date = {row["date"]: row for row in daily_history}
+
+            # Get the day before entry, or the start_equity on entry day
+            entry_date = pd.to_datetime(date_in)
+            prev_date = (entry_date - pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+
+            # Try to find equity from the day before
+            if prev_date in equity_by_date:
+                starting_equity = equity_by_date[prev_date]["end_equity"]
+            elif date_in in equity_by_date:
+                # Use start_equity on entry day
+                starting_equity = equity_by_date[date_in]["start_equity"]
+            else:
+                print(f"Warning: Could not find equity for date {date_in} in daily_history")
+                starting_equity = None
+        else:
+            print("Warning: No daily_history found")
+            starting_equity = None
+
+        # Fallback: use equity from trades if daily_history unavailable
+        if starting_equity is None:
+            print("Warning: Falling back to trades-based equity (may not account for deposits/withdrawals)")
+            if len(trades) >= 2:
+                # Equity after previous trade (scaled 10x, so divide by 10)
+                starting_equity = trades[-2].get("equity", 250000) / 10
+            else:
+                starting_equity = 25000  # Initial real capital
+
+        # Account for 10x scaling in trades data
+        # The unrealized_pnl is already scaled (from trades_history)
+        # But daily_history equity is the real account equity (not scaled)
+        # So we need to divide unrealized_pnl by 10 to match
+        unrealized_pnl_real = unrealized_pnl / 10
+
+        # Calculate return as percentage
+        return_pct = (unrealized_pnl_real / starting_equity) * 100
+
+        # Get trade metadata
+        entry_price = pending.get("entry_price")
+
+        print(f"Track record return: {return_pct:.2f}% (unrealized P&L: ${unrealized_pnl_real:,.2f}, starting equity: ${starting_equity:,.2f})")
+
+        return (round(return_pct, 2), date_in, entry_price)
+
+    except Exception as e:
+        print(f"Warning: Could not fetch current trade return from track record: {e}")
+        import traceback
+        traceback.print_exc()
+        return (None, None, None)
 
 
 def update_regime_status(
@@ -313,11 +522,12 @@ def update_regime_status(
     regime_history = calculate_regime_periods(regime_s, nq_prices, gc_prices)
     stats = calculate_regime_stats(regime_history)
 
-    # Get current trade info (first period is current/most recent)
-    current_trade_return = None
-    current_trade_start = None
-    current_trade_entry_price = None
-    if regime_history and "returnPct" in regime_history[0]:
+    # Get current trade info from track record (uses actual P&L data)
+    current_trade_return, current_trade_start, current_trade_entry_price = get_current_trade_return_from_track_record(supabase)
+
+    # Fallback to price-based calculation if track record not available
+    if current_trade_return is None and regime_history and "returnPct" in regime_history[0]:
+        print("Warning: Using fallback price-based calculation for current trade return")
         current_trade_return = regime_history[0]["returnPct"]
         current_trade_start = regime_history[0]["startDate"]
 
