@@ -69,10 +69,10 @@ export default function HomePage() {
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
               The regime model identifies whether the market favors risk-on or
-              risk-off positioning, then allocates to futures accordingly. Signals are
-              infrequent—just a handful of regime shifts per year—making this
-              approach suitable for systematic traders who want
-              institutional-quality process without constant screen time.
+              risk-off positioning, then allocates to futures accordingly. The
+              approach prioritizes conviction over activity—regime shifts are
+              rare by design, typically just a handful per year, reflecting only
+              significant structural changes in market leadership.
             </p>
           </div>
         </div>
