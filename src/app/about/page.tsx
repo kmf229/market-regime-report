@@ -10,7 +10,7 @@ export default function AboutPage() {
             About Market Regime Capital
           </h1>
           <p className="mt-4 text-xl text-gray-600 max-w-3xl">
-            A systematic futures trading CTA that removes emotion from the
+            A systematic futures trading strategy that removes emotion from the
             equation and responds to what the market is actually doing—not what
             we think it should do.
           </p>
