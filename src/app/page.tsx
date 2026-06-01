@@ -34,7 +34,7 @@ export default function HomePage() {
               Zero Emotion.
             </h1>
             <p className="mt-6 text-xl text-gray-700 leading-relaxed">
-              A regime-based futures trading approach that rotates between NQ and GC
+              A regime-based futures trading approach that rotates between NQ (Nasdaq 100 futures) and GC (Gold futures)
               based on market leadership—not predictions, not gut feelings,
               just systematic execution.
             </p>
