@@ -151,13 +151,6 @@ export default function AboutPage() {
               <li className="flex items-start gap-3">
                 <span className="text-gray-400 mt-1">—</span>
                 <span className="text-gray-600">
-                  <strong className="text-gray-900">Compatible with a full-time job:</strong>{" "}
-                  No need to watch screens all day—the system does the watching
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-gray-400 mt-1">—</span>
-                <span className="text-gray-600">
                   <strong className="text-gray-900">Fully transparent:</strong>{" "}
                   Every trade, every regime shift, every win and loss is
                   documented in real time
