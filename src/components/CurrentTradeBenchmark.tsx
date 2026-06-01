@@ -81,18 +81,6 @@ export default function CurrentTradeBenchmark({
       return: calculateReturn(benchmarkPrices["SPY"] || []),
       isStrategy: false,
     },
-    {
-      name: "QQQ",
-      ticker: "QQQ",
-      return: calculateReturn(benchmarkPrices["QQQ"] || []),
-      isStrategy: false,
-    },
-    {
-      name: "GLD",
-      ticker: "GLD",
-      return: calculateReturn(benchmarkPrices["GLD"] || []),
-      isStrategy: false,
-    },
   ];
 
   // Filter out benchmarks with no data
@@ -206,7 +194,7 @@ export default function CurrentTradeBenchmark({
           The strategy is currently positioned in <strong>{currentRegime === "bullish" ? "NQ" : "GC"} futures</strong>.
           Returns are calculated from the trade entry date ({formatDate(tradeStartDate)})
           to the most recent market close. The strategy bar is highlighted to emphasize
-          current performance vs. passive alternatives.
+          current performance vs. SPY (passive S&P 500).
         </p>
       </div>
     </div>
