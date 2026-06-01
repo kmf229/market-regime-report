@@ -296,12 +296,16 @@ def update_regime_status(
         try:
             from stocks_simple import Stocks
             stocks = Stocks()
-            nq_df = stocks.ohlc("NQ=F")
-            gc_df = stocks.ohlc("GC=F")
+            # Get front month contract symbols for NQ and GC
+            nq_contract = stocks.get_front_month_contract("NQ")
+            gc_contract = stocks.get_front_month_contract("GC")
+            # Fetch futures data
+            nq_df = stocks.ohlc_futures(nq_contract)
+            gc_df = stocks.ohlc_futures(gc_contract)
             nq_prices = nq_df.set_index('date')['close']
             gc_prices = gc_df.set_index('date')['close']
         except Exception as e:
-            print(f"Warning: Could not fetch price data for returns: {e}")
+            print(f"Warning: Could not fetch futures prices: {e}")
             nq_prices = None
             gc_prices = None
 

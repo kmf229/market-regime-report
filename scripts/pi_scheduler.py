@@ -581,11 +581,9 @@ def main():
     print("Market hours: Mon-Fri, 9:30am-4:25pm ET")
     print("Regime alerts: 3:30pm ET (weekdays)")
     print("Official regime flip: 4:16pm ET (weekdays)")
-    print("Substack note: 4:17pm ET (weekdays)")
     print("Track record update: Weekdays 8:00am ET")
     print("Benchmark prices update: Weekdays 8:05am ET")
     print("Weekly digest: Sunday 8:00am ET")
-    print("\nSubstack Notes (randomized times):")
     print("=" * 50)
 
     # Run once on startup
@@ -603,8 +601,8 @@ def main():
     # Schedule closing regime storage at 4:16pm ET
     schedule.every().day.at("16:16").do(store_closing_regime)
 
-    # Schedule Substack note generation at 4:17pm ET
-    schedule.every().day.at("16:17").do(generate_substack_note)
+    # DISABLED: Substack note generation (no longer used)
+    # schedule.every().day.at("16:17").do(generate_substack_note)
 
     # Schedule track record update every weekday at 8am ET
     schedule.every().day.at("08:00").do(update_track_record)
@@ -615,15 +613,15 @@ def main():
     # Schedule weekly digest every Sunday at 8am ET
     schedule.every().sunday.at("08:00").do(send_weekly_digest)
 
-    # Schedule Substack Notes automation (random times each day)
-    # Discipline: 9:25am - 10:30am
-    schedule_random_note("discipline", 9, 25, 10, 30)
-
-    # Philosophy: 11:30am - 1:00pm
-    schedule_random_note("philosophy", 11, 30, 13, 0)
-
-    # Reflection: 4:00pm - 4:15pm
-    schedule_random_note("reflection", 16, 0, 16, 15)
+    # DISABLED: Substack Notes automation (no longer used)
+    # # Discipline: 9:25am - 10:30am
+    # schedule_random_note("discipline", 9, 25, 10, 30)
+    #
+    # # Philosophy: 11:30am - 1:00pm
+    # schedule_random_note("philosophy", 11, 30, 13, 0)
+    #
+    # # Reflection: 4:00pm - 4:15pm
+    # schedule_random_note("reflection", 16, 0, 16, 15)
 
     print("=" * 50)
 

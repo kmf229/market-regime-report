@@ -220,13 +220,24 @@ def scale_regime_strength(raw_strength: float, threshold: float = 0.25,
 
 
 def get_ohlcv_data(ticker: str, days: int = 10) -> pd.DataFrame:
-    """Fetch recent OHLCV data for a ticker."""
+    """Fetch recent OHLCV data for a ticker.
+
+    For stocks/ETFs: uses regular ticker (e.g., "SPY")
+    For futures base symbols (NQ, GC): uses front month contract (e.g., "NQ" -> "NQH26")
+    """
     from stocks_simple import Stocks
+    from datetime import timedelta
 
     stocks = Stocks()
     today = datetime.now().strftime('%Y-%m-%d')
+    start = (datetime.now() - timedelta(days=days*2)).strftime('%Y-%m-%d')
 
-    df = stocks.ohlc(ticker, end=today)
+    # Check if this is a futures base symbol
+    if ticker in ['NQ', 'GC']:
+        contract = stocks.get_front_month_contract(ticker)
+        df = stocks.ohlc_futures(contract, start=start, end=today)
+    else:
+        df = stocks.ohlc(ticker, start=start, end=today)
 
     # Ensure we have the right columns
     df = df[['date', 'open', 'high', 'low', 'close', 'volume']].copy()
@@ -505,12 +516,21 @@ def generate_and_store_daily_blurb(regime_s: pd.Series, z_spread_smoothed: pd.Se
     regime_str = "bullish" if str(current_regime).lower().startswith("bull") else "bearish"
     regime_display = "Bullish" if regime_str == "bullish" else "Bearish"
 
-    # Fetch OHLCV data
-    print("  Fetching NQ data...")
-    nq_df = get_ohlcv_data("NQ", days=10)
+    # Fetch OHLCV data for futures
+    print("  Fetching NQ futures data...")
+    from stocks_simple import Stocks
+    stocks = Stocks()
+    nq_contract = stocks.get_front_month_contract("NQ")
+    gc_contract = stocks.get_front_month_contract("GC")
 
-    print("  Fetching GC data...")
-    gc_df = get_ohlcv_data("GC", days=10)
+    # Calculate date range for last 10 trading days
+    from datetime import timedelta
+    end_date = datetime.now().strftime('%Y-%m-%d')
+    start_date = (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d')
+
+    nq_df = stocks.ohlc_futures(nq_contract, start=start_date, end=end_date)
+    print(f"  Fetching GC futures data...")
+    gc_df = stocks.ohlc_futures(gc_contract, start=start_date, end=end_date)
 
     # Pre-calculate daily performance (this is the key fix - don't let Claude compute it)
     print("  Calculating daily performance...")
