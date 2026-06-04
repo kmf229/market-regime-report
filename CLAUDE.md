@@ -111,7 +111,8 @@ website/
 │   │   ├── login/
 │   │   │   └── page.tsx                # Login page (magic link)
 │   │   └── track-record/
-│   │       └── page.tsx                # Track Record page
+│   │       ├── layout.tsx              # Track Record layout (metadata + revalidate)
+│   │       └── page.tsx                # Track Record page (client-side)
 │   ├── components/
 │   │   ├── Header.tsx                  # Logo + title left, nav right + auth
 │   │   ├── NavLink.tsx                 # Active page indicator + highlight
@@ -125,13 +126,16 @@ website/
 │   │   ├── RegimeStats.tsx             # Regime statistics panel (4 cards)
 │   │   ├── RegimeTimeline.tsx          # Visual regime history bar
 │   │   ├── RegimeContext.tsx           # "What this means" explanation card
-│   │   └── RegimeSidebar.tsx           # Left sidebar navigation
+│   │   ├── RegimeSidebar.tsx           # Left sidebar navigation
+│   │   ├── FundingLevelSelector.tsx    # Track record funding level toggle
+│   │   └── TradesTable.tsx             # Trade history table
 │   ├── lib/
 │   │   ├── articles.ts                 # Article reading/parsing utilities
 │   │   ├── regime-updates.ts           # Legacy: Regime update reading (markdown)
 │   │   ├── daily-updates.ts            # Fetch daily updates from Supabase
 │   │   ├── regime-data.ts              # Fetch regime data from Supabase
 │   │   ├── track-record-data.ts        # Fetch track record from Supabase
+│   │   ├── funding-calculations.ts     # Funding level calculations & adjustments
 │   │   └── supabase/
 │   │       ├── client.ts               # Browser Supabase client
 │   │       ├── server.ts               # Server Supabase client
@@ -268,10 +272,24 @@ Your article content in Markdown...
 - Disclaimer
 
 ### Track Record Page (`/track-record`)
-- HeroStats: 4 large metrics
-- Monthly Returns table (green/red)
-- Performance Summary panel
-- Equity Curve image
+- **Client-side component** with interactive funding level selector
+- **Funding Level Selector**: Toggle between 33%, 50%, 75%, 100% funding
+  - 33% = 3x leverage (default, Kevin's actual trading)
+  - 50% = 2x leverage
+  - 75% = 1.3x leverage
+  - 100% = 1x leverage (fully funded)
+- All metrics update dynamically when funding level changes:
+  - HeroStats: 4 large metrics (Cumulative Return, YTD, CAGR, Max Drawdown)
+  - Benchmark Comparison: Strategy metrics recalculate, S&P 500 stays fixed
+  - Monthly Returns table: All cells recalculate (green/red)
+  - Performance Summary panel: All metrics except % Up Months recalculate
+  - Equity Curve: Dynamically rendered canvas chart (updates instantly)
+  - Trade History: Equity and return % columns recalculate, P&L stays fixed
+- **Math**:
+  - Scale factor = 33 / selected_funding_pct
+  - All percentage returns × scale factor
+  - Starting equity = $250,000 × (funding_pct / 100)
+  - Dollar P&L on trades unchanged (only % returns change)
 - Disclaimer
 
 ### Articles Page (`/articles`)
@@ -883,6 +901,47 @@ Open http://localhost:3000
    - Added 3 notes/day (uses ~750K tokens/year on trading days)
    - Net: Slightly higher usage, but manual control and higher quality
 
+### Session 10 (Jun 4, 2026)
+1. **Interactive Funding Level Selector** (NEW FEATURE):
+   - Added interactive toggle to Track Record page showing performance at different leverage levels
+   - 4 funding options: 33% (3x leverage, default), 50% (2x), 75% (1.3x), 100% (1x)
+   - All metrics update dynamically without page reload
+   - Pure frontend transformation - no API changes needed
+
+2. **Technical Implementation**:
+   - Created `lib/funding-calculations.ts` with all calculation logic:
+     - `adjustReturn()` - Scale individual returns based on funding level
+     - `adjustSummary()` - Recalculate all summary metrics
+     - `adjustMonthlyReturns()` - Scale monthly returns table
+     - `adjustTrades()` - Recalculate trade equity values
+     - `generateEquityCurve()` - Build equity curve data
+   - Created `FundingLevelSelector.tsx` - Toggle button component
+   - Updated `EquityCurve.tsx` to use Canvas for dynamic chart rendering
+   - Converted Track Record page to client-side component with React state
+   - Created `track-record/layout.tsx` for metadata (client components can't export metadata)
+
+3. **Math & Calculations**:
+   - Scale factor: `33 / selected_funding_pct` (default is 33%)
+   - Adjusted return: `original_return × scale_factor`
+   - Starting equity: `$250,000 × (funding_pct / 100)`
+   - Dollar P&L stays constant, only percentage returns change
+   - All derived metrics (CAGR, Sharpe, max drawdown, etc.) recalculated from adjusted returns
+
+4. **What Updates Dynamically**:
+   - Hero stats: Cumulative Return, YTD, CAGR, Max Drawdown
+   - Benchmark comparison: Strategy column recalculates, S&P 500 stays fixed
+   - Monthly returns table: All cells and YTD recalculate
+   - Performance summary: All metrics except % Up Months recalculate
+   - Equity curve: Canvas chart regenerates with new scale
+   - Trade history: Equity and return % columns recalculate, P&L unchanged
+
+5. **User Experience**:
+   - Default view: 33% funding (Kevin's actual trading at 3x leverage)
+   - Instant updates when clicking different funding levels
+   - Smooth transitions, no loading spinners
+   - Mobile-responsive toggle buttons
+   - Clear explanation text below selector
+
 ---
 
 ## TODO for Next Session
@@ -905,6 +964,7 @@ No critical items remaining. See Future Enhancements for potential improvements.
 - [ ] Drawdown chart on Track Record page
 - [ ] Rolling returns display
 - [ ] Mobile app / PWA
+- [ ] Export track record data as CSV
 
 ### Completed
 - [x] Regime history timeline (Session 4)
@@ -929,6 +989,8 @@ No critical items remaining. See Future Enhancements for potential improvements.
 - [x] Intraday vs close regime confirmation logic (Session 8)
 - [x] Potential regime change alert card (Session 8)
 - [x] Substack Notes automation system (Session 9)
+- [x] Interactive funding level selector on Track Record page (Session 10)
+- [x] Dynamic equity curve rendering with Canvas (Session 10)
 
 ---
 
