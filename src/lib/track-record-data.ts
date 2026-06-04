@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Summary, MonthlyReturns, Trade } from "@/types/track-record";
+import { Summary, MonthlyReturns, Trade, DailyHistoryRow, SP500DailyHistoryRow } from "@/types/track-record";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -11,7 +11,12 @@ export interface TrackRecordData {
   summary: Summary | null;
   monthlyReturns: MonthlyReturns | null;
   equityCurveUrl: string | null;
+  equityCurveUrl50: string | null;
+  equityCurveUrl75: string | null;
+  equityCurveUrl100: string | null;
   trades: Trade[];
+  dailyHistory: DailyHistoryRow[];
+  sp500DailyHistory: SP500DailyHistoryRow[];
   error: string | null;
 }
 
@@ -29,7 +34,12 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
         summary: null,
         monthlyReturns: null,
         equityCurveUrl: null,
+        equityCurveUrl50: null,
+        equityCurveUrl75: null,
+        equityCurveUrl100: null,
         trades: [],
+        dailyHistory: [],
+        sp500DailyHistory: [],
         error: "Failed to fetch track record data from database.",
       };
     }
@@ -39,7 +49,12 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
         summary: null,
         monthlyReturns: null,
         equityCurveUrl: null,
+        equityCurveUrl50: null,
+        equityCurveUrl75: null,
+        equityCurveUrl100: null,
         trades: [],
+        dailyHistory: [],
+        sp500DailyHistory: [],
         error: "Track record data not found in database.",
       };
     }
@@ -72,13 +87,23 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
 
     const monthlyReturns: MonthlyReturns | null = data.monthly_returns || null;
     const equityCurveUrl: string | null = data.equity_curve_url || null;
+    const equityCurveUrl50: string | null = data.equity_curve_url_50 || null;
+    const equityCurveUrl75: string | null = data.equity_curve_url_75 || null;
+    const equityCurveUrl100: string | null = data.equity_curve_url_100 || null;
     const trades: Trade[] = data.trades_history || [];
+    const dailyHistory: DailyHistoryRow[] = data.daily_history || [];
+    const sp500DailyHistory: SP500DailyHistoryRow[] = data.sp500_daily_history || [];
 
     return {
       summary,
       monthlyReturns,
       equityCurveUrl,
+      equityCurveUrl50,
+      equityCurveUrl75,
+      equityCurveUrl100,
       trades,
+      dailyHistory,
+      sp500DailyHistory,
       error: null,
     };
   } catch (err) {
@@ -87,7 +112,12 @@ export async function getTrackRecordData(): Promise<TrackRecordData> {
       summary: null,
       monthlyReturns: null,
       equityCurveUrl: null,
+      equityCurveUrl50: null,
+      equityCurveUrl75: null,
+      equityCurveUrl100: null,
       trades: [],
+      dailyHistory: [],
+      sp500DailyHistory: [],
       error: "An error occurred while fetching track record data.",
     };
   }

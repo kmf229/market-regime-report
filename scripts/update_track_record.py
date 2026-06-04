@@ -717,7 +717,7 @@ def calculate_sp500_metrics(spy_df: pd.DataFrame) -> dict:
     }
 
 
-def plot_equity_curve(df: pd.DataFrame, save_path: Path, spy_df: pd.DataFrame = None) -> None:
+def plot_equity_curve(df: pd.DataFrame, save_path: Path, spy_df: pd.DataFrame = None, funding_pct: int = 33) -> None:
     """Generate institutional-style equity curve chart with optional S&P 500 comparison."""
     d = df[["equity_index"]].dropna().copy()
     d = d.sort_index()
@@ -754,9 +754,12 @@ def plot_equity_curve(df: pd.DataFrame, save_path: Path, spy_df: pd.DataFrame = 
         ax.legend(loc="upper left", fontsize=9, framealpha=0.9)
 
     # Title
+    leverage = 100 / funding_pct
+    title_text = f"Time-Weighted Returns \u2022 $100,000 Baseline \u2022 {funding_pct}% Funding ({leverage:.1f}x Leverage)"
+
     fig.text(
         0.06, 0.96,
-        "Time-Weighted Returns \u2022 $100,000 Baseline",
+        title_text,
         ha="left",
         va="top",
         fontsize=14,
@@ -804,7 +807,32 @@ def plot_equity_curve(df: pd.DataFrame, save_path: Path, spy_df: pd.DataFrame = 
     plt.close(fig)
 
 
-def upload_equity_curve(image_path: Path, supabase: Client) -> str:
+def build_adjusted_equity_curve(df: pd.DataFrame, funding_pct: int, baseline_equity: float = 100000.0) -> pd.DataFrame:
+    """Build equity curve with adjusted returns based on funding level."""
+    # Default funding is 33% (3x leverage)
+    DEFAULT_FUNDING = 33
+    scale_factor = DEFAULT_FUNDING / funding_pct
+
+    # Get TWR from dataframe (stored as percentages, e.g., 2.5 for 2.5%)
+    d = df[["twr"]].dropna().copy()
+    d = d.sort_index()
+
+    # Convert percentage to decimal, then scale
+    d["twr_dec"] = d["twr"] / 100.0
+    d["twr_adjusted"] = d["twr_dec"] * scale_factor
+
+    # Build equity curve with adjusted returns
+    first_date = d.index[0]
+    baseline_date = first_date - pd.Timedelta(days=1)
+
+    twr_series = pd.concat([pd.Series([0.0], index=[baseline_date]), d["twr_adjusted"]])
+    equity_series = baseline_equity * (1.0 + twr_series).cumprod()
+
+    result = pd.DataFrame({"equity_index": equity_series})
+    return result
+
+
+def upload_equity_curve(image_path: Path, supabase: Client, file_name: str = "equity_curve.png") -> str:
     """Upload equity curve image to Supabase Storage."""
     if not image_path.exists():
         raise FileNotFoundError(f"Image not found: {image_path}")
@@ -813,7 +841,6 @@ def upload_equity_curve(image_path: Path, supabase: Client) -> str:
         image_bytes = f.read()
 
     bucket_name = "regime-assets"
-    file_name = "equity_curve.png"
 
     try:
         supabase.storage.from_(bucket_name).upload(
@@ -935,15 +962,51 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         print(f"  S&P 500 Cumulative Return: {sp500_metrics['sp500_cumulative_return']*100:.2f}%")
         print(f"  Alpha vs S&P 500: {alpha*100:.2f}%")
 
-    # Generate and upload equity curve (with S&P 500 line)
-    equity_curve_path = DATA_DIR / "equity_curve.png"
-    plot_equity_curve(df, equity_curve_path, spy_df=spy_df)
-    equity_curve_url = upload_equity_curve(equity_curve_path, supabase)
+    # Generate and upload equity curves for all funding levels
+    funding_levels = [33, 50, 75, 100]
+    equity_curve_urls = {}
+
+    for funding_pct in funding_levels:
+        # Build adjusted equity curve for this funding level
+        if funding_pct == 33:
+            # Use original data for 33%
+            adjusted_df = df
+        else:
+            # Build adjusted equity curve
+            adjusted_df = build_adjusted_equity_curve(combined_df, funding_pct)
+
+        # Generate chart
+        file_name = f"equity_curve_{funding_pct}.png"
+        equity_curve_path = DATA_DIR / file_name
+        plot_equity_curve(adjusted_df, equity_curve_path, spy_df=spy_df, funding_pct=funding_pct)
+
+        # Upload to Supabase
+        url = upload_equity_curve(equity_curve_path, supabase, file_name=file_name)
+        equity_curve_urls[funding_pct] = url
+
+    print(f"Generated {len(equity_curve_urls)} equity curve images")
+
+    # Keep the 33% URL as the main one for backward compatibility
+    equity_curve_url = equity_curve_urls[33]
 
     # Convert daily history to JSON-serializable format
     history_df = combined_df.reset_index()
     history_df["date"] = history_df["date"].dt.strftime("%Y-%m-%d")
     daily_history = history_df.to_dict(orient="records")
+
+    # Convert S&P 500 daily history to JSON-serializable format
+    sp500_daily_history = []
+    if not spy_df.empty:
+        sp500_hist_df = spy_df.reset_index()
+        # Get the date column (index might have been unnamed after concat)
+        date_col = sp500_hist_df.columns[0]  # First column is the old index
+        sp500_hist_df["date_str"] = pd.to_datetime(sp500_hist_df[date_col]).dt.strftime("%Y-%m-%d")
+        sp500_daily_history = [
+            {"date": row["date_str"], "equity": float(row["equity_index"])}
+            for _, row in sp500_hist_df.iterrows()
+            if "equity_index" in row and not pd.isna(row["equity_index"])
+        ]
+        print(f"  S&P 500 daily history: {len(sp500_daily_history)} data points")
 
     # Parse trades history
     print("Parsing trades history...")
@@ -1033,8 +1096,12 @@ def calculate_and_upload_track_record(combined_df: pd.DataFrame, supabase: Clien
         "profit_factor": profit_factor,
         "monthly_returns": monthly_returns,
         "daily_history": daily_history,
+        "sp500_daily_history": sp500_daily_history,
         "trades_history": trades_history,
         "equity_curve_url": equity_curve_url,
+        "equity_curve_url_50": equity_curve_urls.get(50),
+        "equity_curve_url_75": equity_curve_urls.get(75),
+        "equity_curve_url_100": equity_curve_urls.get(100),
         "sp500_cumulative_return": sp500_metrics["sp500_cumulative_return"],
         "sp500_cagr": sp500_metrics["sp500_cagr"],
         "sp500_max_drawdown": sp500_metrics["sp500_max_drawdown"],

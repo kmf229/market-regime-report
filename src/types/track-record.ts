@@ -60,3 +60,17 @@ export interface Trade {
   current_price?: number;
   unrealized_pnl?: number;
 }
+
+export interface DailyHistoryRow {
+  date: string;
+  account: string;
+  start_equity: number;
+  flows: number;
+  end_equity: number;
+  twr: number;
+}
+
+export interface SP500DailyHistoryRow {
+  date: string;
+  equity: number;
+}

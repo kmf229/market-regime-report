@@ -1,11 +1,21 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getTrackRecordData } from "@/lib/track-record-data";
+import { Summary, MonthlyReturns, Trade, DailyHistoryRow, SP500DailyHistoryRow } from "@/types/track-record";
 import HeroStats from "@/components/HeroStats";
 import BenchmarkComparison from "@/components/BenchmarkComparison";
 import MetricsPanel from "@/components/MetricsPanel";
 import MonthlyReturnsTable from "@/components/MonthlyReturnsTable";
-import EquityCurve from "@/components/EquityCurve";
-import TradesTable from "@/components/TradesTable";
+import EquityCurveWithFunding from "@/components/EquityCurveWithFunding";
+import FundingLevelSelector from "@/components/FundingLevelSelector";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import {
+  FundingLevel,
+  DEFAULT_FUNDING_PCT,
+  adjustSummary,
+  adjustMonthlyReturns,
+} from "@/lib/funding-calculations";
 
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -17,10 +27,55 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export default async function TrackRecordPage() {
-  const { summary, monthlyReturns, equityCurveUrl, trades, error } = await getTrackRecordData();
+export default function TrackRecordPage() {
+  const [originalData, setOriginalData] = useState<{
+    summary: Summary | null;
+    monthlyReturns: MonthlyReturns | null;
+    equityCurveUrl: string | null;
+    equityCurveUrl50: string | null;
+    equityCurveUrl75: string | null;
+    equityCurveUrl100: string | null;
+    trades: Trade[];
+    dailyHistory: DailyHistoryRow[];
+    sp500DailyHistory: SP500DailyHistoryRow[];
+    error: string | null;
+  } | null>(null);
+  const [fundingLevel, setFundingLevel] = useState<FundingLevel>(DEFAULT_FUNDING_PCT as FundingLevel);
 
-  if (error || !summary) {
+  // Fetch data on mount
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getTrackRecordData();
+      setOriginalData(data);
+    }
+    fetchData();
+  }, []);
+
+  // Loading state
+  if (!originalData) {
+    return (
+      <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+          <p className="text-gray-600">Loading track record data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const {
+    summary: originalSummary,
+    monthlyReturns: originalMonthlyReturns,
+    equityCurveUrl,
+    equityCurveUrl50,
+    equityCurveUrl75,
+    equityCurveUrl100,
+    trades: originalTrades,
+    dailyHistory,
+    sp500DailyHistory,
+    error
+  } = originalData;
+
+  if (error || !originalSummary || !originalMonthlyReturns) {
     return (
       <div className="max-w-5xl mx-auto px-6 py-16">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
@@ -32,6 +87,10 @@ export default async function TrackRecordPage() {
       </div>
     );
   }
+
+  // Calculate adjusted data based on selected funding level
+  const adjustedSummary = adjustSummary(originalSummary, originalMonthlyReturns, dailyHistory, fundingLevel);
+  const adjustedMonthlyReturns = adjustMonthlyReturns(originalMonthlyReturns, fundingLevel);
 
   return (
     <div>
@@ -48,14 +107,14 @@ export default async function TrackRecordPage() {
               returns and reflects performance through the most recent trading day.
             </p>
             <p className="mt-4 text-sm text-gray-500">
-              Performance period: {formatDate(summary.start_date)} —{" "}
-              {formatDate(summary.data_through)} ({summary.strategy_length_days}{" "}
+              Performance period: {formatDate(originalSummary.start_date)} —{" "}
+              {formatDate(originalSummary.data_through)} ({originalSummary.strategy_length_days}{" "}
               days)
             </p>
           </div>
 
           {/* Hero Stats */}
-          <HeroStats summary={summary} />
+          <HeroStats summary={adjustedSummary} />
         </div>
       </section>
 
@@ -63,32 +122,35 @@ export default async function TrackRecordPage() {
       <div className="max-w-5xl mx-auto px-6 py-12">
         {/* Benchmark Comparison */}
         <section className="mb-12">
-          <BenchmarkComparison summary={summary} />
+          <BenchmarkComparison summary={adjustedSummary} />
         </section>
 
         {/* Monthly Returns */}
-        {monthlyReturns && (
-          <section className="mb-12">
-            <MonthlyReturnsTable data={monthlyReturns} />
-          </section>
-        )}
+        <section className="mb-12">
+          <MonthlyReturnsTable data={adjustedMonthlyReturns} />
+        </section>
 
         {/* Performance Metrics */}
         <section className="mb-12">
-          <MetricsPanel summary={summary} />
+          <MetricsPanel summary={adjustedSummary} />
         </section>
+
+        {/* Funding Level Selector */}
+        <FundingLevelSelector
+          selectedLevel={fundingLevel}
+          onLevelChange={setFundingLevel}
+        />
 
         {/* Equity Curve */}
         <section className="mb-12">
-          <EquityCurve imageUrl={equityCurveUrl} />
+          <EquityCurveWithFunding
+            equityCurveUrl={equityCurveUrl}
+            equityCurveUrl50={equityCurveUrl50}
+            equityCurveUrl75={equityCurveUrl75}
+            equityCurveUrl100={equityCurveUrl100}
+            fundingLevel={fundingLevel}
+          />
         </section>
-
-        {/* Trades Table */}
-        {trades && trades.length > 0 && (
-          <section className="mb-12">
-            <TradesTable trades={trades} />
-          </section>
-        )}
 
         {/* Disclaimer */}
         <section className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
@@ -108,12 +170,3 @@ export default async function TrackRecordPage() {
     </div>
   );
 }
-
-export const metadata = {
-  title: "Track Record | Market Regime Capital",
-  description:
-    "Transparent, auditable track record with time-weighted returns and detailed performance metrics.",
-};
-
-// Revalidate every 60 seconds to pick up updates without redeploy
-export const revalidate = 60;
