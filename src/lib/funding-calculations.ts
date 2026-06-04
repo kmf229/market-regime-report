@@ -1,7 +1,8 @@
 import { Summary, MonthlyReturns, MonthlyReturnsRow, Trade } from "@/types/track-record";
 
 // Constants
-export const NOTIONAL_TRADING_LEVEL = 250000;
+export const BASELINE_EQUITY = 100000; // Chart baseline (what's shown to users)
+export const NOTIONAL_TRADING_LEVEL = 250000; // Actual trading level
 export const DEFAULT_FUNDING_PCT = 33; // 3x leverage (Kevin's actual trading)
 export const FUNDING_OPTIONS = [33, 50, 75, 100] as const;
 export type FundingLevel = (typeof FUNDING_OPTIONS)[number];
@@ -14,10 +15,25 @@ function getScaleFactor(fundingPct: number): number {
 }
 
 /**
- * Calculate starting equity based on funding level
+ * Get chart baseline equity (always $100K for display purposes)
+ */
+export function getChartBaselineEquity(): number {
+  return BASELINE_EQUITY; // Always $100K for display
+}
+
+/**
+ * Calculate starting equity for trades table based on funding level
+ * Uses the actual notional trading level
+ */
+export function getTradesStartingEquity(fundingPct: number): number {
+  return NOTIONAL_TRADING_LEVEL * (fundingPct / 100);
+}
+
+/**
+ * @deprecated Use getChartBaselineEquity() or getTradesStartingEquity() instead
  */
 export function getStartingEquity(fundingPct: number): number {
-  return NOTIONAL_TRADING_LEVEL * (fundingPct / 100);
+  return getTradesStartingEquity(fundingPct);
 }
 
 /**
@@ -167,7 +183,8 @@ export function adjustSummary(
   const adjustedReturns = extractMonthlyReturnsArray(adjustedMonthlyData);
 
   // Build equity curve for max drawdown calculation
-  const startingEquity = getStartingEquity(fundingPct);
+  // Use chart baseline ($100K) for consistency with display
+  const startingEquity = getChartBaselineEquity();
   const equityCurve: number[] = [startingEquity];
   let currentEquity = startingEquity;
 
@@ -277,7 +294,8 @@ export function generateEquityCurve(
   const adjustedMonthlyData = adjustMonthlyReturns(monthlyReturnsData, fundingPct);
   const adjustedReturns = extractMonthlyReturnsArray(adjustedMonthlyData);
 
-  const startingEquity = getStartingEquity(fundingPct);
+  // Always start at $100K baseline for chart display
+  const startingEquity = getChartBaselineEquity();
   const equityCurve: number[] = [startingEquity];
   let currentEquity = startingEquity;
 

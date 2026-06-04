@@ -1,6 +1,6 @@
 "use client";
 
-import { FundingLevel, getStartingEquity } from "@/lib/funding-calculations";
+import { FundingLevel, getTradesStartingEquity } from "@/lib/funding-calculations";
 
 interface Trade {
   trade_number: number;
@@ -28,7 +28,7 @@ export default function TradesTable({ trades, fundingLevel }: TradesTableProps) 
     return null;
   }
 
-  const STARTING_EQUITY = getStartingEquity(fundingLevel);
+  const STARTING_EQUITY = getTradesStartingEquity(fundingLevel);
 
   const formatCurrency = (value: number | null, compact: boolean = false) => {
     if (value === null) return "—";

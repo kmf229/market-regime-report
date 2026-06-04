@@ -1,6 +1,6 @@
 "use client";
 
-import { FUNDING_OPTIONS, FundingLevel, NOTIONAL_TRADING_LEVEL } from "@/lib/funding-calculations";
+import { FUNDING_OPTIONS, FundingLevel, BASELINE_EQUITY } from "@/lib/funding-calculations";
 
 interface FundingLevelSelectorProps {
   selectedLevel: FundingLevel;
@@ -56,10 +56,10 @@ export default function FundingLevelSelector({
 
       {/* Explanation text */}
       <p className="text-sm text-gray-600 leading-relaxed">
-        Funding level represents the percentage of the{" "}
-        {formatCurrency(NOTIONAL_TRADING_LEVEL)} notional trading level
-        deposited by the investor. Lower funding increases leverage and
-        amplifies both returns and risk.
+        All performance shown from a {formatCurrency(BASELINE_EQUITY)} baseline.
+        Funding level represents what percentage of the notional trading level
+        is deposited. Lower funding increases leverage and amplifies both
+        returns and risk.
       </p>
     </div>
   );

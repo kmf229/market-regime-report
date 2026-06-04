@@ -7,7 +7,7 @@ import HeroStats from "@/components/HeroStats";
 import BenchmarkComparison from "@/components/BenchmarkComparison";
 import MetricsPanel from "@/components/MetricsPanel";
 import MonthlyReturnsTable from "@/components/MonthlyReturnsTable";
-import EquityCurve from "@/components/EquityCurve";
+import EquityCurveCanvas from "@/components/EquityCurveCanvas";
 import TradesTable from "@/components/TradesTable";
 import FundingLevelSelector from "@/components/FundingLevelSelector";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -132,9 +132,9 @@ export default function TrackRecordPage() {
 
         {/* Equity Curve */}
         <section className="mb-12">
-          <EquityCurve
-            imageUrl={equityCurveUrl}
+          <EquityCurveCanvas
             monthlyReturns={originalMonthlyReturns}
+            summary={originalSummary}
             fundingLevel={fundingLevel}
           />
         </section>
