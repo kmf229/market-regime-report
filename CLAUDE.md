@@ -315,14 +315,12 @@ Your article content in Markdown...
 ### Current Regime Page (`/current-regime`) - Protected
 - Requires login (magic link auth)
 - Checks `current_regime_access` in profiles table
-- **Layout**: Left sidebar navigation + main content area
 - **Overview Section**:
   - Speedometer image (from Supabase Storage, updated every 10 min)
   - RegimeContext card explaining current positioning
   - RegimeStats panel (4 cards): Days in regime, YTD changes, avg duration, regime strength
   - RegimeTimeline: Visual bar chart of regime history with month markers
-- **Daily Updates Section**: Manual markdown updates with bullish/bearish badges
-- **History Section**: Table of regime periods with dates, duration, returns
+- **Benchmark Comparison**: Current trade performance vs SPY/QQQ/GLD
 - Disclaimer
 
 ### Login Page (`/login`)
@@ -477,10 +475,7 @@ journalctl -u regime-updater -f        # View logs
 | Task | Schedule | Description |
 |------|----------|-------------|
 | Regime updates | Every 10 min (market hours) | Update regime data + speedometer |
-| Regime alerts | 3:30pm ET | Check for regime changes |
-| Daily blurb | 4:15pm ET | Generate AI market commentary |
-| Store closing regime | 4:16pm ET | Save for next day comparison |
-| Substack note | 4:17pm ET | Generate and email note |
+| Close regime update | 4:16pm ET | Official regime flip at market close |
 | Track record | Weekdays 8:00am ET | Update from IBKR FTP |
 | Weekly digest | Sunday 8:00am ET | Send weekly summary email |
 
@@ -942,6 +937,35 @@ Open http://localhost:3000
    - Mobile-responsive toggle buttons
    - Clear explanation text below selector
 
+### Session 11 (Jun 8, 2026)
+1. **Removed Email Alert System** (SIMPLIFICATION):
+   - Removed left sidebar from Current Regime page
+   - Deleted components:
+     - `RegimeSidebar.tsx`
+     - `AlertPreferences.tsx`
+   - Deleted scripts:
+     - `send_alerts.py` (regime change email alerts)
+     - `test_email.py` (email testing)
+   - Current Regime page now uses full width layout
+   - Simplified page layout - removed sidebar navigation
+
+2. **Pi Scheduler Updates**:
+   - Removed `check_regime_change_alerts()` function (3:30pm alert check)
+   - Renamed `store_closing_regime()` to `update_closing_regime()` (removed alert storage)
+   - Updated schedule printout to remove alert-related lines
+   - Kept weekly digest functionality (different from regime alerts)
+
+3. **Database Impact**:
+   - Left database columns in place (`regime_change_alerts`, `weekly_digest`, `previous_regime`)
+   - No migration needed - columns are just unused now
+   - Can be cleaned up in future if desired
+
+4. **What Remains**:
+   - Weekly digest emails (Sunday 8am ET) - still functional
+   - Track record updates
+   - Regime updates every 10 minutes
+   - Close regime update at 4:16pm ET
+
 ---
 
 ## TODO for Next Session
@@ -953,11 +977,9 @@ No critical items remaining. See Future Enhancements for potential improvements.
 ## Future Enhancements
 
 ### Current Regime Page Ideas
-- [ ] **Benchmark comparison** - Show strategy cumulative return vs buy-and-hold SPY
 - [ ] **Performance metrics card** - Sharpe ratio, max drawdown, win rate
 - [ ] **"Last updated" timestamp** - Show "Updated X minutes ago" for freshness
 - [ ] **Cumulative return chart** - Visual equity curve for the strategy
-- [ ] **Regime change alerts** - Email notification when regime flips (could integrate with Substack)
 - [ ] **Export data** - Download regime history as CSV
 
 ### Other Ideas

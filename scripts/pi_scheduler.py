@@ -318,31 +318,8 @@ def update_regime():
 #         traceback.print_exc()
 
 
-def check_regime_change_alerts():
-    """Check for regime change and send alerts at 3:30 PM ET."""
-    now = datetime.now(ET)
-
-    # Skip non-trading days
-    if not is_trading_day():
-        print(f"[{now}] Not a trading day, skipping alert check")
-        return
-
-    try:
-        print(f"[{now}] Checking for regime change alerts...")
-
-        from send_alerts import send_regime_change_alerts
-        send_regime_change_alerts()
-
-        print(f"[{now}] Alert check complete!")
-
-    except Exception as e:
-        print(f"[{now}] Error checking alerts: {e}")
-        import traceback
-        traceback.print_exc()
-
-
-def store_closing_regime():
-    """Store the closing regime at 4:16 PM and do the official regime update.
+def update_closing_regime():
+    """Do the official regime update at 4:16 PM ET.
 
     This is when current_regime officially flips (if signal changed).
     Updates current_regime, trade stats, regime_history, etc.
@@ -351,11 +328,11 @@ def store_closing_regime():
 
     # Skip non-trading days
     if not is_trading_day():
-        print(f"[{now}] Not a trading day, skipping closing regime storage")
+        print(f"[{now}] Not a trading day, skipping closing regime update")
         return
 
     try:
-        # First, do the full regime update (officially flip current_regime if needed)
+        # Do the full regime update (officially flip current_regime if needed)
         print(f"[{now}] Performing close regime update (official flip if applicable)...")
         regime_s, z_spread_smoothed, speedometer_path = calculate_regime()
 
@@ -364,15 +341,8 @@ def store_closing_regime():
 
         print(f"[{now}] Close regime update complete!")
 
-        # Then store the closing regime for tomorrow's comparison
-        print(f"[{now}] Storing closing regime for alerts...")
-        from send_alerts import store_closing_regime as store_regime
-        store_regime()
-
-        print(f"[{now}] Closing regime stored!")
-
     except Exception as e:
-        print(f"[{now}] Error storing closing regime: {e}")
+        print(f"[{now}] Error updating closing regime: {e}")
         import traceback
         traceback.print_exc()
 
@@ -579,7 +549,6 @@ def main():
     print(f"Started at: {datetime.now(ET)}")
     print("Schedule: Every 10 minutes during market hours (intraday signal only)")
     print("Market hours: Mon-Fri, 9:30am-4:25pm ET")
-    print("Regime alerts: 3:30pm ET (weekdays)")
     print("Official regime flip: 4:16pm ET (weekdays)")
     print("Track record update: Weekdays 8:00am ET")
     print("Benchmark prices update: Weekdays 8:05am ET")
@@ -592,14 +561,11 @@ def main():
     # Schedule regime updates every 10 minutes
     schedule.every(10).minutes.do(update_regime)
 
-    # Schedule regime change alert check at 3:30pm ET
-    schedule.every().day.at("15:30").do(check_regime_change_alerts)
-
     # DISABLED: Daily blurb generation (replaced by Substack Notes automation)
     # schedule.every().day.at("16:15").do(generate_daily_blurb)
 
-    # Schedule closing regime storage at 4:16pm ET
-    schedule.every().day.at("16:16").do(store_closing_regime)
+    # Schedule closing regime update at 4:16pm ET
+    schedule.every().day.at("16:16").do(update_closing_regime)
 
     # DISABLED: Substack note generation (no longer used)
     # schedule.every().day.at("16:17").do(generate_substack_note)

@@ -1,6 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import RegimeSidebar from "@/components/RegimeSidebar";
 import { getRegimeData } from "@/lib/regime-data";
 import { getRegimeStrengthHistory } from "@/lib/regime-strength-history";
 import { getBenchmarkPrices } from "@/lib/benchmark-prices";
@@ -16,34 +14,7 @@ export const metadata = {
 // Revalidate every 60 seconds to fetch fresh benchmark data
 export const revalidate = 60;
 
-async function getUserData() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return null;
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("regime_change_alerts, weekly_digest")
-    .eq("id", user.id)
-    .single();
-
-  return {
-    user,
-    alertPreferences: {
-      regime_change_alerts: profile?.regime_change_alerts ?? false,
-      weekly_digest: profile?.weekly_digest ?? false,
-    },
-  };
-}
-
 export default async function CurrentRegimePage() {
-  const userData = await getUserData();
   const regimeData = await getRegimeData();
 
   // Fetch historical data for new components
@@ -57,59 +28,46 @@ export default async function CurrentRegimePage() {
     <div className="max-w-6xl mx-auto px-6 py-8">
       <ScrollToTop />
 
-      <div className="flex gap-8">
-        {/* Sidebar - only show for logged-in users */}
-        {userData && (
-          <aside className="hidden lg:block w-48 flex-shrink-0">
-            <RegimeSidebar
-              regime={regimeData.currentRegime}
-              userId={userData.user.id}
-              alertPreferences={userData.alertPreferences}
-            />
-          </aside>
-        )}
+      {/* Main Content */}
+      <main>
+        {/* Overview Section - Live updating (speedometer + stats + chart) */}
+        <LiveRegimeStatus
+          initialData={regimeData}
+          strengthHistory={strengthHistory}
+        />
 
-        {/* Main Content */}
-        <main className="flex-1 min-w-0">
-          {/* Overview Section - Live updating (speedometer + stats + chart) */}
-          <LiveRegimeStatus
-            initialData={regimeData}
-            strengthHistory={strengthHistory}
-          />
-
-          {/* Benchmark Comparison (current trade vs SPY/QQQ/GLD) */}
-          {regimeData.currentTradeReturn !== null && regimeData.currentTradeStart && (
-            <section className="mb-8">
-              <CurrentTradeBenchmark
-                currentRegime={regimeData.currentRegime}
-                tradeStartDate={regimeData.currentTradeStart}
-                strategyReturn={regimeData.currentTradeReturn}
-                tradeEntryPrice={regimeData.currentTradeEntryPrice}
-                benchmarkPrices={benchmarkPrices}
-              />
-            </section>
-          )}
-
-          {/* Regime Timeline Strip */}
-          <section className="mb-12">
-            <RegimeTimeline
-              history={regimeData.regimeHistory}
+        {/* Benchmark Comparison (current trade vs SPY/QQQ/GLD) */}
+        {regimeData.currentTradeReturn !== null && regimeData.currentTradeStart && (
+          <section className="mb-8">
+            <CurrentTradeBenchmark
               currentRegime={regimeData.currentRegime}
+              tradeStartDate={regimeData.currentTradeStart}
+              strategyReturn={regimeData.currentTradeReturn}
               tradeEntryPrice={regimeData.currentTradeEntryPrice}
+              benchmarkPrices={benchmarkPrices}
             />
           </section>
+        )}
 
-          {/* Disclaimer */}
-          <div className="pt-8 border-t border-gray-200">
-            <p className="text-xs text-gray-400 leading-relaxed">
-              This information is for educational purposes only and should not be
-              considered investment advice. Past performance does not guarantee
-              future results. Always do your own research before making investment
-              decisions.
-            </p>
-          </div>
-        </main>
-      </div>
+        {/* Regime Timeline Strip */}
+        <section className="mb-12">
+          <RegimeTimeline
+            history={regimeData.regimeHistory}
+            currentRegime={regimeData.currentRegime}
+            tradeEntryPrice={regimeData.currentTradeEntryPrice}
+          />
+        </section>
+
+        {/* Disclaimer */}
+        <div className="pt-8 border-t border-gray-200">
+          <p className="text-xs text-gray-400 leading-relaxed">
+            This information is for educational purposes only and should not be
+            considered investment advice. Past performance does not guarantee
+            future results. Always do your own research before making investment
+            decisions.
+          </p>
+        </div>
+      </main>
     </div>
   );
 }
