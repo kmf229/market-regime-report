@@ -843,19 +843,33 @@ def upload_equity_curve(image_path: Path, supabase: Client, file_name: str = "eq
     bucket_name = "regime-assets"
 
     try:
-        supabase.storage.from_(bucket_name).upload(
+        # Try upload with upsert (should overwrite if exists)
+        response = supabase.storage.from_(bucket_name).upload(
             file_name,
             image_bytes,
             file_options={"content-type": "image/png", "upsert": "true"}
         )
+        print(f"Upload response: {response}")
     except Exception as e:
+        # Print raw error for debugging
+        print(f"Upload error type: {type(e).__name__}")
+        print(f"Upload error: {e}")
+
+        # If file exists, try to update instead
         if "already exists" in str(e).lower() or "duplicate" in str(e).lower():
-            supabase.storage.from_(bucket_name).update(
+            print("File exists, trying update...")
+            response = supabase.storage.from_(bucket_name).update(
                 file_name,
                 image_bytes,
                 file_options={"content-type": "image/png"}
             )
+            print(f"Update response: {response}")
         else:
+            # For other errors, try to get more details
+            if hasattr(e, 'response'):
+                print(f"Response status: {e.response.status_code if hasattr(e.response, 'status_code') else 'N/A'}")
+                print(f"Response headers: {e.response.headers if hasattr(e.response, 'headers') else 'N/A'}")
+                print(f"Response text: {e.response.text if hasattr(e.response, 'text') else 'N/A'}")
             raise
 
     public_url = supabase.storage.from_(bucket_name).get_public_url(file_name)
