@@ -32,18 +32,13 @@ def fetch_live_spy_price(supabase_client, trade_start_date: str = None):
         # Get trade start date if not provided
         if trade_start_date is None:
             try:
-                regime_result = supabase_client.table("regime_status").select("current_trade_start, spy_trade_start_price").limit(1).single().execute()
+                regime_result = supabase_client.table("regime_status").select("current_trade_start").limit(1).single().execute()
 
                 if not regime_result.data:
                     print("Warning: No regime_status data for SPY trade start price")
                     return (current_spy_price, None)
 
                 trade_start_date = regime_result.data.get("current_trade_start")
-                existing_spy_start = regime_result.data.get("spy_trade_start_price")
-
-                # If we already have a spy_trade_start_price, use it
-                if existing_spy_start is not None:
-                    return (current_spy_price, float(existing_spy_start))
             except Exception as e:
                 # Column might not exist yet - fetch just current_trade_start
                 print(f"Note: spy_trade_start_price column not found ({e}), calculating from historical data")
