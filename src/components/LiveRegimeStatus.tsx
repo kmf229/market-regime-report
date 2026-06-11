@@ -44,6 +44,8 @@ export default function LiveRegimeStatus({
           currentTradeReturn: row.current_trade_return ?? null,
           currentTradeStart: row.current_trade_start ?? null,
           currentTradeEntryPrice: row.current_trade_entry_price ?? null,
+          spyCurrentPrice: row.spy_current_price ?? null,
+          spyTradeStartPrice: row.spy_trade_start_price ?? null,
         });
       }
     };

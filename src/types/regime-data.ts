@@ -16,6 +16,10 @@ export interface RegimeData {
   currentTradeStart: string | null; // date we entered current regime
   currentTradeEntryPrice: number | null; // price when we entered current regime
 
+  // SPY benchmark (for real-time comparison)
+  spyCurrentPrice: number | null; // latest SPY price (updated every 10 min)
+  spyTradeStartPrice: number | null; // SPY price when current trade started
+
   // Timeline (last 12 months of regime periods)
   regimeHistory: RegimePeriod[];
 

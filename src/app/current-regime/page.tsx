@@ -45,6 +45,8 @@ export default async function CurrentRegimePage() {
               strategyReturn={regimeData.currentTradeReturn}
               tradeEntryPrice={regimeData.currentTradeEntryPrice}
               benchmarkPrices={benchmarkPrices}
+              spyCurrentPrice={regimeData.spyCurrentPrice}
+              spyTradeStartPrice={regimeData.spyTradeStartPrice}
             />
           </section>
         )}

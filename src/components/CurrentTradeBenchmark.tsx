@@ -9,6 +9,8 @@ interface CurrentTradeBenchmarkProps {
   strategyReturn: number;
   tradeEntryPrice: number | null;
   benchmarkPrices: Record<string, BenchmarkPrice[]>;
+  spyCurrentPrice: number | null;
+  spyTradeStartPrice: number | null;
 }
 
 function calculateReturn(prices: BenchmarkPrice[]): number | null {
@@ -33,9 +35,12 @@ export default function CurrentTradeBenchmark({
   strategyReturn,
   tradeEntryPrice,
   benchmarkPrices,
+  spyCurrentPrice,
+  spyTradeStartPrice,
 }: CurrentTradeBenchmarkProps) {
   const currentTicker = currentRegime === "bullish" ? "NQ=F" : "GC=F";
   const [liveStrategyReturn, setLiveStrategyReturn] = useState<number | null>(null);
+  const [liveSpyReturn, setLiveSpyReturn] = useState<number | null>(null);
 
   // Fetch live price for strategy position
   useEffect(() => {
@@ -64,8 +69,21 @@ export default function CurrentTradeBenchmark({
     return () => clearInterval(interval);
   }, [currentTicker, tradeEntryPrice]);
 
+  // Calculate live SPY return from Supabase data
+  useEffect(() => {
+    if (spyCurrentPrice && spyTradeStartPrice) {
+      const returnPct = ((spyCurrentPrice - spyTradeStartPrice) / spyTradeStartPrice) * 100;
+      setLiveSpyReturn(returnPct);
+    } else {
+      setLiveSpyReturn(null);
+    }
+  }, [spyCurrentPrice, spyTradeStartPrice]);
+
   // Use live return if available, otherwise fall back to stored return
   const displayStrategyReturn = liveStrategyReturn ?? strategyReturn;
+
+  // Use live SPY return from Supabase, fallback to calculated from benchmarkPrices
+  const displaySpyReturn = liveSpyReturn ?? calculateReturn(benchmarkPrices["SPY"] || []);
 
   // Calculate returns for each benchmark
   const benchmarks = [
@@ -78,7 +96,7 @@ export default function CurrentTradeBenchmark({
     {
       name: "SPY",
       ticker: "SPY",
-      return: calculateReturn(benchmarkPrices["SPY"] || []),
+      return: displaySpyReturn,
       isStrategy: false,
     },
   ];

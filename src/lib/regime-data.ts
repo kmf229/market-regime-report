@@ -15,6 +15,8 @@ interface RegimeStatusRow {
   current_trade_return: number | null;
   current_trade_start: string | null;
   current_trade_entry_price: number | null;
+  spy_current_price: number | null;
+  spy_trade_start_price: number | null;
 }
 
 export async function getRegimeData(): Promise<RegimeData> {
@@ -43,6 +45,8 @@ export async function getRegimeData(): Promise<RegimeData> {
       currentTradeReturn: null,
       currentTradeStart: null,
       currentTradeEntryPrice: null,
+      spyCurrentPrice: null,
+      spyTradeStartPrice: null,
     };
   }
 
@@ -64,5 +68,7 @@ export async function getRegimeData(): Promise<RegimeData> {
     currentTradeReturn: row.current_trade_return ?? null,
     currentTradeStart: row.current_trade_start ?? null,
     currentTradeEntryPrice: row.current_trade_entry_price ?? null,
+    spyCurrentPrice: row.spy_current_price ?? null,
+    spyTradeStartPrice: row.spy_trade_start_price ?? null,
   };
 }
