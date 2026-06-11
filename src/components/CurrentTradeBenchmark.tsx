@@ -69,15 +69,47 @@ export default function CurrentTradeBenchmark({
     return () => clearInterval(interval);
   }, [currentTicker, tradeEntryPrice]);
 
-  // Calculate live SPY return from Supabase data
+  // Poll Supabase for live SPY prices every 60 seconds
   useEffect(() => {
-    if (spyCurrentPrice && spyTradeStartPrice) {
+    const fetchSpyPrices = async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+
+        const { data, error } = await supabase
+          .from("regime_status")
+          .select("spy_current_price, spy_trade_start_price")
+          .limit(1)
+          .single();
+
+        if (!error && data) {
+          const { spy_current_price, spy_trade_start_price } = data;
+
+          if (spy_current_price && spy_trade_start_price) {
+            const returnPct = ((spy_current_price - spy_trade_start_price) / spy_trade_start_price) * 100;
+            setLiveSpyReturn(returnPct);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching SPY prices:", error);
+      }
+    };
+
+    // Initial fetch
+    fetchSpyPrices();
+
+    // Poll every 60 seconds
+    const interval = setInterval(fetchSpyPrices, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fallback to initial props if live data not available
+  useEffect(() => {
+    if (liveSpyReturn === null && spyCurrentPrice && spyTradeStartPrice) {
       const returnPct = ((spyCurrentPrice - spyTradeStartPrice) / spyTradeStartPrice) * 100;
       setLiveSpyReturn(returnPct);
-    } else {
-      setLiveSpyReturn(null);
     }
-  }, [spyCurrentPrice, spyTradeStartPrice]);
+  }, [spyCurrentPrice, spyTradeStartPrice, liveSpyReturn]);
 
   // Use live return if available, otherwise fall back to stored return
   const displayStrategyReturn = liveStrategyReturn ?? strategyReturn;
