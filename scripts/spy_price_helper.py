@@ -19,23 +19,15 @@ def fetch_live_spy_price(supabase_client, trade_start_date: str = None):
         Tuple of (current_spy_price, spy_trade_start_price) or (None, None) if not available
     """
     try:
-        from stocks_simple import Stocks
-        stocks = Stocks()
+        import yfinance as yf
 
-        # Fetch SPY data (last 60 days to ensure we have enough history)
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        start_date = (datetime.now() - timedelta(days=60)).strftime('%Y-%m-%d')
+        # Get CURRENT SPY price from yfinance (real-time, not historical daily close)
+        spy_ticker = yf.Ticker("SPY")
+        current_spy_price = float(spy_ticker.fast_info.last_price)
 
-        spy_df = stocks.ohlc('SPY', start=start_date, end=end_date)
-
-        if spy_df.empty:
-            print("Warning: No SPY data available")
+        if current_spy_price is None or current_spy_price == 0:
+            print("Warning: Invalid SPY price from yfinance")
             return (None, None)
-
-        # Get latest SPY price
-        spy_df['date'] = pd.to_datetime(spy_df['date'])
-        spy_df = spy_df.sort_values('date')
-        current_spy_price = float(spy_df.iloc[-1]['close'])
 
         # Get trade start date if not provided
         if trade_start_date is None:
@@ -63,12 +55,25 @@ def fetch_live_spy_price(supabase_client, trade_start_date: str = None):
                     print(f"Warning: Could not fetch trade_start_date: {e2}")
                     return (current_spy_price, None)
 
-        # Look up the SPY price on the trade start date
+        # Look up the SPY price on the trade start date (using historical data)
         if trade_start_date:
-            trade_start_dt = pd.to_datetime(trade_start_date)
+            # Fetch historical SPY data for trade start date
+            from stocks_simple import Stocks
+            stocks = Stocks()
 
-            # Find the SPY price on or nearest to trade start date
+            # Fetch 60 days of history to ensure we capture the trade start date
+            start_date = (pd.to_datetime(trade_start_date) - timedelta(days=10)).strftime('%Y-%m-%d')
+            end_date = datetime.now().strftime('%Y-%m-%d')
+
+            spy_df = stocks.ohlc('SPY', start=start_date, end=end_date)
+
+            if spy_df.empty:
+                print("Warning: No historical SPY data for trade start price")
+                return (current_spy_price, None)
+
+            spy_df['date'] = pd.to_datetime(spy_df['date'])
             spy_df_indexed = spy_df.set_index('date')
+            trade_start_dt = pd.to_datetime(trade_start_date)
 
             try:
                 spy_start_price = float(spy_df_indexed.loc[trade_start_dt]['close'])

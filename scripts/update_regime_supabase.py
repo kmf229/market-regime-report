@@ -232,25 +232,22 @@ def calculate_live_trade_return(supabase: Client, nq_prices: pd.Series = None, g
             print(f"Warning: Could not find starting equity for {date_in}")
             return (None, None, None)
 
-        # Fetch current futures prices if not provided
-        if nq_prices is None or gc_prices is None:
-            try:
-                from stocks_simple import Stocks
-                stocks = Stocks()
-                nq_contract = stocks.get_front_month_contract("NQ")
-                gc_contract = stocks.get_front_month_contract("GC")
-                nq_df = stocks.ohlc_futures(nq_contract)
-                gc_df = stocks.ohlc_futures(gc_contract)
-                nq_prices = nq_df.set_index('date')['close']
-                gc_prices = gc_df.set_index('date')['close']
-            except Exception as e:
-                print(f"Warning: Could not fetch futures prices: {e}")
+        # Fetch CURRENT futures price from yfinance (not historical daily data)
+        try:
+            import yfinance as yf
+            ticker_symbol = "NQ=F" if current_regime == "bullish" else "GC=F"
+            ticker = yf.Ticker(ticker_symbol)
+
+            # Use fast_info for quickest access to current price
+            current_price = float(ticker.fast_info.last_price)
+
+            if current_price is None or current_price == 0:
+                print(f"Warning: Invalid price from yfinance: {current_price}")
                 return (None, None, None)
 
-        # Get current price
-        prices = nq_prices if current_regime == "bullish" else gc_prices
-        today = prices.index.max()
-        current_price = float(prices.loc[today])
+        except Exception as e:
+            print(f"Warning: Could not fetch current futures price: {e}")
+            return (None, None, None)
 
         # Calculate unrealized P&L
         # For micro futures: MNQ multiplier = 2, MGC multiplier = 10
@@ -335,6 +332,17 @@ def update_intraday(
     # Add current trade return if available
     if live_return is not None:
         data["current_trade_return"] = live_return
+
+    # Fetch and add live SPY prices
+    try:
+        from spy_price_helper import fetch_live_spy_price
+        spy_current, spy_start = fetch_live_spy_price(supabase)
+        if spy_current is not None:
+            data["spy_current_price"] = round(spy_current, 2)
+        if spy_start is not None:
+            data["spy_trade_start_price"] = round(spy_start, 2)
+    except Exception as e:
+        print(f"Warning: Could not update SPY prices: {e}")
 
     # Update existing row
     existing = supabase.table("regime_status").select("id").limit(1).execute()
@@ -557,6 +565,17 @@ def update_regime_status(
         "current_trade_start": current_trade_start,
         "current_trade_entry_price": current_trade_entry_price,
     }
+
+    # Fetch and add live SPY prices
+    try:
+        from spy_price_helper import fetch_live_spy_price
+        spy_current, spy_start = fetch_live_spy_price(supabase)
+        if spy_current is not None:
+            data["spy_current_price"] = round(spy_current, 2)
+        if spy_start is not None:
+            data["spy_trade_start_price"] = round(spy_start, 2)
+    except Exception as e:
+        print(f"Warning: Could not update SPY prices: {e}")
 
     # Check if row exists
     existing = supabase.table("regime_status").select("id").limit(1).execute()
