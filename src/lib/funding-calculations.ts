@@ -215,13 +215,14 @@ function calculateSharpeRatio(monthlyReturns: number[]): number {
 
 /**
  * Calculate gain to pain ratio
+ * Formula: (Sum of all monthly returns) / |Sum of negative returns|
  */
 function calculateGainToPainRatio(monthlyReturns: number[]): number {
-  const gains = monthlyReturns.filter(r => r > 0).reduce((a, b) => a + b, 0);
+  const allReturns = monthlyReturns.reduce((a, b) => a + b, 0);
   const losses = Math.abs(monthlyReturns.filter(r => r < 0).reduce((a, b) => a + b, 0));
 
-  if (losses === 0) return gains > 0 ? Infinity : 0;
-  return gains / losses;
+  if (losses === 0) return allReturns > 0 ? Infinity : 0;
+  return allReturns / losses;
 }
 
 /**
