@@ -10,6 +10,7 @@ import MonthlyReturnsTable from "@/components/MonthlyReturnsTable";
 import EquityCurveWithFunding from "@/components/EquityCurveWithFunding";
 import FundingLevelSelector from "@/components/FundingLevelSelector";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import Disclaimer from "@/components/Disclaimer";
 import {
   FundingLevel,
   DEFAULT_FUNDING_PCT,
@@ -96,8 +97,14 @@ export default function TrackRecordPage() {
     <div>
       <ScrollToTop />
       {/* Hero Section */}
-      <section className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
+      <section className="relative border-b border-gray-200">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/images/hero.jpg')" }}
+        >
+          <div className="absolute inset-0 bg-white/70"></div>
+        </div>
+        <div className="relative max-w-5xl mx-auto px-6 py-12 md:py-16">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
               Track Record
@@ -106,7 +113,7 @@ export default function TrackRecordPage() {
               Track record is updated daily (weekdays) at 8am ET using time-weighted
               returns and reflects performance through the most recent trading day.
             </p>
-            <p className="mt-4 text-sm text-gray-500">
+            <p className="mt-4 text-sm text-emerald-600 font-medium">
               Performance period: {formatDate(originalSummary.start_date)} —{" "}
               {formatDate(originalSummary.data_through)} ({originalSummary.strategy_length_days}{" "}
               days)
@@ -115,6 +122,13 @@ export default function TrackRecordPage() {
 
           {/* Hero Stats */}
           <HeroStats summary={adjustedSummary} />
+        </div>
+      </section>
+
+      {/* Performance Disclosure Notice */}
+      <section className="border-b border-gray-200">
+        <div className="max-w-5xl mx-auto px-6 py-8">
+          <Disclaimer variant="trackrecord" />
         </div>
       </section>
 
@@ -153,19 +167,7 @@ export default function TrackRecordPage() {
         </section>
 
         {/* Disclaimer */}
-        <section className="p-6 bg-gray-50 border border-gray-200 rounded-lg">
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Disclaimer
-          </h3>
-          <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-            Past performance is not indicative of future results. All returns
-            shown are time-weighted and net of any applicable fees. This
-            information is provided for informational purposes only and does not
-            constitute investment advice or a recommendation to buy or sell any
-            securities. The author is not a registered investment advisor,
-            broker, or financial planner.
-          </p>
-        </section>
+        <Disclaimer variant="standard" />
       </div>
     </div>
   );

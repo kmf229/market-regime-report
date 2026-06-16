@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getAllPublishedArticles } from "@/lib/articles";
+import Disclaimer from "@/components/Disclaimer";
 
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split("-").map(Number);
@@ -29,27 +30,21 @@ export default function HomePage() {
               Systematic Investment Strategy
             </p>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-              Rules-Based Investing.
+              Systematic Futures Management.
               <br />
-              Zero Emotion.
+              Institutional Discipline.
             </h1>
             <p className="mt-6 text-xl text-gray-700 leading-relaxed">
-              A regime-based futures trading approach that rotates between NQ (Nasdaq 100 futures) and GC (Gold futures)
-              based on market leadership—not predictions, not gut feelings,
-              just systematic execution.
+              A rules-based CTA approach for qualified investors. Our systematic framework
+              rotates between equity index futures and alternative assets based on market
+              leadership—not predictions, not gut feelings, just systematic execution.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+            <div className="mt-10">
               <Link
-                href="/track-record"
+                href="/contact"
                 className="inline-flex items-center justify-center px-6 py-3.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
               >
-                View Track Record
-              </Link>
-              <Link
-                href="/current-regime"
-                className="inline-flex items-center justify-center px-6 py-3.5 border border-gray-300 bg-white/80 text-gray-700 font-medium rounded-lg hover:bg-white transition-colors"
-              >
-                See Current Regime
+                Contact Us
               </Link>
             </div>
           </div>
@@ -78,50 +73,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* Differentiators */}
       <section className="border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <h2 className="text-2xl font-bold text-gray-900 mb-10">
-            How the Regime Model Works
+            What Sets Us Apart
           </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Bullish Regime
-                </h3>
-              </div>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                When market leadership favors growth and momentum, the model
-                positions in NQ futures (Nasdaq 100) to capture
-                upside during favorable conditions.
-              </p>
-            </div>
-            <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Bearish Regime
-                </h3>
-              </div>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                When conditions shift defensive, the model rotates to GC futures
-                (Gold) as a store of value, prioritizing capital preservation
-                over aggressive growth.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pillars */}
-      <section className="border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <div className="text-3xl font-bold text-gray-900 mb-2">01</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <div className="p-6 bg-white border border-gray-200 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
                 Systematic Process
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
@@ -130,87 +90,63 @@ export default function HomePage() {
                 interference.
               </p>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-gray-900 mb-2">02</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Total Transparency
+            <div className="p-6 bg-white border border-gray-200 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Full Transparency
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Real-time documentation of every trade, every regime shift,
+                Complete documentation of every trade, every regime shift,
                 every win and loss. The track record is fully auditable with
                 time-weighted returns.
               </p>
             </div>
-            <div>
-              <div className="text-3xl font-bold text-gray-900 mb-2">03</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Simplicity Over Complexity
+            <div className="p-6 bg-white border border-gray-200 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Aligned Incentives
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Simple systems survive when complex ones fail. The regime model
-                is designed to be robust across market conditions, not optimized
-                for backtests.
+                Performance-based fee structure aligns our success with yours.
+                We succeed when you succeed—no profit without demonstrated results.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Track Record CTA */}
-      <section className="bg-gray-900">
-        <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h2 className="text-2xl font-bold text-white">
-                See the numbers for yourself
-              </h2>
-              <p className="mt-2 text-gray-400">
-                Full performance history with monthly breakdowns and risk metrics.
-              </p>
-            </div>
-            <Link
-              href="/track-record"
-              className="inline-flex items-center justify-center px-6 py-3.5 bg-white text-gray-900 font-medium rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap"
-            >
-              View Track Record
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Current Regime Section */}
-      <section className="border-b border-gray-200">
+      {/* Track Record Preview */}
+      <section className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl font-bold text-gray-900">
-              Follow the Regime in Real Time
+              Track Record
             </h2>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              See exactly where the model stands today. The Current Regime page
-              shows the live regime status and daily updates on market conditions.
+              View our complete track record including monthly returns, equity curve,
+              and performance metrics. Full transparency with detailed trade history
+              and risk-adjusted returns.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="mt-8">
               <Link
-                href="/current-regime"
+                href="/track-record"
                 className="inline-flex items-center justify-center px-6 py-3.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
               >
-                See Current Regime
+                View Track Record
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Latest Articles Section */}
+      {/* Latest Insights Section */}
       {recentArticles.length > 0 && (
         <section className="border-b border-gray-200">
           <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
             <div className="flex items-center justify-between mb-10">
               <h2 className="text-2xl font-bold text-gray-900">
-                Latest Articles
+                Latest Insights
               </h2>
               <Link
-                href="/the-strategy"
+                href="/insights"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 View all →
@@ -252,16 +188,7 @@ export default function HomePage() {
       {/* Disclaimer */}
       <section className="bg-gray-50">
         <div className="max-w-5xl mx-auto px-6 py-10">
-          <p className="text-xs text-gray-500 leading-relaxed">
-            <strong>Disclaimer:</strong> Market Regime Capital is for
-            informational and educational purposes only. The content provided
-            does not constitute investment advice, financial advice, or a
-            recommendation to buy or sell any securities or futures contracts.
-            Futures trading involves substantial risk of loss and is not suitable
-            for all investors. Past performance is not indicative of future results.
-            Always conduct your own research and consult with a qualified financial
-            professional before making investment decisions.
-          </p>
+          <Disclaimer variant="standard" />
         </div>
       </section>
     </div>

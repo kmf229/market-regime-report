@@ -19,7 +19,8 @@
     "react-dom": "^18.3.0",
     "recharts": "^3.8.1",
     "remark": "^15.0.1",
-    "remark-html": "^16.0.1"
+    "remark-html": "^16.0.1",
+    "resend": "^6.12.4"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",

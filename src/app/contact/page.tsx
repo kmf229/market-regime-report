@@ -1,35 +1,106 @@
+import ContactForm from "@/components/ContactForm";
+import Disclaimer from "@/components/Disclaimer";
+
 export default function ContactPage() {
   return (
     <div>
-      {/* Contact Content */}
-      <section className="border-b border-gray-200">
+      {/* Hero Section */}
+      <section className="relative border-b border-gray-200">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/images/hero.jpg')" }}
+        >
+          <div className="absolute inset-0 bg-white/70"></div>
+        </div>
+        <div className="relative max-w-5xl mx-auto px-6 py-16 md:py-20">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+            Contact Us
+          </h1>
+          <p className="mt-4 text-xl text-gray-600 max-w-3xl">
+            Interested in learning more? We&apos;re here to help.
+          </p>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="border-b border-gray-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-          <div className="max-w-2xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              Contact
-            </h1>
-            <p className="text-lg text-gray-600 mb-8">
-              For inquiries about the strategy, reach out below.
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Left: Contact Form */}
+            <div>
+              <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mb-3">
+                Get in Touch
+              </p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Send a Message
+              </h2>
+              <ContactForm />
+            </div>
+
+            {/* Right: What to Expect */}
+            <div>
+              <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mb-3">
+                Response Details
+              </p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                What to Expect
+              </h2>
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Response Time
+                  </h3>
+                  <p className="text-gray-600">
+                    We typically respond within 24 hours during business days.
+                  </p>
+                </div>
+
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="font-semibold text-gray-900 mb-3">
+                    What to Expect
+                  </h3>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400 mt-1">•</span>
+                      <span>
+                        We&apos;ll review your inquiry and respond within 24 hours
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400 mt-1">•</span>
+                      <span>
+                        Qualified investors interested in future investment availability
+                        will receive information when the program launches
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-gray-400 mt-1">•</span>
+                      <span>
+                        All inquiries are treated with strict confidentiality
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Regulatory Notice */}
+      <section className="bg-gray-50 border-b border-gray-200">
+        <div className="max-w-5xl mx-auto px-6 py-12">
+          <div className="max-w-3xl mx-auto">
+            <h3 className="text-sm font-semibold text-emerald-600 uppercase tracking-wide mb-3">
+              Future Investment Availability
+            </h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              The investment program will be available only to accredited investors as
+              defined by the SEC. Generally, this includes individuals with net worth
+              exceeding $1 million (excluding primary residence) or annual income exceeding
+              $200,000 ($300,000 joint income) for the past two years. Market Regime Capital
+              is currently building a track record in preparation for CTA registration.
             </p>
-            <a
-              href="mailto:marketregimereport@gmail.com"
-              className="inline-flex items-center gap-2 text-lg font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              marketregimereport@gmail.com
-            </a>
           </div>
         </div>
       </section>
@@ -37,16 +108,7 @@ export default function ContactPage() {
       {/* Disclaimer */}
       <section className="bg-gray-50">
         <div className="max-w-5xl mx-auto px-6 py-10">
-          <p className="text-xs text-gray-500 leading-relaxed">
-            <strong>Disclaimer:</strong> Market Regime Capital is for
-            informational and educational purposes only. The content provided
-            does not constitute investment advice, financial advice, or a
-            recommendation to buy or sell any securities. Past performance is
-            not indicative of future results. I am not a registered investment
-            advisor, broker, or financial planner. Always conduct your own
-            research and consult with a qualified financial professional before
-            making investment decisions.
-          </p>
+          <Disclaimer variant="standard" />
         </div>
       </section>
     </div>
@@ -54,7 +116,7 @@ export default function ContactPage() {
 }
 
 export const metadata = {
-  title: "Contact | Market Regime Capital",
+  title: "Contact",
   description:
-    "For inquiries about the strategy or managed accounts, reach out via email.",
+    "Contact Market Regime Capital to learn about systematic futures management programs for qualified investors.",
 };
