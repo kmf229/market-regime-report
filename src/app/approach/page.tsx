@@ -35,16 +35,14 @@ export default function ApproachPage() {
             </h2>
             <div className="space-y-4 text-gray-600 leading-relaxed">
               <p>
-                The framework measures relative strength across risk-on sectors (technology, industrials,
-                consumer discretionary) versus risk-off sectors (utilities, staples, treasuries, gold).
-                When risk-on sectors systematically outperform on a z-score normalized basis, it signals
-                that institutional capital is rotating toward growth. When risk-off sectors lead, capital
-                is rotating toward safety.
+                The framework measures relative strength across risk-on sectors versus risk-off sectors.
+                When risk-on sectors systematically outperform on a normalized basis, it signals that
+                institutional capital is rotating toward growth. When risk-off sectors lead, capital is
+                rotating toward safety.
               </p>
               <p>
                 This isn't prediction—it's measurement. By the time the signal triggers, the rotation is
-                already underway. Large institutional portfolios can't reposition overnight. That lag creates
-                a persistent drift we can measure and follow.
+                already underway, creating a persistent drift we can measure and follow.
               </p>
               <p>
                 Regime shifts are infrequent by design. The framework requires sustained, statistically
@@ -54,8 +52,8 @@ export default function ApproachPage() {
               </p>
               <p>
                 Every position change follows a rules-based process with complete transparency. No predictions,
-                no discretionary overrides, no principal-agent risk. The strategy does exactly what the
-                framework signals, documented in real-time for institutional due diligence.
+                no discretionary overrides. The strategy does exactly what the framework signals, documented
+                in real-time for institutional due diligence.
               </p>
             </div>
           </div>

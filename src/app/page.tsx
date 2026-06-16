@@ -58,16 +58,16 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold text-gray-900">The Edge</h2>
             <p className="mt-4 text-gray-600 leading-relaxed">
               We exploit institutional capital rotation—the measurable, slow-moving shift of large
-              capital pools between risk-on sectors (technology, industrials, discretionary) and
-              risk-off havens (utilities, staples, gold, treasuries). When a pension fund managing
-              $50 billion repositions, it takes weeks to months. That creates persistent, measurable
-              drift in relative sector strength.
+              capital pools between risk-on sectors and risk-off havens. This rotation creates persistent,
+              measurable drift in relative sector strength that can be systematically identified and followed.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
               Our framework detects this rotation while it's happening—not by predicting it, but by
               measuring the herd's footprint through quantitative analysis of market leadership patterns.
-              The edge persists because institutional size creates lag, career risk ensures coordinated
-              behavior, and the risk-on/risk-off dynamic is fundamental to how markets price risk.
+              The edge persists because institutional size creates lag, professional managers face
+              incentives to move together (deviating from consensus and being wrong costs careers, while
+              following consensus and being wrong is acceptable), and the risk-on/risk-off dynamic is
+              fundamental to how markets price risk.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
               Unlike diversified CTAs trading 50-100 markets, we make one high-conviction macro decision—risk-on

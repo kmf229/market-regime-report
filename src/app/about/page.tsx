@@ -43,16 +43,9 @@ export default function AboutPage() {
               </p>
               <p>
                 The strategy trades with full transparency—every regime shift, every position change,
-                every win and loss is publicly documented. Track record includes time-weighted returns,
-                monthly performance, complete trade history, and benchmark comparisons updated daily.
-                This level of disclosure is unusual for a pre-registration manager but reflects our
-                commitment to institutional-quality process from day one.
-              </p>
-              <p>
-                We are building capacity deliberately. The target AUM range is $50-150 million across
-                10-15 qualified investors, ensuring sufficient scale for institutional credibility while
-                maintaining execution quality in liquid futures markets. Registration timeline: 2026-2027
-                upon achieving minimum track record requirements.
+                and every win and loss is documented. Track record includes time-weighted returns,
+                monthly performance, and benchmark comparisons updated daily. Performance data is
+                available upon request for qualified investors. Target registration timeline: 2027-2028.
               </p>
             </div>
           </div>
@@ -158,64 +151,19 @@ export default function AboutPage() {
                 The regime framework emerged from multi-year research into institutional capital flows
                 and market leadership patterns. Development included extensive backtesting across 2,000+
                 parameter variations, out-of-sample validation, and live forward testing with personal
-                capital beginning in 2024. The strategy demonstrated consistent profitability across
+                capital beginning in 2025. The strategy demonstrated consistent profitability across
                 parameter sets, confirming the edge is structural rather than curve-fitted.
               </p>
               <p>
                 Kevin trades the strategy exclusively with personal capital. Every position, regime shift,
-                and performance metric is documented in real-time and publicly disclosed—an unusual level
-                of transparency for a pre-registration manager. The track record reflects actual executed
-                trades at stated prices, including all commissions and slippage, not hypothetical or
-                simulated results.
+                and performance metric is documented in real-time, with detailed performance data available
+                upon request for qualified investors. The track record reflects actual executed trades at
+                stated prices, including all commissions and slippage, not hypothetical or simulated results.
               </p>
               <p>
                 Market Regime Capital's mission is to scale this framework for qualified institutional
                 investors through a transparent, rules-based process with complete alignment of interests.
-                Target registration: 2026-2027 upon achieving minimum CTA track record requirements.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Firm Timeline */}
-      <section className="border-b border-gray-200 bg-white">
-        <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-          <div className="max-w-3xl">
-            <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mb-3">
-              Timeline
-            </p>
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">
-              Development & Track Record
-            </h2>
-            <div className="space-y-6">
-              <div className="flex gap-4 border-l-2 border-emerald-500 pl-4">
-                <div className="flex-shrink-0 w-24 text-sm font-medium text-emerald-700">
-                  2024-2025
-                </div>
-                <div className="text-gray-600">
-                  <strong className="text-gray-900">Strategy Research & Development</strong>
-                  <p className="mt-1">Systematic framework design, backtesting, and refinement</p>
-                </div>
-              </div>
-              <div className="flex gap-4 border-l-2 border-emerald-500 pl-4">
-                <div className="flex-shrink-0 w-24 text-sm font-medium text-emerald-700">
-                  Nov 2025
-                </div>
-                <div className="text-gray-600">
-                  <strong className="text-gray-900">Live Trading Commenced</strong>
-                  <p className="mt-1">Strategy deployed with personal capital, full performance documentation begins</p>
-                </div>
-              </div>
-              <div className="flex gap-4 border-l-2 border-emerald-500 pl-4">
-                <div className="flex-shrink-0 w-24 text-sm font-medium text-emerald-700">
-                  2026+
-                </div>
-                <div className="text-gray-600">
-                  <strong className="text-gray-900">Track Record Development</strong>
-                  <p className="mt-1">Ongoing live trading to establish institutional-quality performance history</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
