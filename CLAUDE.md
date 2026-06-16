@@ -5,30 +5,34 @@
 This is a Next.js 14+ website for **Market Regime Capital**, a systematic futures trading CTA run by Kevin Fitzpatrick. The site is deployed on Vercel at **marketregimes.com**.
 
 ### Site Architecture
-This is a CTA (Commodity Trading Advisor) website focused on futures trading:
-- **Custom site** (this codebase): `marketregimes.com` — `/`, `/about`, `/track-record`, `/current-regime`
-- **Trading instruments**: NQ futures (Nasdaq 100) and GC futures (Gold)
+Pre-registration CTA website for institutional investors:
+- **Site**: `marketregimes.com` — Public-facing institutional marketing site
+- **Trading instruments**: Liquid futures (specific instruments not disclosed to protect proprietary methodology)
+- **Business stage**: Building auditable track record for CFTC/NFA registration (target: 2027-2028)
 
 ### Navigation Structure
 ```
-[Logo] Market Regime Capital     Home | Current Regime | Track Record | Updates | Strategy | Research | About | Contact | Sign In
+[Logo] Market Regime Capital     Home | About | Approach | Track Record | Insights | Contact
 ```
-- **Home** → `/` (custom)
-- **Current Regime** → `/current-regime` (protected, requires login)
-- **Track Record** → `/track-record` (custom)
-- **Updates** → `/updates` (daily market updates)
-- **Strategy** → `/the-strategy` (strategy articles)
-- **Research** → `/research` (research content)
-- **About** → `/about` (custom)
-- **Contact** → `/contact` (contact page)
+- **Home** → `/` - Investment thesis and edge explanation
+- **About** → `/about` - Firm information, leadership, credibility
+- **Approach** → `/approach` - Methodology, portfolio fit, differentiation from CTAs
+- **Track Record** → `/track-record` - Live performance data with disclaimer
+- **Insights** → `/insights` - Consolidated articles (market commentary, research, strategy)
+- **Contact** → `/contact` - Contact form (Resend API)
+
+**REMOVED (June 2026 overhaul):**
+- `/current-regime` - No live signals publicly visible
+- `/login` - No authentication system
+- `/updates`, `/the-strategy`, `/research` - Consolidated into `/insights`
 
 ### Business Model
-- Currently a CTA website showcasing systematic futures trading approach
-- Future: Will manage client capital through a registered fund
-- Focus on institutional-quality process and full transparency
-
-### Future Goal
-Kevin plans to launch a fund and manage outside capital. The site maintains an institutional, professional aesthetic suitable for a CTA.
+- **Pre-registration CTA** building institutional-quality track record
+- All trades executed with real capital, documented in real-time
+- Performance data available upon request for qualified investors
+- Target registration: 2027-2028 with CFTC/NFA
+- Positioning: Institutional allocators, not retail investors
+- Live trading commenced: November 2025
 
 ---
 
@@ -65,12 +69,12 @@ Or use VS Code: Source Control panel → Stage → Commit → Push
 - **Fonts**:
   - Inter (sans-serif) - navigation and body text
   - Spectral (serif) - site title
-- **Data**: Track record stored in Supabase (updated daily by Pi on weekdays)
+- **Data**: Track record stored in Supabase (updated daily by Pi on weekdays at 8am ET)
 - **Articles**: Markdown files in `/content/articles/` with gray-matter frontmatter
 - **Markdown Processing**: gray-matter, remark, remark-html
-- **Authentication**: Supabase Auth (magic link) + Supabase Postgres
-- **Database**: Supabase (profiles table for access control, regime_status table for real-time data)
-- **Real-Time Data**: Regime data stored in Supabase, updated by Raspberry Pi every 10 minutes
+- **Contact Form**: Resend API for email delivery
+- **Database**: Supabase (track_record table for performance data)
+- **Authentication**: REMOVED (June 2026) - No login system, no protected pages
 
 ---
 
@@ -95,57 +99,46 @@ website/
 ├── src/
 │   ├── app/
 │   │   ├── globals.css                 # Tailwind + custom styles
-│   │   ├── layout.tsx                  # Root layout with Header/Footer + auth
-│   │   ├── page.tsx                    # Home page (with hero image)
+│   │   ├── layout.tsx                  # Root layout with Header/Footer (no auth)
+│   │   ├── page.tsx                    # Home page (institutional messaging)
 │   │   ├── about/
-│   │   │   └── page.tsx                # About page
+│   │   │   └── page.tsx                # About page (firm info, leadership)
+│   │   ├── api/
+│   │   │   └── contact/
+│   │   │       └── route.ts            # Contact form API (Resend)
+│   │   ├── approach/
+│   │   │   └── page.tsx                # Methodology, portfolio fit, differentiation
 │   │   ├── articles/
-│   │   │   ├── page.tsx                # Article index (thumbnail layout)
 │   │   │   └── [slug]/
 │   │   │       └── page.tsx            # Individual article page (SSG)
-│   │   ├── auth/
-│   │   │   └── callback/
-│   │   │       └── route.ts            # Magic link callback handler
-│   │   ├── current-regime/
-│   │   │   └── page.tsx                # Protected current regime page
-│   │   ├── login/
-│   │   │   └── page.tsx                # Login page (magic link)
+│   │   ├── contact/
+│   │   │   └── page.tsx                # Contact page with form
+│   │   ├── insights/
+│   │   │   └── page.tsx                # Consolidated articles hub
 │   │   └── track-record/
-│   │       ├── layout.tsx              # Track Record layout (metadata + revalidate)
 │   │       └── page.tsx                # Track Record page (client-side)
 │   ├── components/
-│   │   ├── Header.tsx                  # Logo + title left, nav right + auth
-│   │   ├── NavLink.tsx                 # Active page indicator + highlight
-│   │   ├── SignOutButton.tsx           # Client-side sign out button
-│   │   ├── ScrollToTop.tsx             # Scroll to top on page load
-│   │   ├── TagFilter.tsx               # Article tag filter buttons
+│   │   ├── BenchmarkComparison.tsx     # Strategy vs S&P 500 comparison
+│   │   ├── ContactForm.tsx             # Contact form (Resend integration)
+│   │   ├── Disclaimer.tsx              # Reusable disclaimer (4 variants)
+│   │   ├── EquityCurveWithFunding.tsx  # Equity curve with funding selector
+│   │   ├── FundingLevelSelector.tsx    # Track record funding level toggle
+│   │   ├── Header.tsx                  # Logo + title left, nav right (no auth)
 │   │   ├── HeroStats.tsx               # Large 4-metric display
+│   │   ├── InsightsFilter.tsx          # Category filter for articles
 │   │   ├── MetricsPanel.tsx            # Detailed metrics grid
 │   │   ├── MonthlyReturnsTable.tsx     # Monthly returns HTML table
-│   │   ├── EquityCurve.tsx             # Equity curve image display
-│   │   ├── RegimeStats.tsx             # Regime statistics panel (4 cards)
-│   │   ├── RegimeTimeline.tsx          # Visual regime history bar
-│   │   ├── RegimeContext.tsx           # "What this means" explanation card
-│   │   ├── RegimeSidebar.tsx           # Left sidebar navigation
-│   │   ├── FundingLevelSelector.tsx    # Track record funding level toggle
-│   │   └── TradesTable.tsx             # Trade history table
+│   │   ├── NavLink.tsx                 # Active page indicator
+│   │   └── ScrollToTop.tsx             # Scroll to top on page load
 │   ├── lib/
 │   │   ├── articles.ts                 # Article reading/parsing utilities
-│   │   ├── regime-updates.ts           # Legacy: Regime update reading (markdown)
-│   │   ├── daily-updates.ts            # Fetch daily updates from Supabase
-│   │   ├── regime-data.ts              # Fetch regime data from Supabase
 │   │   ├── track-record-data.ts        # Fetch track record from Supabase
 │   │   ├── funding-calculations.ts     # Funding level calculations & adjustments
 │   │   └── supabase/
 │   │       ├── client.ts               # Browser Supabase client
-│   │       ├── server.ts               # Server Supabase client
-│   │       └── middleware.ts           # Auth middleware helper
-│   ├── middleware.ts                   # Next.js middleware for route protection
+│   │       └── server.ts               # Server Supabase client
 │   └── types/
 │       ├── article.ts                  # Article TypeScript interfaces
-│       ├── regime-update.ts            # Legacy: Regime update interfaces (markdown)
-│       ├── daily-update.ts             # Daily update interface (Supabase)
-│       ├── regime-data.ts              # Regime data TypeScript interfaces
 │       └── track-record.ts             # Track record TypeScript interfaces
 ├── scripts/
 │   ├── update_regime_supabase.py       # Python: update Supabase from notebook/Pi
@@ -229,90 +222,180 @@ Track record data is stored in Supabase (`track_record` table) with summary metr
 ## Current Pages
 
 ### Home Page (`/`)
+**Purpose:** Hook institutional allocators with the investment thesis and edge
 - Hero section with background image (`/images/hero.jpg`)
-- "Rules-Based Investing. Zero Emotion."
-- Philosophy section
-- How It Works: Bullish vs Bearish (green/red cards)
-- Three pillars
-- Dark CTA band (View Track Record)
-- Current Regime section with "See Current Regime" button
+- Tagline: "Systematic Futures Management. Institutional Discipline."
+- **"The Edge" section**: Explains institutional capital rotation edge (see Investment Thesis below)
+- **"What Sets Us Apart"**: 3 differentiator cards (Systematic Process, Full Transparency, Aligned Incentives)
+- Track Record Preview section with CTA button
+- Latest Insights (3 recent articles)
+- Disclaimer
+
+### About Page (`/about`)
+**Purpose:** Answer "Who are you?" and establish credibility
+- Hero section with background
+- **"The Firm"**: Pre-registration status, track record building, registration timeline 2027-2028
+- **How It Works**: Risk-On vs Risk-Off positioning (green/red cards)
+- **Leadership - Kevin Fitzpatrick**: 20 years experience, 2,000+ parameter testing, live trading since 2025
+- **Future Investment Program**: Brief CTA program overview
+- CTA section (View Approach + View Track Record buttons)
+- Disclaimer
+
+### Approach Page (`/approach`)
+**Purpose:** Answer "How does it work?" and "Where does it fit in my portfolio?"
+- Hero section with background
+- **"Methodology"**: How the framework measures institutional capital rotation
+- **"Asset Universe"**: Why futures (liquidity, transparency, institutional infrastructure)
+- **"Risk Management"**: Position sizing, drawdown controls, real-time monitoring, concentrated exposure
+- **"Why Futures?"**: 4 numbered advantages (liquidity, cost, two-way markets, transparency)
+- **"Portfolio Construction"** (NEW): S&P correlation 0.33-0.51, bond correlation near zero, crisis alpha examples, typical 10-20% allocation
+- **"How We're Different from CTAs"** (NEW): One macro decision vs 50-100 market trend following, concentrated conviction, verifiable with public data, 2,000+ parameter robustness
+- CTA section (View Track Record + Contact Us buttons)
 - Disclaimer
 
 ### Track Record Page (`/track-record`)
-- **Client-side component** with interactive funding level selector
+**Purpose:** Full performance transparency with actual trades
+- Hero section with background
+- Performance period dates and data-through date
+- **HeroStats**: 4 large metrics (Cumulative Return, YTD, CAGR, Max Drawdown)
+- **Performance Disclosure**: Blue disclaimer box (actual trades, not hypothetical)
+- **Benchmark Comparison**: Strategy vs S&P 500 metrics side-by-side
+- **Monthly Returns Table**: Full grid with green/red cells
+- **Metrics Panel**: Detailed performance statistics
 - **Funding Level Selector**: Toggle between 33%, 50%, 75%, 100% funding
   - 33% = 3x leverage (default, Kevin's actual trading)
-  - 50% = 2x leverage
-  - 75% = 1.3x leverage
-  - 100% = 1x leverage (fully funded)
-- All metrics update dynamically when funding level changes:
-  - HeroStats: 4 large metrics (Cumulative Return, YTD, CAGR, Max Drawdown)
-  - Benchmark Comparison: Strategy metrics recalculate, S&P 500 stays fixed
-  - Monthly Returns table: All cells recalculate (green/red)
-  - Performance Summary panel: All metrics except % Up Months recalculate
-  - Equity Curve: Dynamically rendered canvas chart (updates instantly)
-  - Trade History: Equity and return % columns recalculate, P&L stays fixed
-- **Math**:
-  - Scale factor = 33 / selected_funding_pct
-  - All percentage returns × scale factor
-  - Starting equity = $250,000 × (funding_pct / 100)
-  - Dollar P&L on trades unchanged (only % returns change)
+  - All metrics recalculate dynamically when funding level changes
+  - Math: Scale factor = 33 / selected_funding_pct
+- **Equity Curve**: Chart updates based on selected funding level
 - Disclaimer
 
-### Articles Page (`/articles`)
-- Compact header
-- Article list with thumbnail layout
-- Links to individual articles
+### Insights Page (`/insights`)
+**Purpose:** Consolidated content hub (replaced /updates, /the-strategy, /research)
+- Hero section with background
+- Category filter buttons: All | [dynamic categories from articles]
+- Article grid with thumbnails, dates, descriptions
+- Powered by `InsightsFilter.tsx` client component for filtering
+
+### Contact Page (`/contact`)
+**Purpose:** Lead generation for qualified investors
+- Hero section with background
+- **Contact Form**: Name, Email, Company, Accredited Investor checkbox, Message
+- **What to Expect**: Response time, process for qualified investors
+- **Regulatory Notice**: Accredited investor definition, future availability
+- Form submits to `/api/contact` → Resend API → email to marketregimereport@gmail.com
+- Disclaimer
 
 ### Article Page (`/articles/[slug]`)
-- Back link
-- Title, date, tags
+- Title, date, category, reading time
 - Featured image (if set)
 - Article content with prose styling
-- Footer navigation
-
-### About Page (`/about`)
-- The Problem / The Solution
-- How It Works: Bullish vs Bearish (green/red cards)
-- About Kevin
-- What You Get (clickable cards linking to Current Regime, Articles, Track Record)
-- CTA section (View Track Record + See Current Regime)
-- Disclaimer
-
-### Current Regime Page (`/current-regime`) - Protected
-- Requires login (magic link auth)
-- Checks `current_regime_access` in profiles table
-- **Overview Section**:
-  - Speedometer image (from Supabase Storage, updated every 10 min)
-  - RegimeContext card explaining current positioning
-  - RegimeStats panel (4 cards): Days in regime, YTD changes, avg duration, regime strength
-  - RegimeTimeline: Visual bar chart of regime history with month markers
-- **Benchmark Comparison**: Current trade performance vs SPY/QQQ/GLD
-- Disclaimer
-
-### Login Page (`/login`)
-- Email input for magic link
-- Success/error states
-- Redirects to /current-regime after auth
+- Tags display
 
 ---
 
-## Regime Updates System
+## Investment Thesis & Institutional Messaging
 
-Daily updates are now stored in Supabase (`daily_updates` table) and generated automatically by the Pi. The legacy markdown system in `/content/regime-updates/` has been migrated to the database.
+### Overview
+The site is positioned for **institutional allocators**, not retail investors. Messaging focuses on answering the 4 key questions sophisticated investors ask when evaluating alternative managers.
 
-**Speedometer**: Generated by Python script, stored in Supabase Storage bucket `regime-assets`. Threshold: 0.25 (above = bullish, below = bearish).
+### The 4 Institutional Questions
+
+#### 1. Who are you?
+**Answered on: About page**
+
+Market Regime Capital is a pre-registration systematic futures manager building an auditable track record for CFTC/NFA registration (target: 2027-2028). Kevin Fitzpatrick, founder and portfolio manager, has 20 years of trading experience and data science background. The regime framework underwent extensive development:
+- Multi-year research into institutional capital flows and market leadership
+- 2,000+ parameter variations tested with consistent profitability
+- Out-of-sample validation confirming structural edge (not curve-fitted)
+- Live forward testing with personal capital beginning November 2025
+
+All trades executed with real capital, documented in real-time, performance data available upon request for qualified investors.
+
+#### 2. What's your edge?
+**Answered on: Home page "The Edge" section**
+
+**The edge is exploiting institutional capital rotation** — the measurable, slow-moving shift of large capital pools between risk-on sectors and risk-off havens.
+
+**How it works:**
+When the market environment shifts, large pools of capital (pension funds, endowments, mutual funds, ETFs) rotate between risk-on and risk-off positioning. A pension fund managing $50 billion can't reposition overnight. That rotation takes weeks to months, creating persistent, measurable drift in relative sector strength.
+
+The framework detects this rotation **while it's happening** — not by predicting it, but by measuring the herd's footprint through quantitative analysis of market leadership patterns. We're not front-running the herd, we're measuring the herd's footprint and walking in the same direction.
+
+**Why does the edge persist? Three structural reasons that don't go away:**
+
+1. **Institutional size creates lag**: Large capital pools cannot move quickly. Size creates lag, and lag creates opportunity for anyone measuring the flow.
+
+2. **Herding is rational for professional money managers**: Career risk ensures coordinated behavior. A portfolio manager who deviates from consensus and is wrong gets fired. One who follows consensus and is wrong gets to say "everyone got it wrong." This incentive structure drives coordinated movement indefinitely.
+
+3. **Risk-on/risk-off is fundamental**: This dynamic isn't a statistical anomaly that gets arbitraged away — it's the basic mechanism by which capital prices risk. As long as investors differentiate between growth and safety, regime transitions will exist.
+
+**Differentiator from traditional CTAs:**
+Most CTAs ask "Is this market trending up or down?" and trade 50-100+ individual markets with diversified trend-following. Market Regime Capital asks a fundamentally different question: "Is the overall market environment favoring growth or safety?" — then makes **one high-conviction macro decision** expressed through concentrated futures positions.
+
+#### 3. Why should I allocate to you?
+**Answered on: Home page differentiators, Approach page differentiation section**
+
+**What makes this different from other trend-following CTAs:**
+
+- **One macro decision vs diversified whipsaw**: Traditional CTAs trade 50-100 markets applying momentum signals independently. Their diversification IS their risk management. Market Regime Capital makes one regime call (risk-on or risk-off) with concentrated conviction.
+
+- **Transparency and verifiability**: An investor always knows exactly what they own — either equity index futures or alternative asset futures, nothing else. They can verify the thesis ("are risk-on sectors leading or lagging?") themselves with publicly available sector data. No black box, no 200-market portfolio they can't track.
+
+- **Simplicity is robustness**: The strategy was tested across 2,000+ parameter variations and virtually all were profitable. That doesn't happen with overfit, complex systems. It happens when the underlying signal captures something structurally real.
+
+- **Actual trades, not hypothetical**: Track record reflects live executed trades with real capital at stated prices, including all commissions and slippage. Performance data available upon request for institutional due diligence.
+
+- **Aligned incentives**: Performance-based fee structure with complete alignment of interests. Compensation tied directly to realized returns.
+
+#### 4. How does your strategy fit in my portfolio?
+**Answered on: Approach page "Portfolio Construction" section**
+
+**Correlation profile:**
+- **S&P 500 correlation**: 0.33 to 0.51 depending on program leverage — low enough to provide genuine diversification, but not zero because the strategy IS long equities during bullish regimes. This is a **feature, not a bug**: you get equity upside participation during bull markets AND regime-driven protection during bear markets. Pure zero-correlation strategies often miss rallies entirely.
+- **Bond correlation**: Near zero — the signal is driven by equity sector rotation, which is independent of interest rate dynamics.
+
+**Crisis alpha — the diversification story is clearest during crises:**
+- **2008**: When the S&P dropped 38%, the strategy was positioned in gold
+- **COVID 2020**: Strategy caught the bearish signal and positioned defensively before rotating bullish in May 2020 to catch the entire recovery rally
+
+This is crisis alpha — not just avoiding the worst of drawdowns, but being positioned to profit from the conditions that cause them.
+
+**Where it fits in a portfolio:**
+- **Typical allocation**: Managed futures / alternatives sleeve at 10-20% of total portfolio
+- **Use case**: Not replacing equities or bonds — it's the third leg that zigs when stocks zag, participates when stocks rally, and generates alpha independent of the traditional 60/40 framework
+- **Example**: An allocator running a $100M balanced portfolio adds $10-15M here and improves their portfolio Sharpe ratio without meaningfully increasing correlation to traditional assets
 
 ---
 
-## Real-Time Regime Updates (Supabase + Raspberry Pi)
+## Regime Updates System (DEPRECATED - June 2026)
 
-### Architecture
-- **No Vercel redeploy needed** for regime updates
+**Historical system** (no longer used for public site):
+- Daily updates stored in Supabase `daily_updates` table
+- Speedometer image generated and stored in Supabase Storage
+- Updated automatically by Pi every 10 minutes during market hours
+
+**Why deprecated:**
+- `/current-regime` page removed from public site in June 2026 overhaul
+- Live regime signals no longer displayed publicly
+- System still exists in database but is not actively maintained
+- Pi scheduler tasks for regime updates have been disabled
+
+**Legacy infrastructure:**
+- Supabase tables: `regime_status`, `daily_updates`
+- Supabase Storage bucket: `regime-assets`
+- Components deleted: RegimeStats, RegimeTimeline, RegimeContext, etc.
+
+---
+
+## Real-Time Regime Updates (DEPRECATED - June 2026)
+
+**Note:** This system is no longer used for the public website. Documentation preserved for reference.
+
+### Architecture (Historical)
 - Regime data stored in Supabase `regime_status` table
 - Speedometer image stored in Supabase Storage
-- Website fetches from Supabase on each page load (instant updates)
-- Raspberry Pi updates data every 10 minutes during market hours
+- Website fetched from Supabase on each page load
+- Raspberry Pi updated data every 10 minutes during market hours (NOW DISABLED)
 
 ### Regime Strength Scaling
 Raw z-spread values are scaled to an intuitive -10 to +10 scale:
@@ -415,12 +498,16 @@ journalctl -u regime-updater -f        # View logs
 ```
 
 **Scheduled tasks:**
-| Task | Schedule | Description |
-|------|----------|-------------|
-| Regime updates | Every 10 min (market hours) | Update regime data + speedometer |
-| Close regime update | 4:16pm ET | Official regime flip at market close |
-| Track record | Weekdays 8:00am ET | Update from IBKR FTP |
-| Weekly digest | Sunday 8:00am ET | Send weekly summary email |
+| Task | Schedule | Status | Description |
+|------|----------|--------|-------------|
+| Track record | Weekdays 8:00am ET | ✅ ACTIVE | Update from IBKR FTP |
+| Regime updates | Every 10 min (market hours) | ❌ DISABLED (Jun 2026) | Update regime data + speedometer |
+| Close regime update | 4:16pm ET | ❌ DISABLED (Jun 2026) | Official regime flip at market close |
+| Benchmark prices | Weekdays 8:05am ET | ❌ DISABLED (Jun 2026) | Update SPY/QQQ/GLD prices |
+| Weekly digest | Sunday 8:00am ET | ❌ DISABLED (Jun 2026) | Send weekly summary email |
+| Substack notes (3 types) | Randomized daily | ❌ DISABLED (Jun 2026) | Discipline/philosophy/reflection notes |
+
+**Why disabled:** Website overhaul removed live regime signals from public view. Only track record update remains necessary for public site data.
 
 **GPG Setup for IBKR Decryption:**
 GPG private key is installed on Pi with no passphrase for automated decryption.
@@ -435,65 +522,124 @@ GPG private key is installed on Pi with no passphrase for automated decryption.
 
 ---
 
-## Authentication System
+## Authentication System (REMOVED June 2026)
 
-### Overview
-- **Provider**: Supabase Auth with magic link (email)
-- **Session**: ~30 days via refresh tokens
-- **Protected Route**: `/current-regime`
+**Previous system:**
+- Supabase Auth with magic link (email)
+- Protected route: `/current-regime`
+- `profiles` table with access control
 
-### Database Schema
-```sql
-profiles (
-  id UUID PRIMARY KEY → auth.users.id,
-  email TEXT,
-  current_regime_access BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP
-)
-```
+**Why removed:**
+- Institutional overhaul eliminated live regime signals from public site
+- `/current-regime` page deleted entirely
+- No protected pages = no authentication needed
+- Simpler architecture for marketing site
 
-### Access Control
-- Middleware redirects unauthenticated users to `/login`
-- Page checks `current_regime_access` in profiles table
-- If `false`, shows "Access Not Enabled" message
+**Current state:**
+- All pages are public
+- No login system
+- No middleware for route protection
+- Supabase still used for track record data storage only
 
-### Managing Access
-```sql
--- Disable access for a user
-UPDATE profiles SET current_regime_access = FALSE WHERE email = 'user@example.com';
+---
 
--- Enable access for a user
-UPDATE profiles SET current_regime_access = TRUE WHERE email = 'user@example.com';
-```
+## Contact Form System
+
+### Implementation
+- **API Route**: `/api/contact` (Next.js API route)
+- **Email Provider**: Resend API
+- **From address**: `contact@marketregimes.com`
+- **To address**: `marketregimereport@gmail.com`
+
+### Form Fields
+- Name (required)
+- Email (required)
+- Company (optional)
+- Accredited Investor checkbox (optional)
+- Message (required)
 
 ### Environment Variables
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+RESEND_API_KEY=re_2WPCxhcY_KEBbJVA282WLTULEQh4q6FAU
 ```
+
+**Domain verification:** Already completed on Resend for `marketregimes.com`
+
+---
+
+## Proprietary Information Protection
+
+### DO NOT Disclose on Website
+
+The following details are proprietary and must NOT appear on the public site:
+
+1. **Specific instruments traded**
+   - No mention of "NQ futures" or "Nasdaq 100 futures"
+   - No mention of "GC futures" or "Gold futures"
+   - Use generic terms: "equity index futures" and "alternative assets"
+
+2. **Specific sector/ETF components**
+   - No listing of risk-on sectors: technology, industrials, consumer discretionary
+   - No listing of risk-off sectors: utilities, staples, treasuries, gold
+   - Use generic: "risk-on sectors" and "risk-off sectors"
+
+3. **Technical methodology details**
+   - No mention of "z-score" normalization (use "normalized basis")
+   - No specific thresholds or parameter values
+   - No specific indicator formulas or calculations
+
+4. **Business metrics**
+   - No target AUM figures
+   - No specific investor count targets
+   - General language: building capacity for qualified institutional investors
+
+### Acceptable General Disclosures
+
+What CAN be discussed publicly:
+
+- Regime-based framework concept
+- Institutional capital rotation as the edge
+- Why the edge persists (structural reasons)
+- Futures as the asset class (without naming specific contracts)
+- Generic sector rotation concept
+- Performance metrics from actual trades
+- Correlation statistics to major indices
+- Portfolio construction guidance
 
 ---
 
 ## Design Guidelines
 
 ### Colors
-- **Positive**: `text-emerald-600` (#16a34a)
-- **Negative**: `text-red-600` (#dc2626)
+- **Brand accent**: `text-emerald-600` / `bg-emerald-600` (#16a34a) — Used for section labels, active filters, numbered badges
+- **Positive**: `text-emerald-600` (#16a34a) — Green for positive returns
+- **Negative**: `text-red-600` (#dc2626) — Red for negative returns
 - **Neutral**: `text-gray-500` (#6b7280)
-- **Backgrounds**: `bg-gray-50`, `bg-gray-900`
+- **Backgrounds**: `bg-gray-50`, `bg-gray-900`, `bg-white`
+- **Hero overlay**: `bg-white/70` (70% white overlay on hero.jpg)
 
 ### Typography
 - **Site title**: Spectral (serif), `font-spectral`
 - **Navigation/Body**: Inter (sans-serif)
 - **Article prose**: Tailwind Typography plugin
 
+### Visual Treatment (June 2026)
+- **Hero sections**: All main pages use `/images/hero.jpg` background with 70% white overlay
+- **Section labels**: Emerald green uppercase tracking-wider small text
+- **Numbered badges**: Emerald circles with white text (replaces gray-900)
+- **Filter buttons**: Emerald active state (replaces gray-900)
+
 ### Header Layout
-- Single row: Logo + "The Market Regime Report" on left, nav links on right
+- Single row: Logo + "Market Regime Capital" on left, nav links on right
+- No authentication icon
 - Subtle bottom border
 - Mobile: Hamburger menu
 
 ### Footer
-- Copyright: "© 2026 The Market Regime Report. All rights reserved."
+- 4-column grid: Firm Info | Navigation | Resources | Legal
+- Comprehensive CFTC/NFA regulatory disclaimers
+- Registration status disclosure
+- Copyright: "© 2026 Market Regime Capital. All rights reserved."
 
 ---
 
@@ -526,7 +672,18 @@ Open http://localhost:3000
 
 **May 2026**: Substack Notes automation system (3 note types: observational/philosophy/reactive), randomized scheduling, SQLite tracking, disabled daily blurbs to reduce Claude API costs.
 
-**Jun 2026**: Interactive funding level selector on Track Record page (33%/50%/75%/100% funding with dynamic recalculation of all metrics), removed email alert system for simplification.
+**Early Jun 2026**: Interactive funding level selector on Track Record page (33%/50%/75%/100% funding with dynamic recalculation of all metrics), removed email alert system for simplification.
+
+**Mid Jun 2026 - MAJOR INSTITUTIONAL OVERHAUL**:
+- **Removed live signal infrastructure**: Deleted 27 files including `/current-regime` page, all regime components, authentication system
+- **New navigation**: 6 items (Home, About, Approach, Track Record, Insights, Contact) - removed auth, consolidated articles
+- **Created new pages**: `/approach` (methodology + portfolio fit + differentiation), `/insights` (consolidated articles hub), enhanced `/contact` with Resend form
+- **Messaging shift**: From retail education ("most traders fail because...") to institutional value prop ("here's our edge and why it persists")
+- **Added Investment Thesis documentation**: Answers 4 institutional questions (Who are you? What's your edge? Why allocate? Portfolio fit?)
+- **Visual enhancements**: Hero image backgrounds on all pages, emerald green brand accents throughout
+- **Regulatory compliance**: Comprehensive CFTC/NFA disclaimers in footer, performance disclosure on track record
+- **Pi scheduler**: Disabled 5 tasks (regime updates, benchmarks, weekly emails, Substack notes), kept only track record update
+- **Business positioning**: Pre-registration CTA building track record for 2027-2028 registration, targeting institutional allocators not retail
 
 ---
 
