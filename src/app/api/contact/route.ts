@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: 'Market Regime Capital <noreply@marketregimes.com>',
+      from: 'Market Regime Capital <contact@marketregimes.com>',
       to: ['marketregimereport@gmail.com'],
       replyTo: email,
       subject: `Contact Form: ${name}`,
