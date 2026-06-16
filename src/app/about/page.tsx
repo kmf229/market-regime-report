@@ -17,66 +17,40 @@ export default function AboutPage() {
             About Market Regime Capital
           </h1>
           <p className="mt-4 text-xl text-gray-600 max-w-3xl">
-            A systematic futures trading strategy built on institutional discipline,
-            designed to remove emotion from the equation and respond to market
-            leadership—not predictions.
+            A quantitative futures management strategy built on systematic discipline
+            and transparent execution. We respond to observed market leadership patterns
+            through a rules-based framework, delivering consistency without discretionary risk.
           </p>
         </div>
       </section>
 
-      {/* The Problem */}
+      {/* The Philosophy */}
       <section className="border-b border-gray-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mb-3">
-              The Problem
+              The Philosophy
             </p>
             <h2 className="text-2xl font-bold text-gray-900">
-              Behavioral Mistakes Destroy Returns
+              Systematic Process, Institutional Discipline
             </h2>
             <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
               <p>
-                The biggest threat to trading performance isn't market volatility—it's
-                behavioral interference. Studies consistently show that individual traders
-                underperform because of poor timing decisions driven by emotion.
+                Market Regime Capital was founded on the conviction that regime transitions—the
+                structural shifts between risk-on and risk-off market environments—are identifiable,
+                persistent, and tradeable. Our proprietary framework detects these transitions using
+                quantitative measures of market leadership and positions accordingly.
               </p>
               <p>
-                Investors overtrade. They exit winning positions too early and hold
-                losing positions too long. They panic at market bottoms and chase at
-                tops. These behavioral patterns are universal, predictable, and
-                detrimental to long-term returns.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* The Solution */}
-      <section className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
-          <div className="max-w-3xl">
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
-              The Solution
-            </p>
-            <h2 className="text-2xl font-bold text-gray-900">
-              Rules Replace Emotion
-            </h2>
-            <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
-              <p>
-                Market Regime Capital is built on a simple premise: if the
-                problem is behavioral, the solution must be systematic. No
-                predictions. No gut feelings. No discretionary overrides. Just
-                rules.
+                The approach is deliberately simple. We believe complexity is the enemy of robustness.
+                The regime framework has been tested across thousands of parameter variations with
+                consistent profitability, confirming that the edge is structural, not curve-fitted.
               </p>
               <p>
-                The regime model identifies whether the market environment favors
-                risk-taking or risk-avoidance based on actual market leadership
-                patterns—not forecasts, not opinions, not speculation. When the data
-                signals risk-on conditions, the strategy positions for growth. When
-                it signals risk-off, capital moves to defensive assets.
-              </p>
-              <p>
-                This approach prioritizes consistency over prediction.
+                Every decision follows a rules-based process. No predictions. No discretionary overrides.
+                The strategy responds to what the market is doing, not what we think it will do. This
+                systematic discipline ensures consistency and eliminates the principal-agent problem
+                inherent in discretionary management.
               </p>
             </div>
           </div>
@@ -179,11 +153,11 @@ export default function AboutPage() {
                 science and systematic strategy development.
               </p>
               <p>
-                His approach emerged from recognizing that behavioral discipline—not
-                analytical complexity—is the primary differentiator in trading
-                performance. After years of testing and refinement, he developed
-                the regime-based framework that forms the foundation of Market
-                Regime Capital's investment strategy.
+                His approach emerged from extensive quantitative research into market
+                leadership patterns and regime transitions. After years of testing and
+                refinement across diverse market conditions, he developed the systematic
+                framework that forms the foundation of Market Regime Capital's investment
+                strategy.
               </p>
               <p>
                 Kevin trades the strategy with personal capital and maintains full
@@ -193,8 +167,9 @@ export default function AboutPage() {
               </p>
               <p>
                 Market Regime Capital's mission is to provide qualified investors
-                with access to systematic, rules-based futures management—removing
-                emotional interference and providing institutional-quality process.
+                with access to systematic, rules-based futures management through an
+                institutional-quality process with complete transparency and alignment
+                of interests.
               </p>
             </div>
           </div>

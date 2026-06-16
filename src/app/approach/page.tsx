@@ -49,9 +49,9 @@ export default function ApproachPage() {
                 defensive assets.
               </p>
               <p>
-                This approach removes emotional interference, eliminates prediction
-                bias, and ensures every decision follows a repeatable, rules-based
-                process.
+                This systematic approach ensures consistency, eliminates discretionary
+                risk, and provides complete transparency. Every position change is
+                documented and follows a repeatable, auditable process.
               </p>
             </div>
           </div>

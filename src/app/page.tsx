@@ -35,9 +35,9 @@ export default function HomePage() {
               Institutional Discipline.
             </h1>
             <p className="mt-6 text-xl text-gray-700 leading-relaxed">
-              A rules-based CTA approach for qualified investors. Our systematic framework
-              rotates between equity index futures and alternative assets based on market
-              leadership—not predictions, not gut feelings, just systematic execution.
+              A quantitative CTA strategy for qualified investors. Our systematic framework
+              rotates between equity index futures and alternative assets based on observed
+              market leadership patterns, delivering consistent execution without discretionary risk.
             </p>
             <div className="mt-10">
               <Link
@@ -55,19 +55,18 @@ export default function HomePage() {
       <section className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="max-w-3xl">
-            <h2 className="text-2xl font-bold text-gray-900">The Philosophy</h2>
+            <h2 className="text-2xl font-bold text-gray-900">The Investment Thesis</h2>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              Most traders lose money not because of bad analysis, but because
-              of bad behavior—overtrading, selling winners early, holding losers
-              too long. Market Regime Capital eliminates these mistakes with
-              a systematic framework that removes emotion from the equation.
+              Market Regime Capital was founded on the conviction that regime transitions—the
+              structural shifts between risk-on and risk-off market environments—are identifiable,
+              persistent, and tradeable. Our quantitative framework detects these transitions
+              through systematic measurement of market leadership patterns and positions accordingly.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              The regime model identifies whether the market favors risk-on or
-              risk-off positioning, then allocates to futures accordingly. The
-              approach prioritizes conviction over activity—regime shifts are
-              rare by design, typically just a handful per year, reflecting only
-              significant structural changes in market leadership.
+              The approach is deliberately simple. Complexity is the enemy of robustness. Regime
+              shifts occur infrequently by design—typically a handful of signals per year—reflecting
+              only significant structural changes in market leadership. This low-turnover approach
+              minimizes transaction costs while maintaining exposure to sustained market trends.
             </p>
           </div>
         </div>
@@ -85,9 +84,9 @@ export default function HomePage() {
                 Systematic Process
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Every decision follows a repeatable, rules-based framework.
-                No discretionary overrides, no second-guessing, no emotional
-                interference.
+                Every decision follows a repeatable, rules-based framework with
+                complete transparency. No discretionary overrides, no subjective
+                interpretation, no principal-agent risk.
               </p>
             </div>
             <div className="p-6 bg-white border border-gray-200 rounded-lg">
@@ -105,8 +104,9 @@ export default function HomePage() {
                 Aligned Incentives
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Performance-based fee structure aligns our success with yours.
-                We succeed when you succeed—no profit without demonstrated results.
+                Performance-based fee structure with complete alignment of interests.
+                Compensation tied directly to realized returns, ensuring focus on
+                long-term capital appreciation.
               </p>
             </div>
           </div>
