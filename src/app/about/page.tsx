@@ -17,40 +17,42 @@ export default function AboutPage() {
             About Market Regime Capital
           </h1>
           <p className="mt-4 text-xl text-gray-600 max-w-3xl">
-            A quantitative futures management strategy built on systematic discipline
-            and transparent execution. We respond to observed market leadership patterns
-            through a rules-based framework, delivering consistency without discretionary risk.
+            Pre-registration CTA building an institutional-quality track record through
+            systematic futures management. Full transparency, real capital, documented
+            performance—preparing for CFTC/NFA registration in 2026-2027.
           </p>
         </div>
       </section>
 
-      {/* The Philosophy */}
+      {/* The Firm */}
       <section className="border-b border-gray-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mb-3">
-              The Philosophy
+              The Firm
             </p>
             <h2 className="text-2xl font-bold text-gray-900">
-              Systematic Process, Institutional Discipline
+              Building Track Record for CTA Registration
             </h2>
             <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
               <p>
-                Market Regime Capital was founded on the conviction that regime transitions—the
-                structural shifts between risk-on and risk-off market environments—are identifiable,
-                persistent, and tradeable. Our proprietary framework detects these transitions using
-                quantitative measures of market leadership and positions accordingly.
+                Market Regime Capital is a pre-registration systematic futures manager currently
+                building an auditable track record in preparation for CFTC/NFA registration as a
+                Commodity Trading Advisor. All trades are executed in a live account with real capital,
+                documented in real-time, and available for institutional due diligence.
               </p>
               <p>
-                The approach is deliberately simple. We believe complexity is the enemy of robustness.
-                The regime framework has been tested across thousands of parameter variations with
-                consistent profitability, confirming that the edge is structural, not curve-fitted.
+                The strategy trades with full transparency—every regime shift, every position change,
+                every win and loss is publicly documented. Track record includes time-weighted returns,
+                monthly performance, complete trade history, and benchmark comparisons updated daily.
+                This level of disclosure is unusual for a pre-registration manager but reflects our
+                commitment to institutional-quality process from day one.
               </p>
               <p>
-                Every decision follows a rules-based process. No predictions. No discretionary overrides.
-                The strategy responds to what the market is doing, not what we think it will do. This
-                systematic discipline ensures consistency and eliminates the principal-agent problem
-                inherent in discretionary management.
+                We are building capacity deliberately. The target AUM range is $50-150 million across
+                10-15 qualified investors, ensuring sufficient scale for institutional credibility while
+                maintaining execution quality in liquid futures markets. Registration timeline: 2026-2027
+                upon achieving minimum track record requirements.
               </p>
             </div>
           </div>
@@ -148,28 +150,28 @@ export default function AboutPage() {
             </h2>
             <div className="mt-6 space-y-4 text-gray-600 leading-relaxed">
               <p>
-                Kevin Fitzpatrick founded Market Regime Capital after two decades
-                of experience in the markets, including extensive work in data
-                science and systematic strategy development.
+                Kevin Fitzpatrick founded Market Regime Capital after 20 years of trading experience
+                and quantitative research. His background spans data science, systematic strategy
+                development, and direct market exposure across multiple asset classes.
               </p>
               <p>
-                His approach emerged from extensive quantitative research into market
-                leadership patterns and regime transitions. After years of testing and
-                refinement across diverse market conditions, he developed the systematic
-                framework that forms the foundation of Market Regime Capital's investment
-                strategy.
+                The regime framework emerged from multi-year research into institutional capital flows
+                and market leadership patterns. Development included extensive backtesting across 2,000+
+                parameter variations, out-of-sample validation, and live forward testing with personal
+                capital beginning in 2024. The strategy demonstrated consistent profitability across
+                parameter sets, confirming the edge is structural rather than curve-fitted.
               </p>
               <p>
-                Kevin trades the strategy with personal capital and maintains full
-                transparency through real-time documentation of all positions,
-                regime shifts, and performance metrics. The track record reflects
-                actual executed trades, not hypothetical results.
+                Kevin trades the strategy exclusively with personal capital. Every position, regime shift,
+                and performance metric is documented in real-time and publicly disclosed—an unusual level
+                of transparency for a pre-registration manager. The track record reflects actual executed
+                trades at stated prices, including all commissions and slippage, not hypothetical or
+                simulated results.
               </p>
               <p>
-                Market Regime Capital's mission is to provide qualified investors
-                with access to systematic, rules-based futures management through an
-                institutional-quality process with complete transparency and alignment
-                of interests.
+                Market Regime Capital's mission is to scale this framework for qualified institutional
+                investors through a transparent, rules-based process with complete alignment of interests.
+                Target registration: 2026-2027 upon achieving minimum CTA track record requirements.
               </p>
             </div>
           </div>

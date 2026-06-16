@@ -55,18 +55,24 @@ export default function HomePage() {
       <section className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="max-w-3xl">
-            <h2 className="text-2xl font-bold text-gray-900">The Investment Thesis</h2>
+            <h2 className="text-2xl font-bold text-gray-900">The Edge</h2>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              Market Regime Capital was founded on the conviction that regime transitions—the
-              structural shifts between risk-on and risk-off market environments—are identifiable,
-              persistent, and tradeable. Our quantitative framework detects these transitions
-              through systematic measurement of market leadership patterns and positions accordingly.
+              We exploit institutional capital rotation—the measurable, slow-moving shift of large
+              capital pools between risk-on sectors (technology, industrials, discretionary) and
+              risk-off havens (utilities, staples, gold, treasuries). When a pension fund managing
+              $50 billion repositions, it takes weeks to months. That creates persistent, measurable
+              drift in relative sector strength.
             </p>
             <p className="mt-4 text-gray-600 leading-relaxed">
-              The approach is deliberately simple. Complexity is the enemy of robustness. Regime
-              shifts occur infrequently by design—typically a handful of signals per year—reflecting
-              only significant structural changes in market leadership. This low-turnover approach
-              minimizes transaction costs while maintaining exposure to sustained market trends.
+              Our framework detects this rotation while it's happening—not by predicting it, but by
+              measuring the herd's footprint through quantitative analysis of market leadership patterns.
+              The edge persists because institutional size creates lag, career risk ensures coordinated
+              behavior, and the risk-on/risk-off dynamic is fundamental to how markets price risk.
+            </p>
+            <p className="mt-4 text-gray-600 leading-relaxed">
+              Unlike diversified CTAs trading 50-100 markets, we make one high-conviction macro decision—risk-on
+              or risk-off—and express it through concentrated futures positions. The result: transparency,
+              simplicity, and robustness confirmed across thousands of parameter variations.
             </p>
           </div>
         </div>
@@ -94,9 +100,9 @@ export default function HomePage() {
                 Full Transparency
               </h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Complete documentation of every trade, every regime shift,
-                every win and loss. The track record is fully auditable with
-                time-weighted returns.
+                Actual executed trades documented in real-time with complete auditability.
+                Track record includes time-weighted returns, trade-level detail, and daily
+                updates—unusual disclosure for a pre-registration manager.
               </p>
             </div>
             <div className="p-6 bg-white border border-gray-200 rounded-lg">

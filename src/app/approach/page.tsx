@@ -17,9 +17,8 @@ export default function ApproachPage() {
             Our Investment Approach
           </h1>
           <p className="mt-4 text-xl text-gray-600 max-w-3xl">
-            A systematic framework designed for consistency, not prediction. Our
-            regime-based approach responds to market leadership patterns with
-            institutional discipline.
+            How the strategy works, where it fits in an institutional portfolio, and
+            what makes it different from traditional trend-following CTAs.
           </p>
         </div>
       </section>
@@ -32,26 +31,31 @@ export default function ApproachPage() {
               Methodology
             </p>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Regime-Based Framework
+              Measuring Institutional Capital Rotation
             </h2>
             <div className="space-y-4 text-gray-600 leading-relaxed">
               <p>
-                The core of our investment strategy is identifying and responding to
-                market regimes—distinct periods where specific leadership patterns
-                dominate market behavior. Rather than predicting what will happen next,
-                we systematically identify what is happening now.
+                The framework measures relative strength across risk-on sectors (technology, industrials,
+                consumer discretionary) versus risk-off sectors (utilities, staples, treasuries, gold).
+                When risk-on sectors systematically outperform on a z-score normalized basis, it signals
+                that institutional capital is rotating toward growth. When risk-off sectors lead, capital
+                is rotating toward safety.
               </p>
               <p>
-                The framework analyzes relative strength and momentum across major
-                market sectors to determine whether conditions favor risk-taking or
-                risk-avoidance. When the data indicates risk-on conditions, the strategy
-                positions for growth. When it signals risk-off, capital rotates to
-                defensive assets.
+                This isn't prediction—it's measurement. By the time the signal triggers, the rotation is
+                already underway. Large institutional portfolios can't reposition overnight. That lag creates
+                a persistent drift we can measure and follow.
               </p>
               <p>
-                This systematic approach ensures consistency, eliminates discretionary
-                risk, and provides complete transparency. Every position change is
-                documented and follows a repeatable, auditable process.
+                Regime shifts are infrequent by design. The framework requires sustained, statistically
+                significant changes in market leadership—not short-term noise. Typical signal frequency
+                is 4-8 times per year, reflecting only major structural shifts in institutional positioning.
+                Low turnover minimizes transaction costs while maintaining exposure to sustained trends.
+              </p>
+              <p>
+                Every position change follows a rules-based process with complete transparency. No predictions,
+                no discretionary overrides, no principal-agent risk. The strategy does exactly what the
+                framework signals, documented in real-time for institutional due diligence.
               </p>
             </div>
           </div>
@@ -248,31 +252,83 @@ export default function ApproachPage() {
         </div>
       </section>
 
-      {/* Research & Development */}
+      {/* Portfolio Fit */}
+      <section className="bg-gray-50 border-b border-gray-200">
+        <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
+          <div className="max-w-3xl">
+            <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mb-3">
+              Portfolio Construction
+            </p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Where It Fits in Your Portfolio
+            </h2>
+            <div className="space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                S&P 500 correlation ranges from 0.33 to 0.51 depending on program leverage—low enough
+                to provide genuine diversification, but not zero because the strategy participates in
+                equity upside during bullish regimes. This is a feature, not a bug: you get equity
+                participation during bull markets AND regime-driven protection during bear markets.
+              </p>
+              <p>
+                Bond correlation is near zero. The signal is driven by equity sector rotation, which
+                operates independently of interest rate dynamics. This makes the strategy complementary
+                to traditional 60/40 portfolios without introducing duration risk.
+              </p>
+              <p>
+                <strong className="text-gray-900">The diversification story is clearest during crises.</strong> When
+                the S&P dropped 38% in 2008, the strategy was positioned in gold. When COVID hit in March 2020,
+                the framework detected the bearish signal and rotated defensively before catching the recovery
+                rally in May 2020. This is crisis alpha—not just avoiding drawdowns, but profiting from the
+                conditions that cause them.
+              </p>
+              <p>
+                <strong className="text-gray-900">Typical allocation:</strong> 10-20% of total portfolio as part
+                of a managed futures or alternatives sleeve. For a $100 million balanced portfolio, $10-15 million
+                here improves portfolio Sharpe ratio without meaningfully increasing correlation to traditional
+                assets. It's the third leg that zigs when stocks zag, participates when stocks rally, and generates
+                alpha independent of the 60/40 framework.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How We're Different */}
       <section className="border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-20">
           <div className="max-w-3xl">
             <p className="text-sm font-medium text-emerald-600 uppercase tracking-wider mb-3">
-              Ongoing Development
+              Differentiation
             </p>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Research & Continuous Improvement
+              How This Differs from Traditional CTAs
             </h2>
             <div className="space-y-4 text-gray-600 leading-relaxed">
               <p>
-                The regime framework is not static. We continuously monitor performance,
-                analyze market structure changes, and refine the methodology based on
-                observed results—not curve-fitting to past data.
+                Most CTAs ask: <em>"Is this market trending up or down?"</em> We ask a fundamentally
+                different question: <em>"Is the overall market environment favoring growth or safety?"</em>
               </p>
               <p>
-                Our commitment is to robustness over optimization. Simple, logical
-                frameworks tend to survive changing market conditions, while complex,
-                over-fitted models break when conditions shift. Every refinement must
-                improve out-of-sample consistency, not just historical backtests.
+                Traditional trend followers trade 50-100+ individual markets, applying price-based momentum
+                signals (moving averages, breakouts) to each independently. Their diversification IS their
+                risk management—if soybeans whipsaw, hopefully crude oil is trending.
               </p>
               <p>
-                This disciplined approach to research ensures the strategy evolves
-                intelligently without sacrificing the core principles that drive its edge.
+                Our approach is the opposite. We make one macro decision—risk-on or risk-off—based on the
+                aggregate behavior of institutional capital across sectors. Then we express that single
+                decision through concentrated futures positions with maximum conviction. We're not diversified
+                across markets. We're concentrated in one high-confidence regime call.
+              </p>
+              <p>
+                The result is a strategy that's simpler, more transparent, and more understandable. An investor
+                always knows exactly what they own—either equity index futures or alternative asset futures,
+                nothing else. They can verify the thesis themselves with publicly available sector data. There's
+                no black box, no 200-market portfolio they can't track, no complex spread trades.
+              </p>
+              <p>
+                <strong className="text-gray-900">And the simplicity is the robustness.</strong> We tested 2,000+
+                parameter variations and virtually all were profitable. That doesn't happen with overfit, complex
+                systems. It happens when the underlying signal captures something structurally real.
               </p>
             </div>
           </div>
