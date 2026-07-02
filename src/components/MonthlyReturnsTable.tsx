@@ -34,11 +34,11 @@ export default function MonthlyReturnsTable({ data }: MonthlyReturnsTableProps) 
       <div className="p-6 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900">Monthly Returns</h2>
       </div>
-      <div className="overflow-x-auto">
-        <table className="returns-table min-w-full">
+      <div className="overflow-hidden">
+        <table className="returns-table">
           <thead>
             <tr>
-              <th className="sticky left-0 bg-gray-50 z-10">Year</th>
+              <th className="bg-gray-50">Year</th>
               {columns.map((col) => (
                 <th key={col}>{col}</th>
               ))}
@@ -47,7 +47,7 @@ export default function MonthlyReturnsTable({ data }: MonthlyReturnsTableProps) 
           <tbody>
             {rows.map((row) => (
               <tr key={row.Year}>
-                <td className="sticky left-0 bg-white z-10">{row.Year}</td>
+                <td className="bg-white">{row.Year}</td>
                 {columns.map((col) => {
                   const value = row[col as keyof typeof row] as number | null;
                   return (

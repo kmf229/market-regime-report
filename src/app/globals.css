@@ -12,19 +12,21 @@ body {
 
 /* Financial table styling */
 .returns-table {
-  @apply w-full text-sm;
+  @apply w-full text-xs;
+  table-layout: fixed;
 }
 
 .returns-table th {
-  @apply px-3 py-2 text-right font-semibold text-gray-600 bg-gray-50 border-b border-gray-200;
+  @apply px-2 py-2 text-right font-semibold text-gray-600 bg-gray-50 border-b border-gray-200;
 }
 
 .returns-table th:first-child {
   @apply text-left;
+  width: 60px;
 }
 
 .returns-table td {
-  @apply px-3 py-2 text-right font-mono border-b border-gray-100;
+  @apply px-2 py-2 text-right font-mono border-b border-gray-100;
 }
 
 .returns-table td:first-child {
