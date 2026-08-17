@@ -41,18 +41,18 @@ body {
   @apply bg-gray-100/50;
 }
 
-/* Mobile optimization - aggressive sizing to fit without scrolling */
+/* Mobile optimization - whole numbers without % symbols */
 @media (max-width: 640px) {
   .returns-table {
-    font-size: 8px;
+    font-size: 9px;
   }
 
   .returns-table th,
   .returns-table td {
-    @apply px-0.5 py-1;
+    @apply px-1 py-1;
   }
 
   .returns-table th:first-child {
-    width: 35px;
+    width: 38px;
   }
 }

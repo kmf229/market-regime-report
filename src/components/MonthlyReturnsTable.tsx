@@ -16,6 +16,18 @@ function formatReturn(value: number | null): string {
   return `${formatted}%`;
 }
 
+function formatReturnMobile(value: number | null): string {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+  const percent = value * 100;
+  const rounded = Math.round(percent);
+  if (value > 0) {
+    return `+${rounded}`;
+  }
+  return `${rounded}`;
+}
+
 function getValueClass(value: number | null): string {
   if (value === null || value === undefined || value === 0) {
     return "text-neutral";
@@ -55,7 +67,8 @@ export default function MonthlyReturnsTable({ data }: MonthlyReturnsTableProps) 
                   const value = row[col as keyof typeof row] as number | null;
                   return (
                     <td key={col} className={getValueClass(value)}>
-                      {formatReturn(value)}
+                      <span className="hidden sm:inline">{formatReturn(value)}</span>
+                      <span className="inline sm:hidden">{formatReturnMobile(value)}</span>
                     </td>
                   );
                 })}
