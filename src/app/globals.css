@@ -40,3 +40,19 @@ body {
 .returns-table tr:hover {
   @apply bg-gray-100/50;
 }
+
+/* Mobile optimization - aggressive sizing to fit without scrolling */
+@media (max-width: 640px) {
+  .returns-table {
+    font-size: 8px;
+  }
+
+  .returns-table th,
+  .returns-table td {
+    @apply px-0.5 py-1;
+  }
+
+  .returns-table th:first-child {
+    width: 35px;
+  }
+}

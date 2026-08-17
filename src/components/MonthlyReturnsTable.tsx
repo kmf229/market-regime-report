@@ -29,6 +29,9 @@ function getValueClass(value: number | null): string {
 export default function MonthlyReturnsTable({ data }: MonthlyReturnsTableProps) {
   const { columns, rows } = data;
 
+  // Reverse rows so current year is first
+  const reversedRows = [...rows].reverse();
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
       <div className="p-6 border-b border-gray-200">
@@ -45,7 +48,7 @@ export default function MonthlyReturnsTable({ data }: MonthlyReturnsTableProps) 
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {reversedRows.map((row) => (
               <tr key={row.Year}>
                 <td className="bg-white">{row.Year}</td>
                 {columns.map((col) => {
